@@ -20,7 +20,7 @@ const {database} = require('./database')
 
 // Config
 const PORT = 4000;
-const SESSION_SECRECT = '1)i/S>JF}6TEd3d@}"8UaW$?O-T,J%M!L8Q]jOy/6oF*3nas2DH$6G!~$gQqrm)';
+const SESSION_SECRECT = process.env.SESSIONSECRECT;
 
 // Express App
 const app = express();
