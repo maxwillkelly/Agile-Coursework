@@ -6,7 +6,18 @@ This folder contains all the code and defintions for the GraphQL API.
 - [Apollo Server](https://www.apollographql.com/docs/apollo-server/)
 - [MongoDB](https://www.mongodb.com/)
 
-# How to configure & run
+## create your dev `.env` file
+
+1. create a `.env` file in the `src` directory
+
+2. Add the following values and into the `.env` file created
+    ```
+    DBSTRING = Your MongoDB connection string
+    PORT = port to run your server on
+    SESSIONSECRECT = a long random sting of chars used for JWT encryption
+    ```
+
+## How to configure & run
 
 1. Update DB details
 Configure the `src/knexfile.js` file with the credentials of your Database, and state the Database connector you're using
