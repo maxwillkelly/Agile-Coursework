@@ -1,0 +1,31 @@
+{
+    "questionair": {
+        "_id": "ID",
+        "name": "name",
+        "questions": [
+            {
+                "_id": "ID",
+                "questionType": 1,
+                "message": "",
+                "values":[
+                    "1", "2", "3"
+                ]
+            }
+        ]
+    },
+
+    "responses": {
+        "_id": "id",
+        "questionairID": "ID of questionair this is a reponse of",
+        "fromUser": "id of user",
+        "reponseValues": [
+            {
+                "questionID": "",
+                "values": []
+            }
+        ]
+    }
+
+    
+
+}
