@@ -68,7 +68,7 @@ app.post('/login', async (req, res) => {
                 // Create token and send back
                 const token = jwt.sign({
                     ID: loginEntry._id,
-                    Position: loginEntry.permission,
+                    Level: loginEntry.level,
                     Email: loginEntry.email
                 }, SESSION_SECRECT, { expiresIn: '1h' });
                 // Get the time token will expire for user
