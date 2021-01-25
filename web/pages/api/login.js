@@ -1,7 +1,8 @@
-// import axois from 'axois';
+import axios from 'axios';
 
-const login = (data) => {
-    console.log(data);
+const loginAsync = async (data) => {
+    const response = await axios.post('http://188.34.206.120:4000/login', data);
+    return response.data;
 };
 
-export default login;
+export default loginAsync;
