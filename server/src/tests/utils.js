@@ -1,4 +1,4 @@
-const { ApolloServer } = require("apollo-server-express");
+const { ApolloServer } = require('apollo-server-express');
 const schema = require('../schema');
 
 function constructTestServer(context) {
@@ -7,7 +7,7 @@ function constructTestServer(context) {
         context: context
     });
 
-    return server
+    return server;
 }
 
 module.exports.constructTestServer = constructTestServer;
