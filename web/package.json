@@ -10,7 +10,7 @@
     "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc"
   },
   "dependencies": {
-    "axois": "^0.0.1-security",
+    "axios": "^0.21.1",
     "bootstrap": "^4.6.0",
     "formik": "^2.2.6",
     "next": "10.0.5",
