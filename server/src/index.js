@@ -3,7 +3,7 @@ Runs all the code for the API
 */
 //Env setup
 if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
+    require('dotenv').config();
 }
 
 // Server related imports
@@ -16,7 +16,8 @@ const schema = require('./schema');
 // Login and security imports
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const {database} = require('./database')
+const database = require('./database');
+
 
 // Config
 const PORT = 4000;
@@ -48,7 +49,56 @@ const context = ({ req }) => {
             auth: false
         };
     }
-};
+}
+
+// Login page
+app.post('/login', async (req, res) => {
+    var db = database.getDb();
+    /*
+    This function handles the Staff login procedure
+    */
+    // Check if body has email and password
+    if (('email' in req.body) && ('password' in req.body)) {
+        const { email, password } = req.body
+        const loginEntry = await db.collection('users').findOne({ "email": email })
+        if (loginEntry) {
+            // Check bcrypt password
+            const match = await bcrypt.compare(password, loginEntry.password)
+            if (match) {
+                // Create token and send back
+                const token = jwt.sign({
+                    ID: loginEntry.ObjectID,
+                    Position: loginEntry.permission,
+                    Email: loginEntry.email
+                }, SESSION_SECRECT, { expiresIn: '1h' });
+                // Get the time token will expire for user
+                var expire = new Date();
+                expire.setHours(expire.getHours() + 1);
+                // Send token
+                res.send({
+                    success: true,
+                    token: token,
+                    expire: expire
+                })
+            } else {
+                res.status(401).send({
+                    success: false,
+                    message: 'Incorrect credentials',
+                })
+            }
+        } else {
+            res.status(401).send({
+                success: false,
+                message: `Incorrect credentials`,
+            })
+        }
+    } else {
+        res.status(404).send({
+            success: false,
+            message: 'No / Incomplete Credentials Provided',
+        })
+    }
+})
 
 // The Apollo Server constructor, takes in Schema from Schema Builder and other prams
 const server = new ApolloServer({
@@ -63,7 +113,12 @@ const server = new ApolloServer({
 //Tell Apollo to use Express.js as a middlewhere to handle requests
 server.applyMiddleware({ app });
 
-// Start Server
-app.listen({ port: PORT }, () => {
-    console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`);
+
+
+database.connectToServer(function (err, client) {
+    if (err) console.log(err);
+    // Start Server
+    app.listen({ port: PORT }, () => {
+        console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`);
+    });
 });
