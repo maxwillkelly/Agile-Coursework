@@ -1,21 +1,19 @@
-const MongoClient = require('mongodb').MongoClient;
-const assert = require('assert');
-
-// Connection URL
-// (ToDo, move to .env before production deployment)
+// From https://stackoverflow.com/questions/24621940/how-to-properly-reuse-connection-to-mongodb-across-nodejs-application-and-module
+const MongoClient = require( 'mongodb' ).MongoClient;
 const url = process.env.DBSTRING;
-// Database Name
-const dbName = 'dev';
-// Create a new MongoClient
-const client = new MongoClient(url);
 
-// Use connect method to connect to the Server
-client.connect(function (err) {
-    assert.strictEqual(null, err);
-    console.log("Connected successfully to server");
+var _db;
 
-    module.exports = {
-        database: client.db(dbName)
-    }
-});
-  
+module.exports = {
+
+  connectToServer: function( callback ) {
+    MongoClient.connect( url,  { useNewUrlParser: true }, function( err, client ) {
+      _db  = client.db('dev');
+      return callback( err );
+    } );
+  },
+
+  getDb: function() {
+    return _db;
+  }
+};
