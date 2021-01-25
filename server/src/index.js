@@ -67,7 +67,7 @@ app.post('/login', async (req, res) => {
             if (match) {
                 // Create token and send back
                 const token = jwt.sign({
-                    ID: loginEntry.ObjectID,
+                    ID: loginEntry._id,
                     Position: loginEntry.permission,
                     Email: loginEntry.email
                 }, SESSION_SECRECT, { expiresIn: '1h' });
@@ -112,7 +112,6 @@ const server = new ApolloServer({
 
 //Tell Apollo to use Express.js as a middlewhere to handle requests
 server.applyMiddleware({ app });
-
 
 
 database.connectToServer(function (err, client) {
