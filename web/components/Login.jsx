@@ -6,6 +6,7 @@ import * as yup from 'yup';
 import Cookies from 'js-cookie';
 import { UserContext } from '../contexts';
 import loginAsync from '../pages/api/login';
+import styles from './styles/login.module.scss';
 
 const Login = () => {
     const { userToken, setUserToken } = useContext(UserContext);
@@ -35,7 +36,7 @@ const Login = () => {
     };
 
     return (
-        <Card className="m-5 p-3">
+        <Card className={`${styles.loginCard} p-4`}>
             <h3 className="text-center">Login</h3>
             <Formik
                 initialValues={{ email: '', password: '' }}
