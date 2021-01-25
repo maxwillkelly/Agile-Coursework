@@ -1,70 +1,71 @@
 import { useContext, useState } from 'react';
-import { useRouter } from 'next/router';
-import { Alert, Card, Form, Button } from 'react-bootstrap';
-import { Formik } from 'formik';
+// import { useRouter } from 'next/router';
+import { Card, Form, Button, Toast } from 'react-bootstrap';
+import { Formik, useField } from 'formik';
+import * as yup from 'yup';
 import Cookies from 'js-cookie';
 import { UserContext } from '../contexts';
 import loginAsync from '../pages/api/login';
+import styles from './styles/login.module.scss';
 
 const Login = () => {
     const { userToken, setUserToken } = useContext(UserContext);
-    const [errors, setErrors] = useState([]);
+    const [error, setError] = useState(false);
     // const router = useRouter();
 
-    const handleLogin = async (values, { setSubmitting, resetForm }) => {
+    const validationSchema = yup.object({
+        email: yup.string().required().max(128),
+        password: yup.string().required().max(128)
+    });
+
+    const loginFunc = async (values, { setSubmitting, resetForm }) => {
         setSubmitting(true);
         try {
             // eslint-disable-next-line no-unused-vars
             const res = await loginAsync(values);
-            if (res.success) {
-                resetForm();
-                setUserToken(res);
-                Cookies.set('userToken', res, { expires: new Date(res.expire) });
-                // if (typeof window !== 'undefined') router.push(routes.shift);
-                console.log('Success');
-            }
-            setErrors(res);
+            resetForm();
+            setUserToken(res);
+            Cookies.set('userToken', res, { expires: new Date(res.expire) });
+            // if (typeof window !== 'undefined') router.push(routes.shift);
+            setError(false);
         } catch (err) {
-            setErrors('Sorry: Your login credentials are not correct');
+            setError(true);
         }
+
         setSubmitting(false);
     };
 
     return (
-        <Card className="m-5 p-3">
-            <Formik initialValues={{ email: '', password: '' }} onSubmit={handleLogin}>
-                {({ values, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
-                    <Form>
-                        <Form.Group>
-                            <Form.Label>Email address</Form.Label>
-                            <Form.Control
-                                name="email"
-                                type="email"
-                                placeholder="Enter email"
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                value={values.email}
-                            />
-                        </Form.Group>
-                        <Form.Group>
-                            <Form.Label>Password</Form.Label>
-                            <Form.Control
-                                name="password"
-                                type="password"
-                                placeholder="Password"
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                value={values.password}
-                            />
-                        </Form.Group>
+        <Card className={`${styles.loginCard} p-4`}>
+            <h3 className="text-center">Login</h3>
+            <Formik
+                initialValues={{ email: '', password: '' }}
+                validationSchema={validationSchema}
+                onSubmit={loginFunc}>
+                {({ handleSubmit, isSubmitting }) => (
+                    <Form onSubmit={handleSubmit}>
+                        <TextField
+                            label="Email address"
+                            name="email"
+                            type="email"
+                            placeholder="Enter email"
+                            loginError={error}
+                        />
+                        <TextField
+                            label="Password"
+                            name="password"
+                            type="password"
+                            placeholder="Enter password"
+                            loginError={error}
+                            last={true}
+                        />
                         <Button
+                            className="float-right"
                             variant="primary"
                             type="submit"
-                            onClick={handleSubmit}
                             disabled={isSubmitting}>
                             Login
                         </Button>
-                        <LoginFooter errors={errors} />
                         {userToken && <pre>{JSON.stringify(userToken, null, 2)}</pre>}
                     </Form>
                 )}
@@ -73,14 +74,31 @@ const Login = () => {
     );
 };
 
-const LoginFooter = ({ errors }) => {
-    if (errors.length > 0)
-        return (
-            <Alert className="mt-3" variant="danger">
-                {errors}
-            </Alert>
-        );
-    return null;
+const TextField = ({ placeholder, type, loginError, last, ...props }) => {
+    const [field, meta] = useField(props);
+    // Checks for client validation error
+    let errorText = capitaliseFirstLetter(meta.error && meta.touched ? meta.error : '');
+    // Checks for server-side error
+    if (errorText === '' && loginError && last)
+        errorText = 'Sorry, your username or password is incorrect';
+
+    return (
+        <Form.Group>
+            <Form.Label>{props.label}</Form.Label>
+            <Form.Control
+                placeholder={placeholder}
+                type={type}
+                {...field}
+                isInvalid={!!errorText || loginError}
+            />
+            <Form.Control.Feedback type="invalid">{errorText}</Form.Control.Feedback>
+        </Form.Group>
+    );
+};
+
+// Credits to https://flaviocopes.com/how-to-uppercase-first-letter-javascript/
+const capitaliseFirstLetter = (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
 export default Login;
