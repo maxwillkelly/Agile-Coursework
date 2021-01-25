@@ -1,4 +1,6 @@
 import Head from 'next/head';
+import { Container } from 'react-bootstrap';
+import Login from '../components/Login';
 import styles from '../styles/index.module.scss';
 
 export default function IndexPage() {
@@ -10,7 +12,11 @@ export default function IndexPage() {
             </Head>
 
             <main className={styles.main}>
-                <h1 className={styles.title}>You work!!</h1>
+                <Container>
+                    <div className={styles.login}>
+                        <Login />
+                    </div>
+                </Container>
             </main>
         </div>
     );
