@@ -17,7 +17,9 @@ export default function IndexPage() {
                     <div className={styles.login}>
                         <Login />
                     </div>
-                    <Link href="/UserDashboard">Users</Link>
+                    <Link href="/UserDashboard">
+                        <a>Users</a>
+                    </Link>
                 </Container>
             </main>
         </div>
