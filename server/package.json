@@ -46,5 +46,9 @@
     "./**/*.js": [
       "eslint --fix"
     ]
+  },
+  "jest": {
+    "verbose": true,
+    "testTimeout": 10000
   }
 }

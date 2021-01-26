@@ -113,11 +113,9 @@ const server = new ApolloServer({
 //Tell Apollo to use Express.js as a middlewhere to handle requests
 server.applyMiddleware({ app });
 
+database.connectToServer()
 
-database.connectToServer(function (err, client) {
-    if (err) console.log(err);
-    // Start Server
-    app.listen({ port: PORT }, () => {
-        console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`);
-    });
+// Start Server
+app.listen({ port: PORT }, () => {
+    console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`);
 });
