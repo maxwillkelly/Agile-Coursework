@@ -5,7 +5,7 @@ const AddQuestionForm = () => {
     return (
         <Container>
             <Card>
-                <Formik initialValues={{ title: '', description: '' }}>
+                <Formik initialValues={{ title: '', description: '', questiontype: '' }}>
                     {({
                         values,
                         // errors,
@@ -40,6 +40,23 @@ const AddQuestionForm = () => {
                                     value={values.description}
                                 />
                             </Form.Group>
+
+                            <Form.Group>
+                                <Form.Label>Question type</Form.Label>
+                                <Form.Check
+                                    type="radio"
+                                    id="questiontype"
+                                    label="Single choice (Radio)"
+                                />
+                                <Form.Check
+                                    type="radio"
+                                    id="questiontype"
+                                    label="Multiple choice (Checkbox)"
+                                />
+                                <Form.Check type="radio" id="questiontype" label="Short answer" />
+                                <Form.Check type="radio" id="questiontype" label="Long answer" />
+                            </Form.Group>
+
                             <Button variant="primary" type="submit" disabled={isSubmitting}>
                                 Add
                             </Button>
