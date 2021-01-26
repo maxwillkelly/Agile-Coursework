@@ -172,9 +172,10 @@ const resolvers = {
                         const r = await UserCollection.updateOne({ "_id": o_id }, { $set: updateField })
                         const loginUser = await UserCollection.findOne({ "_id": o_id })
                         return {
+                            id: loginUser._id,
                             firstName: loginUser.firstName,
                             lastName: loginUser.lastName,
-                            level: loginUser.permission,
+                            level: loginUser.level,
                             email: loginUser.email,
                             permission: permLevel[loginUser.level]
                         }
