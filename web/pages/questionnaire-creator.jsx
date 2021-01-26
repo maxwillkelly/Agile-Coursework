@@ -1,6 +1,8 @@
 import Head from 'next/head';
+import { Col, Container, Row } from 'react-bootstrap';
 import TitleForm from '../components/questionnaire/TitleForm';
 import AddQuestionForm from '../components/questionnaire/AddQuestionForm';
+import AddTextSection from '../components/questionnaire/AddTextSection';
 // import styles from '../styles/questionnaire-creator.module.scss';
 
 export default function QuestionairreCreatorPage() {
@@ -12,8 +14,21 @@ export default function QuestionairreCreatorPage() {
             </Head>
 
             <main>
-                <TitleForm />
-                <AddQuestionForm />
+                <Container>
+                    <Row>
+                        <Col>
+                            <TitleForm />
+                            <AddQuestionForm />
+                            <AddTextSection />
+                        </Col>
+
+                        <Col>
+                            <TitleForm />
+                            <AddQuestionForm />
+                            <AddTextSection />
+                        </Col>
+                    </Row>
+                </Container>
             </main>
         </div>
     );
