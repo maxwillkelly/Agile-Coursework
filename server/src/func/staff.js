@@ -4,7 +4,7 @@ const { permLevel } = require('../func/permissions')
 
 async function getStaffDetails(id){
     const UserCollection = database.getDb().collection('users');
-    const o_id = new mongo.ObjectID(ctx.user.ID);
+    const o_id = new mongo.ObjectID(id);
     const loginUser = await UserCollection.findOne({ "_id": o_id })
     return {
         id: loginUser._id,
