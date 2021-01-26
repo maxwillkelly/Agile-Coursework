@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import TitleForm from '../components/questionnaire/TitleForm';
+import AddQuestionForm from '../components/questionnaire/AddQuestionForm';
 // import styles from '../styles/questionnaire-creator.module.scss';
 
 export default function QuestionairreCreatorPage() {
@@ -12,6 +13,7 @@ export default function QuestionairreCreatorPage() {
 
             <main>
                 <TitleForm />
+                <AddQuestionForm />
             </main>
         </div>
     );
