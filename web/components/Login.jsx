@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react';
 // import { useRouter } from 'next/router';
-import { Card, Form, Button, Toast } from 'react-bootstrap';
+import { Card, Form, Button } from 'react-bootstrap';
 import { Formik, useField } from 'formik';
 import * as yup from 'yup';
 import Cookies from 'js-cookie';
@@ -21,7 +21,6 @@ const Login = () => {
     const loginFunc = async (values, { setSubmitting, resetForm }) => {
         setSubmitting(true);
         try {
-            // eslint-disable-next-line no-unused-vars
             const res = await loginAsync(values);
             resetForm();
             setUserToken(res);
@@ -97,8 +96,6 @@ const TextField = ({ placeholder, type, loginError, last, ...props }) => {
 };
 
 // Credits to https://flaviocopes.com/how-to-uppercase-first-letter-javascript/
-const capitaliseFirstLetter = (str) => {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-};
+const capitaliseFirstLetter = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
 export default Login;
