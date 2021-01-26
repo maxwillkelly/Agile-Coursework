@@ -1,11 +1,24 @@
 import Head from 'next/head';
+// import { useState } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import TitleForm from '../components/questionnaire/TitleForm';
 import AddQuestionForm from '../components/questionnaire/AddQuestionForm';
 import AddTextSection from '../components/questionnaire/AddTextSection';
+import Question from '../components/questionnaire/Question';
 // import styles from '../styles/questionnaire-creator.module.scss';
 
-export default function QuestionairreCreatorPage() {
+const questions = [
+    {
+        title: 'dogshit',
+        description: 'This is some dogshit.',
+        type: 'checkbox',
+        options: ['shit', 'more shit', 'not shit']
+    }
+];
+
+const QuestionnaireCreatorPage = () => {
+    // const [questions, setQuestions] = useState([])
+
     return (
         <div>
             <Head>
@@ -14,22 +27,28 @@ export default function QuestionairreCreatorPage() {
             </Head>
 
             <main>
+                <h1>Questionnaire Page</h1>
                 <Container>
                     <Row>
                         <Col>
+                            <h5>Beens, pizza... APEX</h5>
                             <TitleForm />
+                            <h5>Add a Question</h5>
                             <AddQuestionForm />
+                            <h5>Add Paragraph Section</h5>
                             <AddTextSection />
                         </Col>
 
                         <Col>
-                            <TitleForm />
-                            <AddQuestionForm />
-                            <AddTextSection />
+                            {questions.map((question, index) => (
+                                <Question question={question} key={index} />
+                            ))}
                         </Col>
                     </Row>
                 </Container>
             </main>
         </div>
     );
-}
+};
+
+export default QuestionnaireCreatorPage;

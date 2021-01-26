@@ -12,11 +12,11 @@ const TitleForm = () => {
                         // touched,
                         handleChange,
                         handleBlur,
-                        // handleSubmit,
+                        handleSubmit,
                         isSubmitting
                     }) => (
                         // {console.log(values)}
-                        <div>
+                        <Form onSubmit={handleSubmit}>
                             <Form.Group>
                                 <Form.Label>Questionnaire Title</Form.Label>
                                 <Form.Control
@@ -43,7 +43,7 @@ const TitleForm = () => {
                             <Button variant="primary" type="submit" disabled={isSubmitting}>
                                 Save
                             </Button>
-                        </div>
+                        </Form>
                     )}
                 </Formik>
             </Card>

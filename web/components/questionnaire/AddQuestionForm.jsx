@@ -12,11 +12,11 @@ const AddQuestionForm = () => {
                         // touched,
                         handleChange,
                         handleBlur,
-                        // handleSubmit,
+                        handleSubmit,
                         isSubmitting
                     }) => (
                         // {console.log(values)}
-                        <div>
+                        <Form onSubmit={handleSubmit}>
                             <Form.Group>
                                 <Form.Label>Question Title</Form.Label>
                                 <Form.Control
@@ -60,7 +60,7 @@ const AddQuestionForm = () => {
                             <Button variant="primary" type="submit" disabled={isSubmitting}>
                                 Add
                             </Button>
-                        </div>
+                        </Form>
                     )}
                 </Formik>
             </Card>

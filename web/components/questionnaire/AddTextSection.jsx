@@ -12,11 +12,11 @@ const AddTextSection = () => {
                         // touched,
                         handleChange,
                         handleBlur,
-                        // handleSubmit,
+                        handleSubmit,
                         isSubmitting
                     }) => (
                         // {console.log(values)}
-                        <div>
+                        <Form onSubmit={handleSubmit}>
                             <Form.Group>
                                 <Form.Label>Heading</Form.Label>
                                 <Form.Control
@@ -44,7 +44,7 @@ const AddTextSection = () => {
                             <Button variant="primary" type="submit" disabled={isSubmitting}>
                                 Add
                             </Button>
-                        </div>
+                        </Form>
                     )}
                 </Formik>
             </Card>
