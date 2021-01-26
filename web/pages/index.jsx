@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import { Container } from 'react-bootstrap';
+import Link from 'next/link';
 import Login from '../components/Login';
 import styles from '../styles/index.module.scss';
 
@@ -16,6 +17,7 @@ export default function IndexPage() {
                     <div className={styles.login}>
                         <Login />
                     </div>
+                    <Link href="/UserDashboard">Users</Link>
                 </Container>
             </main>
         </div>
