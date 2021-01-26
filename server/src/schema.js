@@ -9,6 +9,7 @@ const { merge } = require('lodash');
 const { Examples, ExampleResolvers } = require('./graphql-schemas/example');
 const { Users, UserResolvers } = require('./graphql-schemas/users')
 const { Study, StudyResolvers } = require('./graphql-schemas/study')
+const { Questionnaire, QuestionnaireResolvers } = require('./graphql-schemas/questionnaire')
 // These empty Query an Mutations give a base to build off of for extending
 const Query = gql`
     type Query {
@@ -26,8 +27,8 @@ const resolvers = {};
 
 // Build Scheme with each file
 const schema = makeExecutableSchema({
-    typeDefs: [Query, Mutation, Examples, Users, Study],
-    resolvers: merge(resolvers, ExampleResolvers, UserResolvers, StudyResolvers)
+    typeDefs: [Query, Mutation, Examples, Users, Study, Questionnaire],
+    resolvers: merge(resolvers, ExampleResolvers, UserResolvers, StudyResolvers, QuestionnaireResolvers)
 });
 
 // Export as module
