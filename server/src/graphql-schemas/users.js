@@ -44,6 +44,11 @@ const typeDefs = gql`
             password: String,
             level: Int
         ): User
+
+        "Deletes user"
+        deleteUser(
+            id: ID!
+        ): User
     }
 `;
 
@@ -189,6 +194,52 @@ const resolvers = {
                 throw new ForbiddenError(
                     'Authentication token is invalid, please log in'
                 )
+            }
+        },
+
+        deleteUser: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                try {
+                    const UserCollection = database.getDb().collection('users');
+                    var o_id = new mongo.ObjectID(arg.id);
+                    const loginUser = await UserCollection.findOne({ "_id": o_id });
+                    if (loginUser) {
+                        if (ctx.user.ID == arg.id) {
+                            throw new Error(
+                                "Cannot delete current user"
+                            )
+                        }
+                        else {
+                            console.log("-----------------");
+                            console.log("-----------------");
+                            console.log(ctx.user.ID);
+                            console.log("-----------------");
+                            console.log(arg.id);
+                            console.log("-----------------");
+                            console.log("-----------------");
+                            await UserCollection.deleteOne({ "_id": o_id });
+
+                            return {
+                                id: loginUser._id,
+                                firstName: loginUser.firstName,
+                                lastName: loginUser.lastName,
+                                level: loginUser.level,
+                                email: loginUser.email,
+                                permission: permLevel[loginUser.level]
+                            }
+                        }
+                    }
+                    else {
+                        throw new Error(
+                            "User doesn't exists"
+                        )
+                    }
+                }
+                catch (err) {
+                    throw new Error(
+                        `Internal error: ${err}`
+                    )
+                }
             }
         }
     }
