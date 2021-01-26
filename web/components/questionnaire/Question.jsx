@@ -1,12 +1,16 @@
 import { Form, Container, Card, FormControl } from 'react-bootstrap';
-import { Formik } from 'formik';
+import { Formik, FieldArray } from 'formik';
 
 const Question = ({ question }) => {
     return (
         <Container>
             <Card>
                 <Formik
-                    initialValues={{ title: question.title, description: question.description }}>
+                    initialValues={{
+                        title: question.title,
+                        description: question.description,
+                        questionOptions: question.options
+                    }}>
                     {({
                         values,
                         // errors,
@@ -33,14 +37,26 @@ const Question = ({ question }) => {
                                 onBlur={handleBlur}
                                 value={values.description}
                             />
-                            {question.options.map((option, index) => (
-                                <Form.Check
-                                    type={question.type}
-                                    id="something"
-                                    label={option}
-                                    key={index}
-                                />
-                            ))}
+                            <FieldArray name="questionOptions">
+                                {
+                                    (/*arrayHelpers*/) => {
+                                        return (
+                                            <div>
+                                                {question.options.map((option, index) => (
+                                                    <FormControl
+                                                        type="text"
+                                                        name={index}
+                                                        onChange={handleChange}
+                                                        onBlur={handleBlur}
+                                                        value={option}
+                                                        key={index}
+                                                    />
+                                                ))}
+                                            </div>
+                                        );
+                                    }
+                                }
+                            </FieldArray>
                         </Form>
                     )}
                 </Formik>
