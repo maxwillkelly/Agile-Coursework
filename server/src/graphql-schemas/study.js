@@ -39,7 +39,8 @@ const typeDefs = gql`
     }
 
     extend type Query {
-        getStudy(id: ID): Study
+        getStudy(id: ID!): Study
+        getStudies: [Study]
     }
 
     extend type Mutation {
@@ -52,24 +53,86 @@ const typeDefs = gql`
 
 // Resolvers define the technique for fetching the types defined in the Schema above
 const resolvers = {
-    // Query: {
-    // },
+    Query: {
+        getStudy: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                try {
+                    const StudyCollection = database.getDb().collection('study');
+                    var o_id = new mongo.ObjectID(ctx.user.ID);
+                    var s_id = new mongo.ObjectID(arg.id);
+
+                    const currStudy = await StudyCollection.findOne({ "_id": s_id })
+                    if (currStudy) {
+                        return {
+                            id: currStudy._id,
+                            title: currStudy.title,
+                            description: currStudy.description,
+                            permissions: currStudy.permissions,
+                            staff: currStudy.staff
+                        }
+                    }
+                    else {
+                        throw new Error(
+                            "You've fucked it"
+                        )
+                    }
+                }
+                catch (err) {
+                    throw new Error(
+                        `error ${err}`
+                    )
+                }
+            }
+        },
+
+        getStudies: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                const StudyCollection = database.getDb().collection('study');
+                try{
+                    const studies = await StudyCollection.find().toArray()
+                    var replyList = []
+                    for (let x in studies) {
+                        replyList.push(
+                            {id: studies[x]._id,
+                            title: studies[x].title,
+                            description: studies[x].description,
+                            permissions: studies[x].permissions,
+                            staff: studies[x].staff
+                            }
+                        )
+                    }
+                    return replyList;
+                }
+                catch (err)
+                {
+                    throw new Error(
+                        "Internal Error"
+                    )
+                }
+            }
+            else {
+                throw new ForbiddenError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        }
+    },
 
     Mutation: {
         createNewStudy: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 if (ctx.user.Level >= 1) {
-                    try{
+                    try {
                         const StudyCollection = database.getDb().collection('study');
                         const newStudy = {
                             title: arg.study.title,
                             description: arg.study.description,
-                            permissions:{
+                            permissions: {
                                 edit: arg.study.permissions.edit,
                                 create: arg.study.permissions.create,
                                 delete: arg.study.permissions.delete
                             },
-                            staff:[
+                            staff: [
                                 {
                                     $ref: "users",
                                     $id: new mongo.ObjectID(ctx.user.ID)
@@ -77,10 +140,10 @@ const resolvers = {
                             ]
                         }
                         const response = await StudyCollection.insertOne(newStudy)
-                        return{
-                            
+                        return {
+
                         }
-                    }catch(err){
+                    } catch (err) {
                         throw new Error(
                             `error ${err}`
                         )
