@@ -8,7 +8,7 @@ This folder contains all the code and defintions for the GraphQL API.
 
 ## create your dev `.env` file
 
-1. create a `.env` file in the `src` directory
+1. create a `.env` file in the `server` directory
 
 2. Add the following values and into the `.env` file created
     ```
