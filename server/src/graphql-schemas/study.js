@@ -5,7 +5,8 @@ const { gql } = require('apollo-server-express');
 const { IdError } = require('../func/errors');
 const database = require('../database');
 const { DBRef } = require('mongodb');
-var mongo = require('mongodb');
+const mongo = require('mongodb');
+const staffHelper = require('../func/staff')
 
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
@@ -124,28 +125,49 @@ const resolvers = {
                 if (ctx.user.Level >= 1) {
                     try {
                         const StudyCollection = database.getDb().collection('study');
-                        const newStudy = {
-                            title: arg.study.title,
-                            description: arg.study.description,
-                            permissions: {
-                                edit: arg.study.permissions.edit,
-                                create: arg.study.permissions.create,
-                                delete: arg.study.permissions.delete
-                            },
-                            staff: [
-                                {
+                    const newStudy = {
+                        title: arg.study.title,
+                        description: arg.study.description,
+                        permissions: {
+                            edit: arg.study.permissions.edit,
+                            create: arg.study.permissions.create,
+                            delete: arg.study.permissions.delete
+                        },
+                        staff: [
+                            {
+                                $ref: "users",
+                                $id: new mongo.ObjectID(ctx.user.ID)
+                            }
+                        ]
+                    }
+                    if ('staff' in arg.study) {
+                        const UserCollection = database.getDb().collection('users');
+                        for (let x in arg.study.staff) {
+                            const o_id = new mongo.ObjectID(arg.study.staff[x]);
+                            const loginUser = await UserCollection.findOne({ "_id": o_id })
+                            if (loginUser) {
+                                newStudy.staff.push({
                                     $ref: "users",
-                                    $id: new mongo.ObjectID(ctx.user.ID)
-                                }
-                            ]
+                                    $id: o_id
+                                })
+                            }
                         }
-                        const response = await StudyCollection.insertOne(newStudy)
-                        return {
-
-                        }
-                    } catch (err) {
+                    }
+                    const response = await StudyCollection.insertOne(newStudy)
+                    reply = {
+                        id: response.ops[0]._id,
+                        title: response.ops[0].title,
+                        description: response.ops[0].description,
+                        permissions: response.ops[0].permissions,
+                        staff: []
+                    }
+                    for(let x in response.ops[0].staff){
+                        reply.staff.push(await staffHelper.getStaffDetails(response.ops[0].staff[x].$id))
+                    }
+                    return reply
+                    }catch(err){
                         throw new Error(
-                            `error ${err}`
+                            `Internal Error ${err}`
                         )
                     }
                 } else {
