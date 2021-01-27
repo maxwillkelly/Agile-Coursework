@@ -68,8 +68,6 @@ const resolvers = {
                     const currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
 
                     if (currQuestionnaire) {
-                        //add in question support
-
                         return {
                             id: currQuestionnaire._id,
                             title: currQuestionnaire.title,
@@ -84,7 +82,10 @@ const resolvers = {
                         `error ${err}`
                     )
                 }
-
+            }else {
+                throw new ForbiddenError(
+                    'Authentication token is invalid, please log in'
+                )
             }
         },
 
