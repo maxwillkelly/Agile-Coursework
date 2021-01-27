@@ -1,59 +1,24 @@
 import Head from 'next/head';
-import { Form, Button, Container, Card } from 'react-bootstrap';
-import { Formik } from 'formik';
+// import { useState } from 'react';
+import { Col, Container, Row } from 'react-bootstrap';
+import TitleForm from '../components/questionnaire/TitleForm';
+import AddQuestionForm from '../components/questionnaire/AddQuestionForm';
+import AddTextSection from '../components/questionnaire/AddTextSection';
+import Question from '../components/questionnaire/Question';
 // import styles from '../styles/questionnaire-creator.module.scss';
 
-const QuestionnaireTitleForm = () => {
-    return (
-        <Container>
-            <Card>
-                <Formik initialValues={{ title: '', description: '' }}>
-                    {({
-                        values,
-                        // errors,
-                        // touched,
-                        handleChange,
-                        handleBlur,
-                        // handleSubmit,
-                        isSubmitting
-                    }) => (
-                        // {console.log(values)}
-                        <div>
-                            <Form.Group>
-                                <Form.Label>Questionnaire Title</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="title"
-                                    placeholder="Enter a title"
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    value={values.title}
-                                />
-                            </Form.Group>
+const questions = [
+    {
+        title: 'dogshit',
+        description: 'This is some dogshit.',
+        type: 'checkbox',
+        options: ['shit', 'more shit', 'not shit']
+    }
+];
 
-                            <Form.Group>
-                                <Form.Label>Questionnaire Description</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="description"
-                                    placeholder="Enter a description"
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    value={values.description}
-                                />
-                            </Form.Group>
-                            <Button variant="primary" type="submit" disabled={isSubmitting}>
-                                Save
-                            </Button>
-                        </div>
-                    )}
-                </Formik>
-            </Card>
-        </Container>
-    );
-};
+const QuestionnaireCreatorPage = () => {
+    // const [questions, setQuestions] = useState([])
 
-export default function QuestionairreCreatorPage() {
     return (
         <div>
             <Head>
@@ -62,8 +27,28 @@ export default function QuestionairreCreatorPage() {
             </Head>
 
             <main>
-                <QuestionnaireTitleForm />
+                <h1>Questionnaire Page</h1>
+                <Container>
+                    <Row>
+                        <Col>
+                            <h5>Beens, pizza... APEX</h5>
+                            <TitleForm />
+                            <h5>Add a Question</h5>
+                            <AddQuestionForm />
+                            <h5>Add Paragraph Section</h5>
+                            <AddTextSection />
+                        </Col>
+
+                        <Col>
+                            {questions.map((question, index) => (
+                                <Question question={question} key={index} />
+                            ))}
+                        </Col>
+                    </Row>
+                </Container>
             </main>
         </div>
     );
-}
+};
+
+export default QuestionnaireCreatorPage;
