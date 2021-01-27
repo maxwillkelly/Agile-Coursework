@@ -1,13 +1,12 @@
 import Head from 'next/head';
-// import { useState } from 'react';
+import { useState } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import TitleForm from '../../../components/questionnaire/TitleForm';
 import AddQuestionForm from '../../../components/questionnaire/AddQuestionForm';
 import AddTextSection from '../../../components/questionnaire/AddTextSection';
 import Question from '../../../components/questionnaire/Question';
-// import styles from '../styles/questionnaire-creator.module.scss';
 
-var questions = [
+var questionArray = [
     {
         title: 'dogshit',
         description: 'This is some dogshit.',
@@ -24,7 +23,7 @@ var questions = [
 ];
 
 const QuestionnaireCreatorPage = () => {
-    // const [questions, setQuestions] = useState([])
+    const [questions, setQuestions] = useState(questionArray);
 
     return (
         <div>
@@ -38,10 +37,10 @@ const QuestionnaireCreatorPage = () => {
                 <Container>
                     <Row>
                         <Col>
-                            <h5>Beens, pizza... APEX</h5>
+                            <h5>Your Questionnaire</h5>
                             <TitleForm />
                             <h5>Add a Question</h5>
-                            <AddQuestionForm questions={questions} />
+                            <AddQuestionForm onQuestionSet={setQuestions} />
                             <h5>Add Paragraph Section</h5>
                             <AddTextSection />
                         </Col>
