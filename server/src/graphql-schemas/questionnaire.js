@@ -66,17 +66,19 @@ const resolvers = {
                     const QuestionnaireCollection = database.getDb().collection('questionaires');
                     var q_id = new mongo.ObjectID(arg.id);
                     const currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
-
                     if (currQuestionnaire) {
                         //add in question support
-
                         return {
                             id: currQuestionnaire._id,
                             title: currQuestionnaire.title,
                             description: currQuestionnaire.description,
-                            studyID: currQuestionnaire.studyID,
+                            studyID: currQuestionnaire.studyID.oid,
                             questions: currQuestionnaire.questions,
                         }
+                    } else {
+                        throw new Error(
+                            'Invalid ID'
+                        )
                     }
                 }
                 catch (err) {
@@ -102,7 +104,7 @@ const resolvers = {
                                 id: questionnaires[x]._id,
                                 title: questionnaires[x].title,
                                 description: questionnaires[x].description,
-                                studyID: questionnaires[x].studyID,
+                                studyID: questionnaires[x].studyID.oid,
                                 questions: questionnaires[x].questions
                             }
                         )
@@ -133,7 +135,6 @@ const resolvers = {
                 try {
                     var s_id = arg.studyID;
                     console.log(s_id);
-                    
                     const questionnaires = await QuestionnaireCollection.find({ studyID: s_id }).toArray()
                     var replyList = []
                     for (let x in questionnaires) {
@@ -142,7 +143,7 @@ const resolvers = {
                                 id: questionnaires[x]._id,
                                 title: questionnaires[x].title,
                                 description: questionnaires[x].description,
-                                studyID: questionnaires[x].studyID,
+                                studyID: questionnaires[x].studyID.oid,
                                 questions: questionnaires[x].questions
                             }
                         )
