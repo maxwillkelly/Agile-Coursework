@@ -47,7 +47,11 @@ const QuestionnaireCreatorPage = () => {
 
                         <Col>
                             {questions.map((question, index) => (
-                                <Question question={question} key={index} />
+                                <Question
+                                    question={question}
+                                    onQuestionSet={setQuestions}
+                                    key={index}
+                                />
                             ))}
                         </Col>
                     </Row>

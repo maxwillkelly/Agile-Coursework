@@ -1,14 +1,25 @@
 import { Button, ButtonGroup, Form, Container, Card, InputGroup } from 'react-bootstrap';
 import { Formik, FieldArray } from 'formik';
+import lodash from 'lodash';
 // import styles from '../styles/questionnaire.module.scss';
 
-const Question = ({ question }) => {
+const Question = ({ question, onQuestionSet }) => {
+    const deleteQuestion = () => {
+        onQuestionSet((state) => {
+            console.log(state);
+            const copy = lodash.cloneDeep(state);
+            copy.pop();
+            console.log(copy);
+            return copy;
+        });
+    };
+
     return (
         <Container>
             <Card className="p-0 m-5">
                 <Card.Header>
                     Question
-                    <Button variant="danger" className="float-right">
+                    <Button variant="danger" className="float-right" onClick={deleteQuestion}>
                         Delete
                     </Button>
                 </Card.Header>
@@ -33,7 +44,7 @@ const Question = ({ question }) => {
                                 <Form.Control
                                     type="text"
                                     name="title"
-                                    placeholder={question.title}
+                                    placeholder="Enter a title"
                                     onChange={handleChange}
                                     onBlur={handleBlur}
                                     value={values.title}
@@ -53,32 +64,35 @@ const Question = ({ question }) => {
                                     {(arrayHelpers) => {
                                         return (
                                             <>
-                                                {values.questionOptions.map((option, index) => (
-                                                    // <div className={styles.checkboxContainer}>
-                                                    <InputGroup className="my-3" key={index}>
-                                                        <InputGroup.Prepend>
-                                                            <QuestionPrepend question={question} />
-                                                        </InputGroup.Prepend>
-                                                        <Form.Control
-                                                            type="text"
-                                                            name={`questionOptions.${index}`}
-                                                            onChange={handleChange}
-                                                            onBlur={handleBlur}
-                                                            value={option}
-                                                            key={index}
-                                                        />
-                                                        <InputGroup.Append>
-                                                            <Button
-                                                                variant="danger"
-                                                                onClick={() =>
-                                                                    arrayHelpers.remove(index)
-                                                                }>
-                                                                Delete
-                                                            </Button>
-                                                        </InputGroup.Append>
-                                                    </InputGroup>
-                                                    // </div>
-                                                ))}
+                                                {values.questionOptions &&
+                                                    values.questionOptions.map((option, index) => (
+                                                        // <div className={styles.checkboxContainer}>
+                                                        <InputGroup className="my-3" key={index}>
+                                                            <InputGroup.Prepend>
+                                                                <QuestionPrepend
+                                                                    question={question}
+                                                                />
+                                                            </InputGroup.Prepend>
+                                                            <Form.Control
+                                                                type="text"
+                                                                name={`questionOptions.${index}`}
+                                                                onChange={handleChange}
+                                                                onBlur={handleBlur}
+                                                                value={option}
+                                                                key={index}
+                                                            />
+                                                            <InputGroup.Append>
+                                                                <Button
+                                                                    variant="danger"
+                                                                    onClick={() =>
+                                                                        arrayHelpers.remove(index)
+                                                                    }>
+                                                                    Delete
+                                                                </Button>
+                                                            </InputGroup.Append>
+                                                        </InputGroup>
+                                                        // </div>
+                                                    ))}
                                                 <ButtonGroup className="mt-3 float-right">
                                                     <Button
                                                         className="mr-2"
