@@ -1,11 +1,17 @@
-import styles from '../../styles/users.module.scss';
-export const UserListSingle = ({ user }) => {
+import { useState } from 'react';
+import { Button } from 'react-bootstrap';
+import styles from '../../styles/admin.module.scss';
+export const UserListSingle = ({ user, setSelectedUser }) => {
     return (
-        <div className={styles.card}>
-            <h3 className={styles.name}>
-                Name: {user.firstName} {user.lastName}
-            </h3>
-            <h3 className={styles.role}>Role: {user.permission}</h3>
-        </div>
+        <li className={styles.listItem} onClick={() => setSelectedUser(user)} aria-hidden="true">
+            <div className={styles.listContent}>
+                <h4 className={styles.listItem__name}>
+                    {user.firstName} {user.lastName}
+                </h4>
+                <h4 className={styles.listItem__role}>{user.permission}</h4>
+            </div>
+        </li>
     );
 };
+
+export default UserListSingle;
