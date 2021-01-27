@@ -27,8 +27,7 @@ const AddQuestionForm = ({ onQuestionSet }) => {
                         // touched,
                         handleChange,
                         handleBlur,
-                        handleSubmit,
-                        isSubmitting
+                        handleSubmit
                     }) => (
                         // {console.log(values)
                         <Form onSubmit={handleSubmit}>
@@ -90,7 +89,7 @@ const AddQuestionForm = ({ onQuestionSet }) => {
                                 />
                             </Form.Group>
 
-                            <Button variant="primary" type="submit" disabled={isSubmitting}>
+                            <Button variant="primary" type="submit">
                                 Add
                             </Button>
                         </Form>
