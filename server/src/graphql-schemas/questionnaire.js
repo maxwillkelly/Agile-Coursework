@@ -47,7 +47,13 @@ const typeDefs = gql`
 
     extend type Mutation {
         "Create a new Questionnaire"
-        createQuestionair(questionnaire: QuestionnaireInput!): Questionnaire
+        createQuestionair(
+            questionnaire: QuestionnaireInput!
+        ): Questionnaire
+        "Remove as questionnaire"
+        removeQuestionnaire(
+            questionnaireID: ID!
+        ): Questionnaire
         "Add a question in Questionnaire"
         addQuestion(
             questionnaireID: ID!
@@ -275,7 +281,7 @@ const resolvers = {
                     }
                 } catch (err) {
                     throw new Error(
-                        "Internal Error"
+                        `internal Error ${err}`
                     )
                 }
             } else {
@@ -307,7 +313,7 @@ const resolvers = {
                 if (!staffInStudy) {
                     throw new ForbiddenError("User not part of study")
                 }
-                if (ctx.user.Level < studyDetails.permissions.create) {
+                if (ctx.user.Level < studyDetails.permissions.edit) {
                     throw new ForbiddenError("Invalid Permissions")
                 }
 
@@ -330,7 +336,7 @@ const resolvers = {
                             questions: currQuestionnaire.questions,
                         }
                     }
-                }catch(err){
+                } catch (err) {
                     throw new Error(
                         `Internal Error ${err}`
                     )
@@ -340,8 +346,53 @@ const resolvers = {
                     'Authentication token is invalid, please log in'
                 )
             }
-        }
-
+        },
+        removeQuestionnaire: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                const QuestionnaireCollection = database.getDb().collection('questionaires');
+                const StudyCollection = database.getDb().collection('study');
+                const q_id = new mongo.ObjectID(arg.questionnaireID);
+                const staff_id = new mongo.ObjectID(ctx.user.ID);
+                var currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
+                if (!currQuestionnaire) {
+                    throw new Error("Invalid questionnaireID")
+                }
+                const studyDetails = await StudyCollection.findOne({ "_id": currQuestionnaire.studyID.oid })
+                if (!studyDetails) {
+                    throw new Error("Unable to find linked study")
+                }
+                var staffInStudy = false
+                for (let x in studyDetails.staff) {
+                    if (studyDetails.staff[x].oid.equals(staff_id)) {
+                        staffInStudy = true
+                    }
+                }
+                if (!staffInStudy) {
+                    throw new ForbiddenError("User not part of study")
+                }
+                if (ctx.user.Level < studyDetails.permissions.delete) {
+                    throw new ForbiddenError("Invalid Permissions")
+                }
+                try {
+                    await QuestionnaireCollection.deleteOne({ "_id": q_id });
+                    return {
+                        id: currQuestionnaire._id,
+                        title: currQuestionnaire.title,
+                        description: currQuestionnaire.description,
+                        studyID: currQuestionnaire.studyID.oid,
+                        questions: currQuestionnaire.questions,
+                    }
+                } catch (err) {
+                    throw new Error(
+                        `Internal error: ${err}`
+                    )
+                }
+            } else {
+                throw new ForbiddenError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        },
     }
 };
 
