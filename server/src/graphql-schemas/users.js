@@ -3,18 +3,17 @@ Defines all the Scheme for Product related GraphQL functions
 */
 const { gql, ForbiddenError } = require('apollo-server-express');
 const database = require('../database');
-const { permLevel } = require('../func/permissions')
+const { permLevel } = require('../func/permissions');
 const bcrypt = require('bcrypt');
 var mongo = require('mongodb');
 
-
 const typeDefs = gql`
     type User {
-        id: ID,
-        firstName: String,
-        lastName: String,
-        level: Int,
-        permission: String,
+        id: ID
+        firstName: String
+        lastName: String
+        level: Int
+        permission: String
         email: String
     }
 
@@ -25,30 +24,28 @@ const typeDefs = gql`
         getUsers: [User]
     }
 
-    extend type Mutation{
+    extend type Mutation {
         "Creates new user in db"
         setNewUser(
-            firstName: String!,
-            lastName: String!,
-            email: String!,
-            password: String!,
-            level: Int
+            firstName: String!
+            lastName: String!
+            email: String!
+            password: String!
+            level: Int!
         ): User
 
         "Updates user in db"
         updateUser(
-            id: ID!,
-            firstName: String,
-            lastName: String,
-            email: String,
-            password: String,
+            id: ID!
+            firstName: String
+            lastName: String
+            email: String
+            password: String
             level: Int
         ): User
 
         "Deletes user"
-        deleteUser(
-            id: ID!
-        ): User
+        deleteUser(id: ID!): User
     }
 `;
 
@@ -59,7 +56,7 @@ const resolvers = {
                 try {
                     const UserCollection = database.getDb().collection('users');
                     var o_id = new mongo.ObjectID(ctx.user.ID);
-                    const loginUser = await UserCollection.findOne({ "_id": o_id })
+                    const loginUser = await UserCollection.findOne({ _id: o_id });
                     return {
                         id: loginUser._id,
                         firstName: loginUser.firstName,
@@ -67,16 +64,12 @@ const resolvers = {
                         level: loginUser.level,
                         email: loginUser.email,
                         permission: permLevel[loginUser.level]
-                    }
+                    };
                 } catch (err) {
-                    throw new Error(
-                        "Internal Error"
-                    )
+                    throw new Error('Internal Error');
                 }
             } else {
-                throw new ForbiddenError(
-                    'Authentication token is invalid, please log in'
-                )
+                throw new ForbiddenError('Authentication token is invalid, please log in');
             }
         },
 
@@ -85,8 +78,8 @@ const resolvers = {
                 const UserCollection = database.getDb().collection('users');
                 var o_id = new mongo.ObjectID(ctx.user.ID);
                 try {
-                    const users = await UserCollection.find().toArray()
-                    var replyList = []
+                    const users = await UserCollection.find().toArray();
+                    var replyList = [];
                     for (let x in users) {
                         replyList.push({
                             id: users[x]._id,
@@ -95,18 +88,14 @@ const resolvers = {
                             level: users[x].level,
                             email: users[x].email,
                             permission: permLevel[users[x].level]
-                        })
+                        });
                     }
-                    return replyList
+                    return replyList;
                 } catch (err) {
-                    throw new Error(
-                        "Internal Error"
-                    )
+                    throw new Error('Internal Error');
                 }
             } else {
-                throw new ForbiddenError(
-                    'Authentication token is invalid, please log in'
-                )
+                throw new ForbiddenError('Authentication token is invalid, please log in');
             }
         }
     },
@@ -122,8 +111,8 @@ const resolvers = {
                         email: arg.email,
                         level: arg.level,
                         password: hashPass
-                    })
-                    const insertedData = r.ops[0]
+                    });
+                    const insertedData = r.ops[0];
                     return {
                         id: insertedData._id,
                         firstName: insertedData.firstName,
@@ -131,18 +120,12 @@ const resolvers = {
                         level: insertedData.level,
                         permission: permLevel[insertedData.level],
                         email: insertedData.email
-                    }
+                    };
+                } else {
+                    throw new ForbiddenError('Insufficient permission level');
                 }
-                else {
-                    throw new ForbiddenError(
-                        'Insufficient permission level'
-                    )
-                }
-            }
-            else {
-                throw new ForbiddenError(
-                    'Authentication token is invalid, please log in'
-                )
+            } else {
+                throw new ForbiddenError('Authentication token is invalid, please log in');
             }
         },
 
@@ -151,26 +134,29 @@ const resolvers = {
                 if (ctx.user.Level >= 2) {
                     const UserCollection = database.getDb().collection('users');
                     var o_id = new mongo.ObjectID(ctx.user.ID);
-                    const loginUser = await UserCollection.findOne({ "_id": o_id })
+                    const loginUser = await UserCollection.findOne({ _id: o_id });
                     if (loginUser) {
-                        var updateField = {}
+                        var updateField = {};
                         if ('firstName' in arg) {
-                            updateField.firstName = arg.firstName
+                            updateField.firstName = arg.firstName;
                         }
                         if ('lastName' in arg) {
-                            updateField.lastName = arg.lastName
+                            updateField.lastName = arg.lastName;
                         }
                         if ('email' in arg) {
-                            updateField.email = arg.email
+                            updateField.email = arg.email;
                         }
                         if ('level' in arg) {
-                            updateField.level = arg.level
+                            updateField.level = arg.level;
                         }
                         if ('password' in arg) {
                             updateField.password = await bcrypt.hash(arg.password, 12);
                         }
-                        const r = await UserCollection.updateOne({ "_id": o_id }, { $set: updateField })
-                        const loginUser = await UserCollection.findOne({ "_id": o_id })
+                        const r = await UserCollection.updateOne(
+                            { _id: o_id },
+                            { $set: updateField }
+                        );
+                        const loginUser = await UserCollection.findOne({ _id: o_id });
                         return {
                             id: loginUser._id,
                             firstName: loginUser.firstName,
@@ -178,23 +164,15 @@ const resolvers = {
                             level: loginUser.level,
                             email: loginUser.email,
                             permission: permLevel[loginUser.level]
-                        }
+                        };
                     } else {
-                        throw new Error(
-                            'user ID invalid'
-                        )
+                        throw new Error('user ID invalid');
                     }
+                } else {
+                    throw new ForbiddenError('Insufficient permission level');
                 }
-                else {
-                    throw new ForbiddenError(
-                        'Insufficient permission level'
-                    )
-                }
-            }
-            else {
-                throw new ForbiddenError(
-                    'Authentication token is invalid, please log in'
-                )
+            } else {
+                throw new ForbiddenError('Authentication token is invalid, please log in');
             }
         },
 
@@ -203,22 +181,19 @@ const resolvers = {
                 try {
                     const UserCollection = database.getDb().collection('users');
                     var o_id = new mongo.ObjectID(arg.id);
-                    const loginUser = await UserCollection.findOne({ "_id": o_id });
+                    const loginUser = await UserCollection.findOne({ _id: o_id });
                     if (loginUser) {
                         if (ctx.user.ID == arg.id) {
-                            throw new Error(
-                                "Cannot delete current user"
-                            )
-                        }
-                        else {
-                            console.log("-----------------");
-                            console.log("-----------------");
+                            throw new Error('Cannot delete current user');
+                        } else {
+                            console.log('-----------------');
+                            console.log('-----------------');
                             console.log(ctx.user.ID);
-                            console.log("-----------------");
+                            console.log('-----------------');
                             console.log(arg.id);
-                            console.log("-----------------");
-                            console.log("-----------------");
-                            await UserCollection.deleteOne({ "_id": o_id });
+                            console.log('-----------------');
+                            console.log('-----------------');
+                            await UserCollection.deleteOne({ _id: o_id });
 
                             return {
                                 id: loginUser._id,
@@ -227,19 +202,13 @@ const resolvers = {
                                 level: loginUser.level,
                                 email: loginUser.email,
                                 permission: permLevel[loginUser.level]
-                            }
+                            };
                         }
+                    } else {
+                        throw new Error("User doesn't exists");
                     }
-                    else {
-                        throw new Error(
-                            "User doesn't exists"
-                        )
-                    }
-                }
-                catch (err) {
-                    throw new Error(
-                        `Internal error: ${err}`
-                    )
+                } catch (err) {
+                    throw new Error(`Internal error: ${err}`);
                 }
             }
         }
@@ -249,4 +218,4 @@ const resolvers = {
 module.exports = {
     Users: typeDefs,
     UserResolvers: resolvers
-}
+};

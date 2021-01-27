@@ -21,7 +21,7 @@ const UserDashboard = () => {
             <Head>
                 <title>UserDashboard</title>
             </Head>
-            <div className="m-4">
+            <div className={styles.userDashboard}>
                 <div className="user-list">
                     <h3 className={styles.sectionHeader}>Users</h3>
                     <UserList users={data.getUsers} />
