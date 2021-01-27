@@ -36,6 +36,10 @@ extend type Query {
     getResponse(id:ID!): Response
     getResponses(questionnaireInputID: ID!): [Response]
 }
+
+extend type Mutation{
+    deleteResponse(id:ID!): Response
+}
 `;
 
 const resolvers = {
@@ -88,7 +92,7 @@ const resolvers = {
                     // dbref this shit
                     var q_id = arg.questionnaireInputID
                     console.log(`${q_id} == ${arg.questionnaireInputID}`)
-                    const responses = await ResponseCollection.find({questionnaireID: q_id}).toArray();
+                    const responses = await ResponseCollection.find({ questionnaireID: q_id }).toArray();
                     console.log("----------------------");
                     console.log(responses);
                     console.log("----------------------");
@@ -97,7 +101,7 @@ const resolvers = {
                         for (let x in responses) {
                             responseList.push(
                                 {
-                                    id:responses[x]._id,
+                                    id: responses[x]._id,
                                     questionnaireID: responses[x].questionnaireID,
                                     responses: responses[x].responses
                                 }
@@ -116,8 +120,36 @@ const resolvers = {
                 }
             }
         }
-    }
+    },
 
+    Mutation: {
+
+        deleteResponse: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                try {
+                    const ResponseCollection = database.getDb().collection('responses');
+                    var r_id = new mongo.ObjectID(arg.id);
+                    const currResponse = await ResponseCollection.findOne({ _id: r_id });
+                    if (currResponse) {
+                        await ResponseCollection.deleteOne({ _id: r_id });
+
+                        return {
+                            id: currResponse._id,
+                            questionnaireID: currResponse.questionnaireID,
+                            responses: currResponse.responses,
+                            action: "completed it mate"
+                        }
+                    } else {
+                        throw new Error("Response doesn't exists");
+                    }
+                } catch (err) {
+                    throw new Error(`Internal error: ${err}`)
+                }
+            } else {
+                throw new ForbiddenError('Authentication token is invalid, please log in');
+            }
+        }
+    }
 
 
 };
