@@ -1,11 +1,11 @@
 /*
-Defines all the Scheme for Product related GraphQL functions
+Defines all the Scheme for User related GraphQL functions
 */
-const { gql, ForbiddenError } = require('apollo-server-express');
+const { gql, AuthenticationError, ForbiddenError } = require('apollo-server-express');
 const database = require('../database');
 const { permLevel } = require('../func/permissions')
 const bcrypt = require('bcrypt');
-var mongo = require('mongodb');
+const mongo = require('mongodb');
 
 
 const typeDefs = gql`
@@ -13,7 +13,9 @@ const typeDefs = gql`
         id: ID,
         firstName: String,
         lastName: String,
+        "Permission Level user at as an int"
         level: Int,
+        "Permission Level user at as a string"
         permission: String,
         email: String
     }
@@ -32,6 +34,7 @@ const typeDefs = gql`
             lastName: String!,
             email: String!,
             password: String!,
+            "Permission level of user as an int between 0-2 inclusive"
             level: Int
         ): User
 
@@ -110,6 +113,7 @@ const resolvers = {
             }
         }
     },
+
     Mutation: {
         setNewUser: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
@@ -132,14 +136,12 @@ const resolvers = {
                         permission: permLevel[insertedData.level],
                         email: insertedData.email
                     }
-                }
-                else {
-                    throw new ForbiddenError(
+                } else {
+                    throw new AuthenticationError(
                         'Insufficient permission level'
                     )
                 }
-            }
-            else {
+            } else {
                 throw new ForbiddenError(
                     'Authentication token is invalid, please log in'
                 )
@@ -156,17 +158,13 @@ const resolvers = {
                         var updateField = {}
                         if ('firstName' in arg) {
                             updateField.firstName = arg.firstName
-                        }
-                        if ('lastName' in arg) {
+                        } if ('lastName' in arg) {
                             updateField.lastName = arg.lastName
-                        }
-                        if ('email' in arg) {
+                        } if ('email' in arg) {
                             updateField.email = arg.email
-                        }
-                        if ('level' in arg) {
+                        } if ('level' in arg) {
                             updateField.level = arg.level
-                        }
-                        if ('password' in arg) {
+                        } if ('password' in arg) {
                             updateField.password = await bcrypt.hash(arg.password, 12);
                         }
                         const r = await UserCollection.updateOne({ "_id": o_id }, { $set: updateField })
@@ -184,14 +182,12 @@ const resolvers = {
                             'user ID invalid'
                         )
                     }
-                }
-                else {
-                    throw new ForbiddenError(
+                } else {
+                    throw new AuthenticationError(
                         'Insufficient permission level'
                     )
                 }
-            }
-            else {
+            } else {
                 throw new ForbiddenError(
                     'Authentication token is invalid, please log in'
                 )
@@ -209,17 +205,8 @@ const resolvers = {
                             throw new Error(
                                 "Cannot delete current user"
                             )
-                        }
-                        else {
-                            console.log("-----------------");
-                            console.log("-----------------");
-                            console.log(ctx.user.ID);
-                            console.log("-----------------");
-                            console.log(arg.id);
-                            console.log("-----------------");
-                            console.log("-----------------");
+                        } else {
                             await UserCollection.deleteOne({ "_id": o_id });
-
                             return {
                                 id: loginUser._id,
                                 firstName: loginUser.firstName,
@@ -229,14 +216,12 @@ const resolvers = {
                                 permission: permLevel[loginUser.level]
                             }
                         }
-                    }
-                    else {
+                    } else {
                         throw new Error(
                             "User doesn't exists"
                         )
                     }
-                }
-                catch (err) {
+                } catch (err) {
                     throw new Error(
                         `Internal error: ${err}`
                     )
