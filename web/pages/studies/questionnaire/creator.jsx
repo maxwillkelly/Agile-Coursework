@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import { useState } from 'react';
+// import { useQuery } from '@apollo/client';
 import { Col, Container, Row } from 'react-bootstrap';
 import TitleForm from '../../../components/questionnaire/TitleForm';
 import AddQuestionForm from '../../../components/questionnaire/AddQuestionForm';
@@ -31,7 +32,7 @@ const QuestionnaireCreatorPage = () => {
         <div>
             <Head>
                 <title>Create a Questionnaire</title>
-                <link rel="icon" href="favivon.ico" />
+                <link rel="icon" href="favicon.ico" />
             </Head>
             <Navigation />
             <main>

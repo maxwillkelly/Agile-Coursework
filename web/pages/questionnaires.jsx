@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { useQuery } from '@apollo/client';
 import { Button, Container, ListGroup, Row, Col } from 'react-bootstrap';
 import Navigation from '../components/Navigation';
-import { GET_QUESTIONNAIRES } from '../queries/questionnaires';
+import { GET_QUESTIONNAIRES } from '../queries/questionnaire';
 
 const QuestionnairesPage = () => {
     const router = useRouter();
