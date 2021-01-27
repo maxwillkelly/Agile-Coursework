@@ -134,7 +134,7 @@ const resolvers = {
             if (ctx.auth) {
                 if (ctx.user.Level >= 2) {
                     const UserCollection = database.getDb().collection('users');
-                    var o_id = new mongo.ObjectID(ctx.user.ID);
+                    var o_id = new mongo.ObjectID(arg.id);
                     const loginUser = await UserCollection.findOne({ _id: o_id });
                     if (loginUser) {
                         var updateField = {};
