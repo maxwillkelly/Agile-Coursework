@@ -1,5 +1,5 @@
 import Head from 'next/head';
-// import { useState } from 'react';
+import { useState } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import TitleForm from '../../../components/questionnaire/TitleForm';
 import AddQuestionForm from '../../../components/questionnaire/AddQuestionForm';
@@ -8,17 +8,24 @@ import Question from '../../../components/questionnaire/Question';
 import Navigation from '../../../components/Navigation';
 // import styles from '../../../styles/questionnaire-creator.module.scss';
 
-const questions = [
+var questionArray = [
     {
         title: 'dogshit',
         description: 'This is some dogshit.',
         type: 'checkbox',
         options: ['shit', 'more shit', 'not shit']
+    },
+
+    {
+        title: 'Another question',
+        description: 'This is another question.',
+        type: 'radio',
+        options: ['button', 'another button', 'still a button']
     }
 ];
 
 const QuestionnaireCreatorPage = () => {
-    // const [questions, setQuestions] = useState([])
+    const [questions, setQuestions] = useState(questionArray);
 
     return (
         <div>
@@ -32,17 +39,21 @@ const QuestionnaireCreatorPage = () => {
                 <Container>
                     <Row>
                         <Col>
-                            <h5>Beens, pizza... APEX</h5>
+                            <h5>Your Questionnaire</h5>
                             <TitleForm />
                             <h5>Add a Question</h5>
-                            <AddQuestionForm />
+                            <AddQuestionForm onQuestionSet={setQuestions} />
                             <h5>Add Paragraph Section</h5>
                             <AddTextSection />
                         </Col>
 
                         <Col>
                             {questions.map((question, index) => (
-                                <Question question={question} key={index} />
+                                <Question
+                                    question={question}
+                                    onQuestionSet={setQuestions}
+                                    key={index}
+                                />
                             ))}
                         </Col>
                     </Row>
