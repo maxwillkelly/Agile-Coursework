@@ -1,16 +1,24 @@
 import { useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form, Modal } from 'react-bootstrap';
 import { useMutation } from '@apollo/client';
 import SET_NEW_USER from '../../mutations/setNewUser';
 
-export const UserForm = () => {
+export const UserForm = ({ setSuccessVal, setAlertVisibility, handleClose }) => {
     const [userDetails, setUserDetails] = useState({});
     const [setNewUser, { loading, error, data }] = useMutation(SET_NEW_USER);
 
     const handleUserCreate = (e) => {
         e.preventDefault();
 
-        setNewUser({ variables: { ...userDetails, level: parseInt(userDetails.level) } });
+        setNewUser({ variables: { ...userDetails, level: parseInt(userDetails.level) || 0 } })
+            .then(() => {
+                setSuccessVal(true);
+                setAlertVisibility(true);
+            })
+            .catch(() => {
+                setSuccessVal(false);
+                setAlertVisibility(true);
+            });
     };
 
     return (
@@ -59,18 +67,49 @@ export const UserForm = () => {
                 <Form.Label>Role</Form.Label>
                 <Form.Control
                     as="select"
-                    value={parseInt(userDetails.level) || 0}
+                    value={userDetails.level || 0}
                     onChange={(e) =>
                         setUserDetails((prev) => ({ ...prev, level: e.target.value }))
                     }>
-                    <option value={0}>Co-Researcher</option>
+                    <option value={0} selected>
+                        Co-Researcher
+                    </option>
                     <option value={1}>Researcher</option>
                     <option value={2}>Lab Manager</option>
                 </Form.Control>
             </Form.Group>
-            <Button type="submit" variant="primary">
+            <Button type="submit" variant="success" onClick={handleClose}>
                 Create
             </Button>
         </Form>
     );
 };
+
+export const CreateModal = ({ setSuccessVal, setAlertVisibility }) => {
+    const [visible, setVisible] = useState(false);
+    const handleClose = () => setVisible(false);
+    const handleShow = () => setVisible(true);
+
+    return (
+        <div>
+            <Button onClick={handleShow}>Create User</Button>
+            <Modal show={visible} onHide={handleClose} backdrop="static" keyboard={false}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Create A New User</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <UserForm
+                        setSuccessVal={setSuccessVal}
+                        setAlertVisibility={setAlertVisibility}
+                        handleClose={handleClose}
+                    />
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button onClick={handleClose}>Cancel</Button>
+                </Modal.Footer>
+            </Modal>
+        </div>
+    );
+};
+
+export default CreateModal;
