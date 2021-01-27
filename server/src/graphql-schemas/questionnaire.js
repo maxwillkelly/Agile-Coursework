@@ -53,6 +53,12 @@ const typeDefs = gql`
             questionnaireID: ID!
             question: QuestionInput!
         ): Questionnaire
+        "edit basic details of a Questionnaire"
+        editQuestionnaire(
+            questionnaireID: ID!
+            title: String
+            description: String
+        ): Questionnaire
     }
 `;
 
@@ -66,17 +72,19 @@ const resolvers = {
                     const QuestionnaireCollection = database.getDb().collection('questionaires');
                     var q_id = new mongo.ObjectID(arg.id);
                     const currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
-
                     if (currQuestionnaire) {
                         //add in question support
-
                         return {
                             id: currQuestionnaire._id,
                             title: currQuestionnaire.title,
                             description: currQuestionnaire.description,
-                            studyID: currQuestionnaire.studyID,
+                            studyID: currQuestionnaire.studyID.oid,
                             questions: currQuestionnaire.questions,
                         }
+                    } else {
+                        throw new Error(
+                            'Invalid ID'
+                        )
                     }
                 }
                 catch (err) {
@@ -90,36 +98,34 @@ const resolvers = {
 
         getQuestionnaires: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
-                if(ctx.user.level >=2)
-                {
-                try {
-                    const QuestionnaireCollection = database.getDb().collection('questionaires');
-                    const questionnaires = await QuestionnaireCollection.find().toArray()
-                    var replyList = []
-                    for (let x in questionnaires) {
-                        replyList.push(
-                            {
-                                id: questionnaires[x]._id,
-                                title: questionnaires[x].title,
-                                description: questionnaires[x].description,
-                                studyID: questionnaires[x].studyID,
-                                questions: questionnaires[x].questions
-                            }
+                if (ctx.user.level >= 2) {
+                    try {
+                        const QuestionnaireCollection = database.getDb().collection('questionaires');
+                        const questionnaires = await QuestionnaireCollection.find().toArray()
+                        var replyList = []
+                        for (let x in questionnaires) {
+                            replyList.push(
+                                {
+                                    id: questionnaires[x]._id,
+                                    title: questionnaires[x].title,
+                                    description: questionnaires[x].description,
+                                    studyID: questionnaires[x].studyID.oid,
+                                    questions: questionnaires[x].questions
+                                }
+                            )
+                        }
+                        return replyList
+                    } catch (err) {
+                        throw new Error(
+                            `${err}`
                         )
                     }
-                    return replyList
-                } catch (err) {
-                    throw new Error(
-                        `${err}`
+                }
+                else {
+                    throw new ForbiddenError(
+                        'Not high enough clearance level'
                     )
                 }
-            }
-            else
-            {
-                throw new ForbiddenError(
-                    'Not high enough clearance level'
-                )
-            }
             } else {
                 throw new ForbiddenError(
                     'Authentication token is invalid, please log in'
@@ -133,7 +139,6 @@ const resolvers = {
                 try {
                     var s_id = arg.studyID;
                     console.log(s_id);
-                    
                     const questionnaires = await QuestionnaireCollection.find({ studyID: s_id }).toArray()
                     var replyList = []
                     for (let x in questionnaires) {
@@ -142,7 +147,7 @@ const resolvers = {
                                 id: questionnaires[x]._id,
                                 title: questionnaires[x].title,
                                 description: questionnaires[x].description,
-                                studyID: questionnaires[x].studyID,
+                                studyID: questionnaires[x].studyID.oid,
                                 questions: questionnaires[x].questions
                             }
                         )
@@ -154,8 +159,7 @@ const resolvers = {
                     )
                 }
             }
-            else
-            {
+            else {
                 throw new ForbiddenError(
                     'Authentication token is invalid, please log in'
                 )
@@ -219,6 +223,69 @@ const resolvers = {
 
         addQuestion: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
+                try {
+                    const QuestionnaireCollection = database.getDb().collection('questionaires');
+                    const StudyCollection = database.getDb().collection('study');
+                    const q_id = new mongo.ObjectID(arg.questionnaireID);
+                    const staff_id = new mongo.ObjectID(ctx.user.ID);
+                    var currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
+                    if (!currQuestionnaire) {
+                        throw new Error("Invalid questionnaireID")
+                    }
+                    const studyDetails = await StudyCollection.findOne({ "_id": currQuestionnaire.studyID.oid })
+                    if (!studyDetails) {
+                        throw new Error("Unable to find linked study")
+                    }
+                    var staffInStudy = false
+                    for (let x in studyDetails.staff) {
+                        if (studyDetails.staff[x].oid.equals(staff_id)) {
+                            staffInStudy = true
+                        }
+                    }
+                    if (!staffInStudy) {
+                        throw new ForbiddenError("User not part of study")
+                    }
+                    if (ctx.user.Level < studyDetails.permissions.create) {
+                        throw new ForbiddenError("Invalid Permissions")
+                    }
+                    // end of perms check
+                    newQuestion = {
+                        qID: new mongo.ObjectID(),
+                        qType: arg.question.qType,
+                        message: arg.question.message,
+                        values: arg.question.values
+                    }
+                    const response = await QuestionnaireCollection.updateOne(
+                        { "_id": q_id },
+                        {
+                            $addToSet: {
+                                questions: newQuestion
+                            }
+                        }
+                    )
+                    currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
+                    if (currQuestionnaire) {
+                        return {
+                            id: currQuestionnaire._id,
+                            title: currQuestionnaire.title,
+                            description: currQuestionnaire.description,
+                            studyID: currQuestionnaire.studyID.oid,
+                            questions: currQuestionnaire.questions,
+                        }
+                    }
+                } catch (err) {
+                    throw new Error(
+                        "Internal Error"
+                    )
+                }
+            } else {
+                throw new ForbiddenError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        },
+        editQuestionnaire: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
                 const QuestionnaireCollection = database.getDb().collection('questionaires');
                 const StudyCollection = database.getDb().collection('study');
                 const q_id = new mongo.ObjectID(arg.questionnaireID);
@@ -243,37 +310,38 @@ const resolvers = {
                 if (ctx.user.Level < studyDetails.permissions.create) {
                     throw new ForbiddenError("Invalid Permissions")
                 }
-                // end of perms check
-                newQuestion = {
-                    qID: new mongo.ObjectID(),
-                    qType: arg.question.qType,
-                    message: arg.question.message,
-                    values: arg.question.values
+
+                var updateField = {}
+                if ('title' in arg) {
+                    updateField.title = arg.title
                 }
-                const response = await QuestionnaireCollection.updateOne(
-                    { "_id": q_id },
-                    {
-                        $addToSet: {
-                            questions: newQuestion
+                if ('description' in arg) {
+                    updateField.description = arg.description
+                }
+                try {
+                    const r = await QuestionnaireCollection.updateOne({ "_id": q_id }, { $set: updateField })
+                    currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
+                    if (currQuestionnaire) {
+                        return {
+                            id: currQuestionnaire._id,
+                            title: currQuestionnaire.title,
+                            description: currQuestionnaire.description,
+                            studyID: currQuestionnaire.studyID.oid,
+                            questions: currQuestionnaire.questions,
                         }
                     }
-                )
-                currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
-                if (currQuestionnaire){
-                    return {
-                        id: currQuestionnaire._id,
-                        title: currQuestionnaire.title,
-                        description: currQuestionnaire.description,
-                        studyID: currQuestionnaire.studyID.oid,
-                        questions: currQuestionnaire.questions,
-                    }
+                }catch(err){
+                    throw new Error(
+                        `Internal Error ${err}`
+                    )
                 }
             } else {
                 throw new ForbiddenError(
                     'Authentication token is invalid, please log in'
                 )
             }
-        },
+        }
+
     }
 };
 
