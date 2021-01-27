@@ -47,7 +47,7 @@ const typeDefs = gql`
 
     extend type Mutation {
         "Create a new Questionnaire"
-        createQuestionair(questionnaire: QuestionnaireInput!): Questionnaire
+        createQuestionaire(questionnaire: QuestionnaireInput!): Questionnaire
         "Add a question in Questionnaire"
         addQuestion(
             questionnaireID: ID!
@@ -73,7 +73,6 @@ const resolvers = {
                     var q_id = new mongo.ObjectID(arg.id);
                     const currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                     if (currQuestionnaire) {
-                        //add in question support
                         return {
                             id: currQuestionnaire._id,
                             title: currQuestionnaire.title,
@@ -92,7 +91,10 @@ const resolvers = {
                         `error ${err}`
                     )
                 }
-
+            }else {
+                throw new ForbiddenError(
+                    'Authentication token is invalid, please log in'
+                )
             }
         },
 
@@ -169,7 +171,7 @@ const resolvers = {
     },
 
     Mutation: {
-        createQuestionair: async (parent, arg, ctx, info) => {
+        createQuestionaire: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 try {
                     const QuestionnaireCollection = database.getDb().collection('questionaires');
