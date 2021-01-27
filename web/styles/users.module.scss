@@ -3,20 +3,19 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: $primary;
-    color: $body-color;
     padding: 1rem;
     margin: 0.5rem 0;
     border-radius: 4px;
-    max-width: 400px;
 }
 
 .name {
     display: inline-block;
+    margin: 0.5rem;
 }
 
 .role {
     display: inline-block;
+    margin: 0.5rem;
 }
 
 .sectionHeader {
@@ -25,4 +24,17 @@
 
 .usersCreateBtn {
     background-color: $primary;
+}
+
+.userDashboard {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    max-width: $max-width;
+    margin: 0 auto;
+    padding: 1rem;
+
+    > div {
+        flex-basis: 400px;
+    }
 }
