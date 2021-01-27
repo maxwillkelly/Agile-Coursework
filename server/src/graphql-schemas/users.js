@@ -204,6 +204,8 @@ const resolvers = {
                 } catch (err) {
                     throw new Error(`Internal error: ${err}`);
                 }
+            } else {
+                throw new ForbiddenError('Authentication token is invalid, please log in');
             }
         }
     }

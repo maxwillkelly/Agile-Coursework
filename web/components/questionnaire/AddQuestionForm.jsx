@@ -1,22 +1,33 @@
 import { Form, Button, Container, Card } from 'react-bootstrap';
 import { Formik } from 'formik';
+import lodash from 'lodash';
 import styles from '../styles/questionnaire.module.scss';
 
-const AddQuestionForm = () => {
+const AddQuestionForm = ({ onQuestionSet }) => {
+    const submitValues = (values, onQuestionSet) => {
+        onQuestionSet((state) => {
+            const copy = lodash.cloneDeep(state);
+            values.options = [''];
+            copy.push(values);
+            return copy;
+        });
+    };
+
     return (
         <Container className={`${styles.questionnaireContainer}`}>
             <Card className={`${styles.questionnaireCard} p-4`}>
-                <Formik initialValues={{ title: '', description: '', questiontype: '' }}>
+                <Formik
+                    initialValues={{ title: '', description: '', type: '' }}
+                    onSubmit={(values) => submitValues(values, onQuestionSet)}>
                     {({
                         values,
                         // errors,
                         // touched,
                         handleChange,
                         handleBlur,
-                        handleSubmit,
-                        isSubmitting
+                        handleSubmit
                     }) => (
-                        // {console.log(values)}
+                        // {console.log(values)
                         <Form onSubmit={handleSubmit}>
                             <Form.Group>
                                 <Form.Label>Question Title</Form.Label>
@@ -46,19 +57,37 @@ const AddQuestionForm = () => {
                                 <Form.Label>Question type</Form.Label>
                                 <Form.Check
                                     type="radio"
-                                    id="questiontype"
+                                    name="type"
                                     label="Single choice (Radio)"
+                                    id="radio"
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    value="radio"
                                 />
                                 <Form.Check
                                     type="radio"
-                                    id="questiontype"
+                                    name="type"
+                                    id="checkbox"
                                     label="Multiple choice (Checkbox)"
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    value="checkbox"
                                 />
-                                <Form.Check type="radio" id="questiontype" label="Short answer" />
-                                <Form.Check type="radio" id="questiontype" label="Long answer" />
+                                <Form.Check
+                                    type="radio"
+                                    name="type"
+                                    id="short"
+                                    label="Short answer"
+                                />
+                                <Form.Check
+                                    type="radio"
+                                    name="type"
+                                    id="long"
+                                    label="Long answer"
+                                />
                             </Form.Group>
 
-                            <Button variant="primary" type="submit" disabled={isSubmitting}>
+                            <Button variant="primary" type="submit">
                                 Add
                             </Button>
                         </Form>
