@@ -1,11 +1,12 @@
 import Head from 'next/head';
 // import { useState } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
-import TitleForm from '../components/questionnaire/TitleForm';
-import AddQuestionForm from '../components/questionnaire/AddQuestionForm';
-import AddTextSection from '../components/questionnaire/AddTextSection';
-import Question from '../components/questionnaire/Question';
-// import styles from '../styles/questionnaire-creator.module.scss';
+import TitleForm from '../../../components/questionnaire/TitleForm';
+import AddQuestionForm from '../../../components/questionnaire/AddQuestionForm';
+import AddTextSection from '../../../components/questionnaire/AddTextSection';
+import Question from '../../../components/questionnaire/Question';
+import Navigation from '../../../components/Navigation';
+// import styles from '../../../styles/questionnaire-creator.module.scss';
 
 const questions = [
     {
@@ -25,7 +26,7 @@ const QuestionnaireCreatorPage = () => {
                 <title>Create a Questionnaire</title>
                 <link rel="icon" href="favivon.ico" />
             </Head>
-
+            <Navigation />
             <main>
                 <h1>Questionnaire Page</h1>
                 <Container>
