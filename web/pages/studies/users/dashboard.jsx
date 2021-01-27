@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { USERS_QUERY } from '../queries/users';
-import { UserListSingle } from './components/UserListSingle';
-import { UserForm } from './components/UserCreate';
+import { UserListSingle } from '../components/users/UserListSingle';
+import { UserForm } from '../components/users/UserCreate';
 import styles from '../styles/users.module.scss';
 import Head from 'next/head';
 
