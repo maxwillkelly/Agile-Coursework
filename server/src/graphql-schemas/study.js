@@ -63,6 +63,7 @@ const typeDefs = gql`
         createNewStudy(
             study: StudyInput
         ):Study
+        deleteStudy(studyID: ID!): Study
     }
 `;
 
@@ -255,6 +256,45 @@ const resolvers = {
                     )
                 }
             } else {
+                throw new ForbiddenError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        },
+        //ToDo work with study perms rather than global
+        deleteStudy: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                if (ctx.user.level >= 2) {
+                    try {
+                        const StudyCollection = database.getDb().collection('study');
+                        var s_id = new mong.ObjectID(arg.id);
+                        const currStudy = await StudyCollection.findOne({ "_id": s_id });
+                        if (currStudy) {
+                            const QuestionnaireCollection = database.getDb().collection('questionaires');
+                            const questionnaires = await QuestionnaireCollection.find({ studyID: DBRef("questionaires", s_id) }).toArray()
+
+                            if (questionnaires) {
+                                for (let x in questionnaires) {
+                                    var q_id = questionnaires[x]._id
+                                    await QuestionnaireCollection.deleteOne({ "_id": q_id })
+                                }
+                            }
+                            await StudyCollection.deleteOne({ "_id": s_id })
+                        }
+                        else {
+                            throw new Error(
+                                "Study doesn't exist"
+                            )
+                        }
+                    }
+                    catch (err) {
+                        throw new Error(
+                            `Internal error: ${err}`
+                        )
+                    }
+                }
+            }
+            else {
                 throw new ForbiddenError(
                     'Authentication token is invalid, please log in'
                 )
