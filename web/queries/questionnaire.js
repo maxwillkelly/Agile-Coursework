@@ -19,6 +19,7 @@ export const GET_QUESTIONNAIRE = gql`
 export const GET_QUESTIONNAIRES = gql`
     query {
         getQuestionnaires {
+            id
             title
             description
             studyID

@@ -1,32 +1,21 @@
 import Head from 'next/head';
-import { useState } from 'react';
-// import { useQuery } from '@apollo/client';
+import { useRouter } from 'next/router';
+import { useQuery, useMutation } from '@apollo/client';
 import { Col, Container, Row } from 'react-bootstrap';
 import TitleForm from '../../../components/questionnaire/TitleForm';
 import AddQuestionForm from '../../../components/questionnaire/AddQuestionForm';
 import AddTextSection from '../../../components/questionnaire/AddTextSection';
 import Question from '../../../components/questionnaire/Question';
 import Navigation from '../../../components/Navigation';
+import { GET_QUESTIONNAIRE } from '../../../queries/questionnaire';
 // import styles from '../../../styles/questionnaire-creator.module.scss';
 
-var questionArray = [
-    {
-        title: 'dogshit',
-        description: 'This is some dogshit.',
-        type: 'checkbox',
-        options: ['shit', 'more shit', 'not shit']
-    },
-
-    {
-        title: 'Another question',
-        description: 'This is another question.',
-        type: 'radio',
-        options: ['button', 'another button', 'still a button']
-    }
-];
-
 const QuestionnaireCreatorPage = () => {
-    const [questions, setQuestions] = useState(questionArray);
+    // const [questions, setQuestions] = useState(questionArray);
+    const router = useRouter();
+    const { loading, error, data } = useQuery(GET_QUESTIONNAIRE, {
+        variables: { id: router.query.id }
+    });
 
     return (
         <div>
@@ -44,27 +33,33 @@ const QuestionnaireCreatorPage = () => {
                     </Row>
                     <Row>
                         <Col>
-                            <h5>Your Questionnaire</h5>
-                            <TitleForm />
-                            <h5>Add a Question</h5>
-                            <AddQuestionForm onQuestionSet={setQuestions} />
-                            <h5>Add Paragraph Section</h5>
-                            <AddTextSection />
+                            {loading && <p>Loading...</p>}
+                            {error && <pre>{JSON.stringify(error, null, 2)}</pre>}
+                            {data && <QuestionnaireOptions questionnaire={data.getQuestionnaire} />}
                         </Col>
-
                         <Col>
-                            {questions.map((question, index) => (
-                                <Question
-                                    question={question}
-                                    onQuestionSet={setQuestions}
-                                    key={index}
-                                />
-                            ))}
+                            {data &&
+                                data.getQuestionnaire.questions.map((question, index) => (
+                                    <Question question={question} key={index} />
+                                ))}
                         </Col>
                     </Row>
                 </Container>
             </main>
         </div>
+    );
+};
+
+const QuestionnaireOptions = ({ questionnaire }) => {
+    return (
+        <>
+            <h5>Your Questionnaire</h5>
+            <TitleForm />
+            <h5>Add a Question</h5>
+            <AddQuestionForm questionnaire={questionnaire} />
+            <h5>Add Paragraph Section</h5>
+            <AddTextSection />
+        </>
     );
 };
 

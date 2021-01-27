@@ -1,9 +1,10 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useQuery } from '@apollo/client';
-import { Button, Container, ListGroup, Row, Col } from 'react-bootstrap';
+import { Button, ButtonGroup, Container, ListGroup } from 'react-bootstrap';
 import Navigation from '../components/Navigation';
 import { GET_QUESTIONNAIRES } from '../queries/questionnaire';
+import styles from '../styles/questionnaires.module.scss';
 
 const QuestionnairesPage = () => {
     const router = useRouter();
@@ -17,6 +18,7 @@ const QuestionnairesPage = () => {
             <Navigation />
             <main>
                 <Container className="mt-3">
+                    <h2 className="mx-3">All Questionnaires</h2>
                     <Questionnaires getQuestionnaires={getQuestionnaires} />
                     <Button
                         className="float-right mt-3"
@@ -31,6 +33,7 @@ const QuestionnairesPage = () => {
 
 const Questionnaires = ({ getQuestionnaires }) => {
     const { loading, error, data } = getQuestionnaires;
+    const router = useRouter();
 
     if (loading) return <p>Loading...</p>;
     if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
@@ -39,15 +42,25 @@ const Questionnaires = ({ getQuestionnaires }) => {
         <ListGroup>
             {data.getQuestionnaires.map((q, i) => {
                 return (
-                    <ListGroup.Item key={i}>
-                        <Row>
-                            <Col>
-                                <p>{q.title}</p>
-                            </Col>
-                            <Col>
-                                <p>{q.description}</p>
-                            </Col>
-                        </Row>
+                    <ListGroup.Item className="mt-3" key={i}>
+                        <div className={styles.questionnaireItem}>
+                            <p className="m-0">{q.title}</p>
+                            <p className="m-0">{q.description}</p>
+                            <div>
+                                <Button
+                                    variant="primary"
+                                    onClick={() => router.push(`/studies/questionnaire/${q.id}`)}>
+                                    View
+                                </Button>
+
+                                <Button
+                                    className="ml-4"
+                                    variant="secondary"
+                                    onClick={() => router.push(`/studies/questionnaire/${q.id}`)}>
+                                    Edit
+                                </Button>
+                            </div>
+                        </div>
                     </ListGroup.Item>
                 );
             })}
