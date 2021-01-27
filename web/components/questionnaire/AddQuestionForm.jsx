@@ -6,11 +6,9 @@ import styles from '../styles/questionnaire.module.scss';
 const AddQuestionForm = ({ onQuestionSet }) => {
     const submitValues = (values, onQuestionSet) => {
         onQuestionSet((state) => {
-            console.log(state);
             const copy = lodash.cloneDeep(state);
             values.options = [''];
             copy.push(values);
-            console.log(copy);
             return copy;
         });
     };
