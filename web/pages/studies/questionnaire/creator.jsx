@@ -5,6 +5,8 @@ import TitleForm from '../../../components/questionnaire/TitleForm';
 import AddQuestionForm from '../../../components/questionnaire/AddQuestionForm';
 import AddTextSection from '../../../components/questionnaire/AddTextSection';
 import Question from '../../../components/questionnaire/Question';
+import Navigation from '../../../components/Navigation';
+// import styles from '../../../styles/questionnaire-creator.module.scss';
 
 var questionArray = [
     {
@@ -31,7 +33,7 @@ const QuestionnaireCreatorPage = () => {
                 <title>Create a Questionnaire</title>
                 <link rel="icon" href="favivon.ico" />
             </Head>
-
+            <Navigation />
             <main>
                 <h1>Questionnaire Page</h1>
                 <Container>
