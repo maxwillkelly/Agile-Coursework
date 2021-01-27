@@ -86,6 +86,8 @@ const resolvers = {
 
         getQuestionnaires: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
+                if(ctx.user.level >=2)
+                {
                 try {
                     const QuestionnaireCollection = database.getDb().collection('questionaires');
                     const questionnaires = await QuestionnaireCollection.find().toArray()
@@ -107,6 +109,13 @@ const resolvers = {
                         `${err}`
                     )
                 }
+            }
+            else
+            {
+                throw new ForbiddenError(
+                    'Not high enough clearance level'
+                )
+            }
             } else {
                 throw new ForbiddenError(
                     'Authentication token is invalid, please log in'
@@ -117,7 +126,7 @@ const resolvers = {
         getStudyQuestionnaires: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const QuestionnaireCollection = database.getDb().collection('questionaires');
-                // try {
+                try {
                     var s_id = arg.studyID;
                     console.log(s_id);
                     
@@ -135,11 +144,17 @@ const resolvers = {
                         )
                     }
                     return replyList
-                // } catch (err) {
-                //     throw new Error(
-                //         `${err}`
-                //     )
-                // }
+                } catch (err) {
+                    throw new Error(
+                        `${err}`
+                    )
+                }
+            }
+            else
+            {
+                throw new ForbiddenError(
+                    'Authentication token is invalid, please log in'
+                )
             }
         }
 

@@ -35,7 +35,7 @@ const typeDefs = gql`
             email: String!,
             password: String!,
             "Permission level of user as an int between 0-2 inclusive"
-            level: Int
+            level: Int!
         ): User
 
         "Updates user in db"
