@@ -1,5 +1,5 @@
 /*
-Defines all the Scheme for Product related GraphQL functions
+Defines all the Scheme for Study related GraphQL functions
 */
 const { gql, AuthenticationError, ForbiddenError } = require('apollo-server-express');
 const { IdError } = require('../func/errors');
@@ -19,9 +19,13 @@ const typeDefs = gql`
     }
 
     input StudyInput{
+        "Name of the study"
         title: String!
+        "Short description of study"
         description: String!
+        "Permissions levels used for the study"
         permissions: StudyPermissionsInput!
+        "List of ID of user you want to assign to this study"
         staff: [ID]
     }
 
@@ -40,9 +44,18 @@ const typeDefs = gql`
     }
 
     extend type Query {
-        getStudy(id: ID!): Study
+        "Get details on a study"
+        getStudy(
+            "ID of study to return"
+            id: ID!
+            ): Study
+        "Get all studies"
         getStudies: [Study]
-        getStaffStudies(staffID: ID!): [Study]
+        "Get the studies that an user is assigned to"
+        getStaffStudies(
+            "The ID of the user"
+            staffID: ID!
+            ): [Study]
     }
 
     extend type Mutation {
@@ -101,39 +114,38 @@ const resolvers = {
         getStudies: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const StudyCollection = database.getDb().collection('study');
-                // try{
-                const studies = await StudyCollection.find().toArray()
-                var replyList = []
-                for (let x in studies) {
-                    staffReply = []
-                    for (let y in studies[x].staff) {
-                        try {
-                            staffReply.push(
-                                await staffHelper.getStaffDetails(studies[x].staff[y].oid)
-                            )
-                        }
-                        catch {
+                try {
+                    const studies = await StudyCollection.find().toArray()
+                    var replyList = []
+                    for (let x in studies) {
+                        staffReply = []
+                        for (let y in studies[x].staff) {
+                            try {
+                                staffReply.push(
+                                    await staffHelper.getStaffDetails(studies[x].staff[y].oid)
+                                )
+                            }
+                            catch {
 
+                            }
                         }
+                        replyList.push(
+                            {
+                                id: studies[x]._id,
+                                title: studies[x].title,
+                                description: studies[x].description,
+                                permissions: studies[x].permissions,
+                                staff: staffReply
+                            }
+                        )
                     }
-                    replyList.push(
-                        {
-                            id: studies[x]._id,
-                            title: studies[x].title,
-                            description: studies[x].description,
-                            permissions: studies[x].permissions,
-                            staff: staffReply
-                        }
+                    return replyList;
+                }
+                catch (err) {
+                    throw new Error(
+                        "Internal Error"
                     )
                 }
-                return replyList;
-                // }
-                // catch (err)
-                // {
-                //     throw new Error(
-                //         "Internal Error"
-                //     )
-                // }
             }
             else {
                 throw new ForbiddenError(
@@ -144,36 +156,35 @@ const resolvers = {
         getStaffStudies: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const StudyCollection = database.getDb().collection('study');
-                try{
-                var o_id = new mongo.ObjectID(arg.staffID);
-                const studies = await StudyCollection.find({staff: DBRef("users", o_id)}).toArray()
-                var replyList = []
-                for (let x in studies) {
-                    staffReply = []
-                    for (let y in studies[x].staff) {
-                        try {
-                            staffReply.push(
-                                await staffHelper.getStaffDetails(studies[x].staff[y].oid)
-                            )
-                        }
-                        catch {
+                try {
+                    var o_id = new mongo.ObjectID(arg.staffID);
+                    const studies = await StudyCollection.find({ staff: DBRef("users", o_id) }).toArray()
+                    var replyList = []
+                    for (let x in studies) {
+                        staffReply = []
+                        for (let y in studies[x].staff) {
+                            try {
+                                staffReply.push(
+                                    await staffHelper.getStaffDetails(studies[x].staff[y].oid)
+                                )
+                            }
+                            catch {
 
+                            }
                         }
+                        replyList.push(
+                            {
+                                id: studies[x]._id,
+                                title: studies[x].title,
+                                description: studies[x].description,
+                                permissions: studies[x].permissions,
+                                staff: staffReply
+                            }
+                        )
                     }
-                    replyList.push(
-                        {
-                            id: studies[x]._id,
-                            title: studies[x].title,
-                            description: studies[x].description,
-                            permissions: studies[x].permissions,
-                            staff: staffReply
-                        }
-                    )
+                    return replyList;
                 }
-                return replyList;
-                }
-                catch (err)
-                {
+                catch (err) {
                     throw new Error(
                         "Internal Error"
                     )
@@ -239,7 +250,7 @@ const resolvers = {
                         )
                     }
                 } else {
-                    throw new ForbiddenError(
+                    throw new AuthenticationError(
                         'Insufficient permission level'
                     )
                 }
