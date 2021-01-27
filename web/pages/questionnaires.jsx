@@ -1,23 +1,13 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-// import { useQuery, useMutation } from '@apollo/client';
-import { Button, Container, ListGroup } from 'react-bootstrap';
+import { useQuery } from '@apollo/client';
+import { Button, Container, ListGroup, Row, Col } from 'react-bootstrap';
 import Navigation from '../components/Navigation';
-
-const questionnaires = [
-    {
-        name: 'What is life?'
-    },
-    {
-        name: 'What is down?'
-    },
-    {
-        name: 'What is up?'
-    }
-];
+import { GET_QUESTIONNAIRES } from '../queries/questionnaires';
 
 const QuestionnairesPage = () => {
     const router = useRouter();
+    const getQuestionnaires = useQuery(GET_QUESTIONNAIRES);
 
     return (
         <>
@@ -27,9 +17,9 @@ const QuestionnairesPage = () => {
             <Navigation />
             <main>
                 <Container className="mt-3">
-                    <Questionnaires />
+                    <Questionnaires getQuestionnaires={getQuestionnaires} />
                     <Button
-                        className="float-right"
+                        className="float-right mt-3"
                         onClick={() => router.push('/studies/questionnaire/creator')}>
                         Create Questionnaire
                     </Button>
@@ -39,11 +29,27 @@ const QuestionnairesPage = () => {
     );
 };
 
-const Questionnaires = () => {
+const Questionnaires = ({ getQuestionnaires }) => {
+    const { loading, error, data } = getQuestionnaires;
+
+    if (loading) return <p>Loading...</p>;
+    if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
+
     return (
         <ListGroup>
-            {questionnaires.map((q) => {
-                <ListGroup.Item>{q.name}</ListGroup.Item>;
+            {data.getQuestionnaires.map((q, i) => {
+                return (
+                    <ListGroup.Item key={i}>
+                        <Row>
+                            <Col>
+                                <p>{q.title}</p>
+                            </Col>
+                            <Col>
+                                <p>{q.description}</p>
+                            </Col>
+                        </Row>
+                    </ListGroup.Item>
+                );
             })}
         </ListGroup>
     );
