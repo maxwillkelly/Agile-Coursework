@@ -98,7 +98,7 @@ const resolvers = {
 
         getQuestionnaires: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
-                if (ctx.user.level >= 2) {
+                if (ctx.user.Level >= 2) {
                     try {
                         const QuestionnaireCollection = database.getDb().collection('questionaires');
                         const questionnaires = await QuestionnaireCollection.find().toArray()
