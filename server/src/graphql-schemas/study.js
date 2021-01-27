@@ -1,7 +1,7 @@
 /*
-Defines all the Scheme for Product related GraphQL functions
+Defines all the Scheme for Study related GraphQL functions
 */
-const { gql } = require('apollo-server-express');
+const { gql, AuthenticationError, ForbiddenError } = require('apollo-server-express');
 const { IdError } = require('../func/errors');
 const database = require('../database');
 const { DBRef } = require('mongodb');
@@ -19,9 +19,13 @@ const typeDefs = gql`
     }
 
     input StudyInput{
+        "Name of the study"
         title: String!
+        "Short description of study"
         description: String!
+        "Permissions levels used for the study"
         permissions: StudyPermissionsInput!
+        "List of ID of user you want to assign to this study"
         staff: [ID]
     }
 
@@ -40,8 +44,18 @@ const typeDefs = gql`
     }
 
     extend type Query {
-        getStudy(id: ID!): Study
+        "Get details on a study"
+        getStudy(
+            "ID of study to return"
+            id: ID!
+            ): Study
+        "Get all studies"
         getStudies: [Study]
+        "Get the studies that an user is assigned to"
+        getStaffStudies(
+            "The ID of the user"
+            staffID: ID!
+            ): [Study]
     }
 
     extend type Mutation {
@@ -64,17 +78,28 @@ const resolvers = {
 
                     const currStudy = await StudyCollection.findOne({ "_id": s_id })
                     if (currStudy) {
+                        staffReply = []
+                        for (let y in currStudy.staff) {
+                            try {
+                                staffReply.push(
+                                    await staffHelper.getStaffDetails(currStudy.staff[y].oid)
+                                )
+                            } catch
+                            {
+
+                            }
+                        }
                         return {
                             id: currStudy._id,
                             title: currStudy.title,
                             description: currStudy.description,
                             permissions: currStudy.permissions,
-                            staff: currStudy.staff
+                            staff: staffReply
                         }
                     }
                     else {
                         throw new Error(
-                            "You've fucked it"
+                            "Internal Error"
                         )
                     }
                 }
@@ -89,23 +114,77 @@ const resolvers = {
         getStudies: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const StudyCollection = database.getDb().collection('study');
-                try{
+                try {
                     const studies = await StudyCollection.find().toArray()
                     var replyList = []
                     for (let x in studies) {
+                        staffReply = []
+                        for (let y in studies[x].staff) {
+                            try {
+                                staffReply.push(
+                                    await staffHelper.getStaffDetails(studies[x].staff[y].oid)
+                                )
+                            }
+                            catch {
+
+                            }
+                        }
                         replyList.push(
-                            {id: studies[x]._id,
-                            title: studies[x].title,
-                            description: studies[x].description,
-                            permissions: studies[x].permissions,
-                            staff: studies[x].staff
+                            {
+                                id: studies[x]._id,
+                                title: studies[x].title,
+                                description: studies[x].description,
+                                permissions: studies[x].permissions,
+                                staff: staffReply
                             }
                         )
                     }
                     return replyList;
                 }
-                catch (err)
-                {
+                catch (err) {
+                    throw new Error(
+                        "Internal Error"
+                    )
+                }
+            }
+            else {
+                throw new ForbiddenError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        },
+        getStaffStudies: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                const StudyCollection = database.getDb().collection('study');
+                try {
+                    var o_id = new mongo.ObjectID(arg.staffID);
+                    const studies = await StudyCollection.find({ staff: DBRef("users", o_id) }).toArray()
+                    var replyList = []
+                    for (let x in studies) {
+                        staffReply = []
+                        for (let y in studies[x].staff) {
+                            try {
+                                staffReply.push(
+                                    await staffHelper.getStaffDetails(studies[x].staff[y].oid)
+                                )
+                            }
+                            catch {
+
+                            }
+                        }
+                        replyList.push(
+                            {
+                                id: studies[x]._id,
+                                title: studies[x].title,
+                                description: studies[x].description,
+                                permissions: studies[x].permissions,
+                                staff: staffReply
+                            }
+                        )
+                    }
+                    return replyList;
+                }
+                catch (err) {
                     throw new Error(
                         "Internal Error"
                     )
@@ -125,53 +204,53 @@ const resolvers = {
                 if (ctx.user.Level >= 1) {
                     try {
                         const StudyCollection = database.getDb().collection('study');
-                    const newStudy = {
-                        title: arg.study.title,
-                        description: arg.study.description,
-                        permissions: {
-                            edit: arg.study.permissions.edit,
-                            create: arg.study.permissions.create,
-                            delete: arg.study.permissions.delete
-                        },
-                        staff: [
-                            {
-                                $ref: "users",
-                                $id: new mongo.ObjectID(ctx.user.ID)
-                            }
-                        ]
-                    }
-                    if ('staff' in arg.study) {
-                        const UserCollection = database.getDb().collection('users');
-                        for (let x in arg.study.staff) {
-                            const o_id = new mongo.ObjectID(arg.study.staff[x]);
-                            const loginUser = await UserCollection.findOne({ "_id": o_id })
-                            if (loginUser) {
-                                newStudy.staff.push({
+                        const newStudy = {
+                            title: arg.study.title,
+                            description: arg.study.description,
+                            permissions: {
+                                edit: arg.study.permissions.edit,
+                                create: arg.study.permissions.create,
+                                delete: arg.study.permissions.delete
+                            },
+                            staff: [
+                                {
                                     $ref: "users",
-                                    $id: o_id
-                                })
+                                    $id: new mongo.ObjectID(ctx.user.ID)
+                                }
+                            ]
+                        }
+                        if ('staff' in arg.study) {
+                            const UserCollection = database.getDb().collection('users');
+                            for (let x in arg.study.staff) {
+                                const o_id = new mongo.ObjectID(arg.study.staff[x]);
+                                const loginUser = await UserCollection.findOne({ "_id": o_id })
+                                if (loginUser) {
+                                    newStudy.staff.push({
+                                        $ref: "users",
+                                        $id: o_id
+                                    })
+                                }
                             }
                         }
-                    }
-                    const response = await StudyCollection.insertOne(newStudy)
-                    reply = {
-                        id: response.ops[0]._id,
-                        title: response.ops[0].title,
-                        description: response.ops[0].description,
-                        permissions: response.ops[0].permissions,
-                        staff: []
-                    }
-                    for(let x in response.ops[0].staff){
-                        reply.staff.push(await staffHelper.getStaffDetails(response.ops[0].staff[x].$id))
-                    }
-                    return reply
-                    }catch(err){
+                        const response = await StudyCollection.insertOne(newStudy)
+                        reply = {
+                            id: response.ops[0]._id,
+                            title: response.ops[0].title,
+                            description: response.ops[0].description,
+                            permissions: response.ops[0].permissions,
+                            staff: []
+                        }
+                        for (let x in response.ops[0].staff) {
+                            reply.staff.push(await staffHelper.getStaffDetails(response.ops[0].staff[x].$id))
+                        }
+                        return reply
+                    } catch (err) {
                         throw new Error(
                             `Internal Error ${err}`
                         )
                     }
                 } else {
-                    throw new ForbiddenError(
+                    throw new AuthenticationError(
                         'Insufficient permission level'
                     )
                 }
