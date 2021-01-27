@@ -1,18 +1,10 @@
 import { Button, ButtonGroup, Form, Container, Card, InputGroup } from 'react-bootstrap';
 import { Formik, FieldArray } from 'formik';
-import lodash from 'lodash';
 // import styles from '../styles/questionnaire.module.scss';
 
-const Question = ({ question, onQuestionSet }) => {
-    const deleteQuestion = () => {
-        onQuestionSet((state) => {
-            console.log(state);
-            const copy = lodash.cloneDeep(state);
-            copy.pop();
-            console.log(copy);
-            return copy;
-        });
-    };
+const Question = ({ question }) => {
+    const deleteQuestion = () => {};
+    const updateQuestion = (values) => {};
 
     return (
         <Container>
@@ -29,7 +21,8 @@ const Question = ({ question, onQuestionSet }) => {
                             title: question.title,
                             description: question.description,
                             questionOptions: question.options
-                        }}>
+                        }}
+                        onSubmit={updateQuestion}>
                         {({
                             values,
                             // errors,

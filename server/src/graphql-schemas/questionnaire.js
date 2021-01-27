@@ -32,6 +32,7 @@ const typeDefs = gql`
    }
 
     type Questionnaire{
+        id: ID
         title: String
         description: String
         studyID: ID
@@ -47,7 +48,7 @@ const typeDefs = gql`
 
     extend type Mutation {
         "Create a new Questionnaire"
-        createQuestionair(
+        createQuestionaire(
             questionnaire: QuestionnaireInput!
         ): Questionnaire
         "Remove as questionnaire"
@@ -81,8 +82,8 @@ const resolvers = {
             if (ctx.auth) {
                 try {
                     const QuestionnaireCollection = database.getDb().collection('questionaires');
-                    var q_id = new mongo.ObjectID(arg.id);
-                    const currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
+                    const q_id = new mongo.ObjectID(arg.id);
+                    const currQuestionnaire = await QuestionnaireCollection.findOne({ _id: q_id })
                     if (currQuestionnaire) {
                         return {
                             id: currQuestionnaire._id,
