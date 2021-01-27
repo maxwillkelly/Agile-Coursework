@@ -97,11 +97,11 @@ const Question = ({ question }) => {
 const QuestionPrepend = ({ question }) => {
     switch (question.type) {
         case 'checkbox':
-            // return <InputGroup.Text>☐</InputGroup.Text>;
-            return <InputGroup.Text>square</InputGroup.Text>;
+            return <InputGroup.Text>☐</InputGroup.Text>;
+        // return <InputGroup.Text>square</InputGroup.Text>;
         case 'radio':
-            // return <InputGroup.Text>🔘</InputGroup.Text>;
-            return <InputGroup.Text>circle</InputGroup.Text>;
+            return <InputGroup.Text>O</InputGroup.Text>;
+        // return <InputGroup.Text>circle</InputGroup.Text>;
         default:
             return null;
     }
