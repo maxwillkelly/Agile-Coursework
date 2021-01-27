@@ -220,7 +220,8 @@ const resolvers = {
 
         addQuestion: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
-                const QuestionnaireCollection = database.getDb().collection('questionaires');
+                try{
+                    const QuestionnaireCollection = database.getDb().collection('questionaires');
                 const StudyCollection = database.getDb().collection('study');
                 const q_id = new mongo.ObjectID(arg.questionnaireID);
                 const staff_id = new mongo.ObjectID(ctx.user.ID);
@@ -268,6 +269,11 @@ const resolvers = {
                         studyID: currQuestionnaire.studyID.oid,
                         questions: currQuestionnaire.questions,
                     }
+                }
+                }catch(err){
+                    throw new Error(
+                        "Internal Error"
+                    )
                 }
             } else {
                 throw new ForbiddenError(
