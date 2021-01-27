@@ -7,12 +7,19 @@ import AddTextSection from '../components/questionnaire/AddTextSection';
 import Question from '../components/questionnaire/Question';
 // import styles from '../styles/questionnaire-creator.module.scss';
 
-const questions = [
+var questions = [
     {
         title: 'dogshit',
         description: 'This is some dogshit.',
         type: 'checkbox',
         options: ['shit', 'more shit', 'not shit']
+    },
+
+    {
+        title: 'Another question',
+        description: 'This is another question.',
+        type: 'radio',
+        options: ['button', 'another button', 'still a button']
     }
 ];
 
@@ -34,7 +41,7 @@ const QuestionnaireCreatorPage = () => {
                             <h5>Beens, pizza... APEX</h5>
                             <TitleForm />
                             <h5>Add a Question</h5>
-                            <AddQuestionForm />
+                            <AddQuestionForm questions={questions} />
                             <h5>Add Paragraph Section</h5>
                             <AddTextSection />
                         </Col>

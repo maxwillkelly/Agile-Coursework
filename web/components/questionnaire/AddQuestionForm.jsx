@@ -2,7 +2,7 @@ import { Form, Button, Container, Card } from 'react-bootstrap';
 import { Formik } from 'formik';
 import styles from '../styles/questionnaire.module.scss';
 
-const AddQuestionForm = () => {
+const AddQuestionForm = (/*questions*/) => {
     return (
         <Container className={`${styles.questionnaireContainer}`}>
             <Card className={`${styles.questionnaireCard} p-4`}>
@@ -58,7 +58,16 @@ const AddQuestionForm = () => {
                                 <Form.Check type="radio" id="questiontype" label="Long answer" />
                             </Form.Group>
 
-                            <Button variant="primary" type="submit" disabled={isSubmitting}>
+                            <Button
+                                variant="primary"
+                                type="submit"
+                                disabled={
+                                    isSubmitting
+                                } /*onClick={() => { questions.push({title: values.title, 
+                                                                                                                                    description: values.description, 
+                                                                                                                                    type: values.questiontype, 
+                                                                                                                                    options: []}) }}*/
+                            >
                                 Add
                             </Button>
                         </Form>
