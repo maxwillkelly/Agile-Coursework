@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Navigation from '../components/Navigation';
 
-const AdminPage = () => {
+const StudiesPage = () => {
     return (
         <>
             <Head>
@@ -13,4 +13,4 @@ const AdminPage = () => {
     );
 };
 
-export default AdminPage;
+export default StudiesPage;
