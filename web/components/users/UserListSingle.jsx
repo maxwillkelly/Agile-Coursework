@@ -1,21 +1,14 @@
 import { useState } from 'react';
 import { Button } from 'react-bootstrap';
 import styles from '../../styles/admin.module.scss';
-export const UserListSingle = ({ user }) => {
-    const [buttonsVisibility, setButtonsVisibility] = useState(false);
+export const UserListSingle = ({ user, setSelectedUser }) => {
     return (
-        <li
-            className={styles.listItem}
-            onClick={() => setButtonsVisibility(!buttonsVisibility)}
-            aria-hidden="true">
+        <li className={styles.listItem} onClick={() => setSelectedUser(user)} aria-hidden="true">
             <div className={styles.listContent}>
                 <h4 className={styles.listItem__name}>
                     {user.firstName} {user.lastName}
                 </h4>
                 <h4 className={styles.listItem__role}>{user.permission}</h4>
-            </div>
-            <div className={styles.listButtons} hidden={!buttonsVisibility}>
-                <Button>Hello</Button>
             </div>
         </li>
     );

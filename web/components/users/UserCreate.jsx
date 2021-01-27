@@ -12,11 +12,11 @@ export const UserForm = ({ setSuccessVal, setAlertVisibility, handleClose }) => 
 
         setNewUser({ variables: { ...userDetails, level: parseInt(userDetails.level) || 0 } })
             .then(() => {
-                setSuccessVal(true);
+                setSuccessVal([true, 'Successfully created new user']);
                 setAlertVisibility(true);
             })
             .catch(() => {
-                setSuccessVal(false);
+                setSuccessVal([false, 'Failed to create new user']);
                 setAlertVisibility(true);
             });
     };

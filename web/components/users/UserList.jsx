@@ -4,7 +4,7 @@ import { FormControl } from 'react-bootstrap';
 import { USERS_QUERY } from '../../queries/users';
 import UserListSingle from './UserListSingle';
 import styles from '../../styles/admin.module.scss';
-export const UserList = () => {
+export const UserList = ({ setSelectedUser }) => {
     const { loading, error, data } = useQuery(USERS_QUERY);
     const [searchVal, setSearchVal] = useState('');
 
@@ -31,7 +31,13 @@ export const UserList = () => {
                 {data &&
                     data.getUsers
                         .filter((user) => searchFilter(user))
-                        .map((user) => <UserListSingle user={user} key={user.id} />)}
+                        .map((user) => (
+                            <UserListSingle
+                                setSelectedUser={setSelectedUser}
+                                user={user}
+                                key={user.id}
+                            />
+                        ))}
             </ul>
         </div>
     );
