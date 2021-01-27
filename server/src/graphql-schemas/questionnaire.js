@@ -47,7 +47,7 @@ const typeDefs = gql`
 
     extend type Mutation {
         "Create a new Questionnaire"
-        createQuestionair(questionnaire: QuestionnaireInput!): Questionnaire
+        createQuestionaire(questionnaire: QuestionnaireInput!): Questionnaire
         "Add a question in Questionnaire"
         addQuestion(
             questionnaireID: ID!
@@ -91,7 +91,7 @@ const resolvers = {
 
         getQuestionnaires: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
-                if(ctx.user.level >=2)
+                if(ctx.user.Level >=2)
                 {
                 try {
                     const QuestionnaireCollection = database.getDb().collection('questionaires');
@@ -166,7 +166,7 @@ const resolvers = {
     },
 
     Mutation: {
-        createQuestionair: async (parent, arg, ctx, info) => {
+        createQuestionaire: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 try {
                     const QuestionnaireCollection = database.getDb().collection('questionaires');

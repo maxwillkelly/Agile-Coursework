@@ -187,13 +187,6 @@ const resolvers = {
                         if (ctx.user.ID == arg.id) {
                             throw new Error('Cannot delete current user');
                         } else {
-                            console.log('-----------------');
-                            console.log('-----------------');
-                            console.log(ctx.user.ID);
-                            console.log('-----------------');
-                            console.log(arg.id);
-                            console.log('-----------------');
-                            console.log('-----------------');
                             await UserCollection.deleteOne({ _id: o_id });
 
                             return {
@@ -211,6 +204,8 @@ const resolvers = {
                 } catch (err) {
                     throw new Error(`Internal error: ${err}`);
                 }
+            } else {
+                throw new ForbiddenError('Authentication token is invalid, please log in');
             }
         }
     }
