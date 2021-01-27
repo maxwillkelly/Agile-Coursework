@@ -13,7 +13,7 @@ const mongo = require('mongodb');
 const typeDefs = gql`
 
     input QuestionInput{
-        qType: Int!
+        qType: String!
         message: String!
         values: [String]!
     }
@@ -26,7 +26,7 @@ const typeDefs = gql`
 
    type Question{
         qID: ID
-        qType: Int
+        qType: String
         message: String
         values: [String]
    }
