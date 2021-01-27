@@ -1,10 +1,11 @@
 import { Form, Button, Container, Card } from 'react-bootstrap';
 import { Formik } from 'formik';
+import styles from '../styles/questionnaire.module.scss';
 
 const AddTextSection = () => {
     return (
-        <Container>
-            <Card>
+        <Container className={`${styles.questionnaireContainer}`}>
+            <Card className={`${styles.questionnaireCard} p-4`}>
                 <Formik initialValues={{ heading: '', paragraph: '' }}>
                     {({
                         values,

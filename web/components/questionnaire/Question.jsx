@@ -1,10 +1,11 @@
-import { Form, Container, Card, FormControl } from 'react-bootstrap';
+import { Button, ButtonGroup, Form, Container, Card, InputGroup } from 'react-bootstrap';
 import { Formik, FieldArray } from 'formik';
+// import styles from '../styles/questionnaire.module.scss';
 
 const Question = ({ question }) => {
     return (
         <Container>
-            <Card>
+            <Card className="p-4 m-5">
                 <Formik
                     initialValues={{
                         title: question.title,
@@ -21,7 +22,8 @@ const Question = ({ question }) => {
                         // isSubmitting
                     }) => (
                         <Form onSubmit={handleSubmit}>
-                            <FormControl
+                            <Form.Label>Question Title</Form.Label>
+                            <Form.Control
                                 type="text"
                                 name="title"
                                 placeholder={question.title}
@@ -29,7 +31,8 @@ const Question = ({ question }) => {
                                 onBlur={handleBlur}
                                 value={values.title}
                             />
-                            <FormControl
+                            <Form.Label className="mt-3">Question Description</Form.Label>
+                            <Form.Control
                                 type="text"
                                 name="description"
                                 placeholder="Enter a description"
@@ -37,25 +40,51 @@ const Question = ({ question }) => {
                                 onBlur={handleBlur}
                                 value={values.description}
                             />
+
+                            <Form.Label className="mt-3">Question Options</Form.Label>
                             <FieldArray name="questionOptions">
-                                {
-                                    (/*arrayHelpers*/) => {
-                                        return (
-                                            <div>
-                                                {question.options.map((option, index) => (
-                                                    <FormControl
+                                {(arrayHelpers) => {
+                                    return (
+                                        <>
+                                            {values.questionOptions.map((option, index) => (
+                                                // <div className={styles.checkboxContainer}>
+                                                <InputGroup className="my-3" key={index}>
+                                                    <InputGroup.Prepend>
+                                                        <QuestionPrepend question={question} />
+                                                    </InputGroup.Prepend>
+                                                    <Form.Control
                                                         type="text"
-                                                        name={index}
+                                                        name={`questionOptions.${index}`}
                                                         onChange={handleChange}
                                                         onBlur={handleBlur}
                                                         value={option}
                                                         key={index}
                                                     />
-                                                ))}
-                                            </div>
-                                        );
-                                    }
-                                }
+                                                    <InputGroup.Append>
+                                                        <Button
+                                                            variant="danger"
+                                                            onClick={() =>
+                                                                arrayHelpers.remove(index)
+                                                            }>
+                                                            Delete
+                                                        </Button>
+                                                    </InputGroup.Append>
+                                                </InputGroup>
+                                                // </div>
+                                            ))}
+                                            <ButtonGroup className="mt-3 float-right">
+                                                <Button
+                                                    className="mr-2"
+                                                    variant="success"
+                                                    onClick={() => arrayHelpers.push('')}>
+                                                    Add option
+                                                </Button>
+                                                <Button type="submit">Save</Button>
+                                            </ButtonGroup>
+                                            {/* <pre>{JSON.stringify(values, null, 2)}</pre> */}
+                                        </>
+                                    );
+                                }}
                             </FieldArray>
                         </Form>
                     )}
@@ -63,6 +92,19 @@ const Question = ({ question }) => {
             </Card>
         </Container>
     );
+};
+
+const QuestionPrepend = ({ question }) => {
+    switch (question.type) {
+        case 'checkbox':
+            // return <InputGroup.Text>☐</InputGroup.Text>;
+            return <InputGroup.Text>square</InputGroup.Text>;
+        case 'radio':
+            // return <InputGroup.Text>🔘</InputGroup.Text>;
+            return <InputGroup.Text>circle</InputGroup.Text>;
+        default:
+            return null;
+    }
 };
 
 export default Question;
