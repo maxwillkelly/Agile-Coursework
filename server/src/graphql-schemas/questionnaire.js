@@ -47,7 +47,7 @@ const typeDefs = gql`
 
     extend type Mutation {
         "Create a new Questionnaire"
-        createQuestionair(
+        createQuestionaire(
             questionnaire: QuestionnaireInput!
         ): Questionnaire
         "Remove as questionnaire"

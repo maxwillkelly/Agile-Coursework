@@ -36,8 +36,12 @@ const QuestionnaireCreatorPage = () => {
             </Head>
             <Navigation />
             <main>
-                <h1>Questionnaire Page</h1>
                 <Container>
+                    <Row>
+                        <Col>
+                            <h1 className="py-4">Create a Questionnaire</h1>
+                        </Col>
+                    </Row>
                     <Row>
                         <Col>
                             <h5>Your Questionnaire</h5>
