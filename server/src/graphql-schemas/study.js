@@ -77,7 +77,7 @@ const typeDefs = gql`
             staffID: ID!
         ): Study
         "Remove staff from a study"
-        removeStaffToStudy(
+        removeStaffFromStudy(
             studyID: ID!
             staffID: ID!
         ): Study
@@ -405,6 +405,84 @@ const resolvers = {
                     const response = await StudyCollection.updateOne({ "_id": s_id },
                         {
                             $addToSet: {
+                                staff: {
+                                    $ref: "users",
+                                    $id: o_id
+                                }
+                            }
+                        })
+                } catch (err) {
+                    throw new Error(
+                        `Internal Error ${err}`
+                    )
+                }
+                currStudy = await StudyCollection.findOne({ "_id": s_id });
+                if (currStudy) {
+                    staffReply = []
+                    for (let y in currStudy.staff) {
+                        try {
+                            staffReply.push(
+                                await staffHelper.getStaffDetails(currStudy.staff[y].oid)
+                            )
+                        } catch
+                        {
+
+                        }
+                    }
+                    return {
+                        id: currStudy._id,
+                        title: currStudy.title,
+                        description: currStudy.description,
+                        permissions: currStudy.permissions,
+                        staff: staffReply
+                    }
+                } else {
+                    throw new Error(
+                        "Unable to return values"
+                    )
+                }
+            } else {
+                throw new ForbiddenError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        },
+        removeStaffFromStudy: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                if (ctx.user.Level < 2) {
+                    throw new ForbiddenError(
+                        "Invalid permissions"
+                    )
+                }
+                const StudyCollection = database.getDb().collection('study');
+                const s_id = new mongo.ObjectID(arg.studyID);
+                var currStudy = await StudyCollection.findOne({ "_id": s_id });
+                if (!currStudy) {
+                    throw new Error(
+                        "Invalid studyID"
+                    )
+                }
+                const UserCollection = database.getDb().collection('users');
+                const o_id = new mongo.ObjectID(arg.staffID);
+                const currstaff = await UserCollection.findOne({ "_id": o_id });
+                if (!currstaff) {
+                    throw new Error(
+                        "Invalid staffID"
+                    )
+                }
+                var staffInStudy = false
+                for (let x in currStudy.staff) {
+                    if (currStudy.staff[x].oid.equals(o_id)) {
+                        staffInStudy = true
+                    }
+                }
+                if (!staffInStudy) {
+                    throw new Error("User not part of study")
+                }
+                try {
+                    const response = await StudyCollection.updateOne({ "_id": s_id },
+                        {
+                            $pull: {
                                 staff: {
                                     $ref: "users",
                                     $id: o_id
