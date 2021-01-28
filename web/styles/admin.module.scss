@@ -8,7 +8,7 @@
     margin: 1rem 0;
     display: grid;
     gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     align-content: center;
 }
 
@@ -20,7 +20,7 @@
 }
 
 .list {
-    overflow-y: scroll;
+    overflow-y: auto;
     max-height: 400px;
     padding-left: 0;
 }
@@ -48,4 +48,10 @@
     justify-content: space-between;
     display: flex;
     flex-wrap: wrap;
+}
+
+.profileButtons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(50px, 100px));
+    gap: 1rem;
 }

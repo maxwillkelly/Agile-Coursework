@@ -105,10 +105,11 @@ export const UserProfile = ({ selectedUser: user, setSuccessVal, setAlertVisibil
                     <Form.Control
                         value={details.id || ''}
                         type="text"
+                        readOnly={true}
                         onChange={(e) => setDetails((prev) => ({ ...prev, id: e.target.value }))}
                     />
                 </Form.Group>
-                <Form.Group>
+                <Form.Group className={styles.profileButtons}>
                     <Button onClick={handleUpdateUser} variant="success">
                         Update
                     </Button>
