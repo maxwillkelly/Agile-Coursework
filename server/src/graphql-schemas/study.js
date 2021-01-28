@@ -2,7 +2,7 @@
 Defines all the Scheme for Study related GraphQL functions
 */
 const { gql, AuthenticationError, ForbiddenError } = require('apollo-server-express');
-const { IdError } = require('../func/errors');
+const { IdError, PermissionsError } = require('../func/errors');
 const database = require('../database');
 const { DBRef } = require('mongodb');
 const mongo = require('mongodb');
@@ -305,9 +305,7 @@ const resolvers = {
                             await StudyCollection.deleteOne({ "_id": s_id })
                         }
                         else {
-                            throw new Error(
-                                "Study doesn't exist"
-                            )
+                            throw new PermissionsError("Study doesn't exist")
                         }
                     }
                     catch (err) {
@@ -330,12 +328,12 @@ const resolvers = {
                 var s_id = new mongo.ObjectID(arg.studyID);
                 var currStudy = await StudyCollection.findOne({ "_id": s_id });
                 if (!currStudy) {
-                    throw new Error(
+                    throw new IdError(
                         "Invalid studyID"
                     )
                 }
                 if (ctx.user.Level < currStudy.permissions.edit) {
-                    throw new ForbiddenError(
+                    throw new PermissionsError(
                         "Insufficent Permissions"
                     )
                 }
@@ -456,7 +454,7 @@ const resolvers = {
         removeStaffFromStudy: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 if (ctx.user.Level < 2) {
-                    throw new ForbiddenError(
+                    throw new PermissionsError(
                         "Invalid permissions"
                     )
                 }
@@ -464,15 +462,13 @@ const resolvers = {
                 const s_id = new mongo.ObjectID(arg.studyID);
                 var currStudy = await StudyCollection.findOne({ "_id": s_id });
                 if (!currStudy) {
-                    throw new Error(
-                        "Invalid studyID"
-                    )
+                    throw new IdError("Invalid studyID")
                 }
                 const UserCollection = database.getDb().collection('users');
                 const o_id = new mongo.ObjectID(arg.staffID);
                 const currstaff = await UserCollection.findOne({ "_id": o_id });
                 if (!currstaff) {
-                    throw new Error(
+                    throw new IdError(
                         "Invalid staffID"
                     )
                 }

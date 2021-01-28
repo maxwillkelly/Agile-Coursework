@@ -2,7 +2,7 @@
 Defines all the Scheme for Product related GraphQL functions
 */
 const { gql, AuthenticationError, ForbiddenError } = require('apollo-server-express');
-const { IdError } = require('../func/errors');
+const { IdError, PermissionsError } = require('../func/errors');
 const database = require('../database');
 const mongo = require('mongodb');
 
@@ -217,7 +217,7 @@ const resolvers = {
                         throw new ForbiddenError("User not part of study")
                     }
                     if (ctx.user.Level < StudyDetails.permissions.create) {
-                        throw new ForbiddenError("Invalid Permissions")
+                        throw new PermissionsError("Invalid Permissions")
                     }
                     newQuestionnaire = {
                         title: arg.questionnaire.title,
@@ -257,7 +257,7 @@ const resolvers = {
                     const staff_id = new mongo.ObjectID(ctx.user.ID);
                     var currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                     if (!currQuestionnaire) {
-                        throw new Error("Invalid questionnaireID")
+                        throw new IdError("Invalid questionnaireID")
                     }
                     const studyDetails = await StudyCollection.findOne({ "_id": currQuestionnaire.studyID.oid })
                     if (!studyDetails) {
@@ -273,7 +273,7 @@ const resolvers = {
                         throw new ForbiddenError("User not part of study")
                     }
                     if (ctx.user.Level < studyDetails.permissions.create) {
-                        throw new ForbiddenError("Invalid Permissions")
+                        throw new PermissionsError("Invalid Permissions")
                     }
                     // end of perms check
                     newQuestion = {
@@ -320,7 +320,7 @@ const resolvers = {
                 const staff_id = new mongo.ObjectID(ctx.user.ID);
                 var currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                 if (!currQuestionnaire) {
-                    throw new Error("Invalid questionnaireID")
+                    throw new IdError("Invalid questionnaireID")
                 }
                 const studyDetails = await StudyCollection.findOne({ "_id": currQuestionnaire.studyID.oid })
                 if (!studyDetails) {
@@ -336,7 +336,7 @@ const resolvers = {
                     throw new ForbiddenError("User not part of study")
                 }
                 if (ctx.user.Level < studyDetails.permissions.edit) {
-                    throw new ForbiddenError("Invalid Permissions")
+                    throw new PermissionsError("Invalid Permissions")
                 }
 
                 var updateField = {}
@@ -377,7 +377,7 @@ const resolvers = {
                 const staff_id = new mongo.ObjectID(ctx.user.ID);
                 var currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                 if (!currQuestionnaire) {
-                    throw new Error("Invalid questionnaireID")
+                    throw new IdError("Invalid questionnaireID")
                 }
                 const studyDetails = await StudyCollection.findOne({ "_id": currQuestionnaire.studyID.oid })
                 if (!studyDetails) {
@@ -393,7 +393,7 @@ const resolvers = {
                     throw new ForbiddenError("User not part of study")
                 }
                 if (ctx.user.Level < studyDetails.permissions.delete) {
-                    throw new ForbiddenError("Invalid Permissions")
+                    throw new PermissionsError("Invalid Permissions")
                 }
                 try {
                     await QuestionnaireCollection.deleteOne({ "_id": q_id });
@@ -423,7 +423,7 @@ const resolvers = {
                 const staff_id = new mongo.ObjectID(ctx.user.ID);
                 var currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                 if (!currQuestionnaire) {
-                    throw new Error("Invalid questionnaireID")
+                    throw new IdError("Invalid questionnaireID")
                 }
                 const studyDetails = await StudyCollection.findOne({ "_id": currQuestionnaire.studyID.oid })
                 if (!studyDetails) {
@@ -439,7 +439,7 @@ const resolvers = {
                     throw new ForbiddenError("User not part of study")
                 }
                 if (ctx.user.Level < studyDetails.permissions.delete) {
-                    throw new ForbiddenError("Invalid Permissions")
+                    throw new PermissionsError("Invalid Permissions")
                 }
                 var existCheck = false
                 const question_id = new mongo.ObjectID(arg.questionID);
@@ -449,9 +449,7 @@ const resolvers = {
                     }
                 }
                 if (!existCheck) {
-                    throw new Error(
-                        "Invalid questionID"
-                    )
+                    throw new IdError("Invalid questionID")
                 }
                 try {
                     const response = await QuestionnaireCollection.updateOne(
@@ -491,7 +489,7 @@ const resolvers = {
                 const staff_id = new mongo.ObjectID(ctx.user.ID);
                 var currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                 if (!currQuestionnaire) {
-                    throw new Error("Invalid questionnaireID")
+                    throw new IdError("Invalid questionnaireID")
                 }
                 const studyDetails = await StudyCollection.findOne({ "_id": currQuestionnaire.studyID.oid })
                 if (!studyDetails) {
@@ -507,7 +505,7 @@ const resolvers = {
                     throw new ForbiddenError("User not part of study")
                 }
                 if (ctx.user.Level < studyDetails.permissions.delete) {
-                    throw new ForbiddenError("Invalid Permissions")
+                    throw new PermissionsError("Invalid Permissions")
                 }
                 var existCheck = false
                 const question_id = new mongo.ObjectID(arg.questionID);
@@ -517,9 +515,7 @@ const resolvers = {
                     }
                 }
                 if (!existCheck) {
-                    throw new Error(
-                        "Invalid questionID"
-                    )
+                    throw new IdError("Invalid questionID")
                 }
                 try {
                     const question_id = new mongo.ObjectID(arg.questionID);
