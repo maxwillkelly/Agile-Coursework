@@ -5,6 +5,7 @@ const { gql, AuthenticationError, ForbiddenError } = require('apollo-server-expr
 const { IdError } = require('../func/errors');
 const database = require('../database');
 const mongo = require('mongodb');
+const questionnaireHelper = require('../func/questionnaire')
 
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
@@ -30,14 +31,14 @@ type rValues{
 "Represents details of a response"
 type Response{
     id: ID
-    questionnaireID: ID
+    questionnaire: Questionnaire
     answers: [rValues]
 }
 
 extend type Query {
     "Get a response using ID of a response"
     getResponse(id:ID!): Response
-    getResponses(questionnaireInputID: ID!): [Response]
+    getResponses(questionnaireID: ID!): [Response]
 }
 
 extend type Mutation{
@@ -65,7 +66,7 @@ const resolvers = {
                         if (currResponse) {
                             return {
                                 id: currResponse._id,
-                                questionnaireID: currResponse.questionnaireID,
+                                questionnaire: await questionnaireHelper.getQuestionnaire(currResponse.questionnaireID),
                                 answers: currResponse.answers
                             }
                         }
@@ -97,26 +98,20 @@ const resolvers = {
             if (ctx.auth) {
                 try {
                     const ResponseCollection = database.getDb().collection('responses');
-                    // dbref this shit
-                    var q_id = arg.questionnaireInputID
-                    const responses = await ResponseCollection.find({ questionnaireID: q_id }).toArray();
+                    var q_id = new mongo.ObjectID(arg.questionnaireID)
+                    const responses = await ResponseCollection.find({ questionnaireID: mongo.DBRef("questionaires", q_id) }).toArray();
                     var responseList = []
                     if (responses) {
-                        for (let x in responses) {
-                            responseList.push(
-                                {
-                                    id: responses[x]._id,
-                                    questionnaireID: responses[x].questionnaireID,
-                                    answers: responses[x].answers
-                                }
-                            )
+                        for(let y in responses){
+                            responseList.push({
+                                id: responses[y]._id,
+                                questionnaire: await questionnaireHelper.getQuestionnaire(responses[y].questionnaireID.oid),
+                                answers: responses[y].answers
+                            })
                         }
                         return responseList
-                    }
-                    else {
-                        throw new Error(
-                            `No responses found`
-                        )
+                    } else {
+                        throw new Error(`No responses found`)
                     }
                 }
                 catch (err) {
@@ -142,7 +137,7 @@ const resolvers = {
 
                         return {
                             id: currResponse._id,
-                            questionnaireID: currResponse.questionnaireID,
+                            questionnaire: await questionnaireHelper.getQuestionnaire(currResponse.questionnaireID),
                             answers: currResponse.answers
                         }
                     } else {
@@ -183,7 +178,7 @@ const resolvers = {
             if (answerID.length > 0) {
                 throw new Error("Invalid question ID sent")
             }
-            try{
+            try {
                 const newDocument = {
                     questionnaireID: {
                         $ref: "questionnaires",
@@ -200,10 +195,10 @@ const resolvers = {
                 const response = await ResponseCollection.insertOne(newDocument)
                 return {
                     id: response.ops[0]._id,
-                    questionnaireID: q_id,
+                    questionnaire: await questionnaireHelper.getQuestionnaire(q_id),
                     answers: newDocument.answers,
                 }
-            }catch(err){
+            } catch (err) {
                 throw new Error(
                     `Internal Error ${err}`
                 )

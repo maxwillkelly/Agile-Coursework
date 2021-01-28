@@ -1,17 +1,17 @@
 const database = require('../database');
 const mongo = require('mongodb');
-const { IdError, PermissionsError } = require('../func/errors');
+const { IdError, PermissionsError } = require('./errors');
 const studyHelper = require('./study')
 
 async function getQuestionnaire(questionnaireID) {
-    const QuestionnaireCollection = database.getDb().collection('questionaires');
+    const QuestionnaireCollection = database.getDb().collection('questionnaires');
     const currQuestionnaire = await QuestionnaireCollection.findOne({ _id: questionnaireID })
     if (currQuestionnaire) {
         return {
             id: currQuestionnaire._id,
             title: currQuestionnaire.title,
             description: currQuestionnaire.description,
-            studyID: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
+            study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
             questions: currQuestionnaire.questions,
         }
     } else {
