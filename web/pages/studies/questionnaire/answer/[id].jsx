@@ -7,23 +7,23 @@ import { Container, Button } from 'react-bootstrap';
 import Navigation from '../../../../components/Navigation';
 import itemStyles from '../../../../components/styles/questionnaire.module.scss';
 import styles from '../../../../styles/questionnaires.module.scss';
-import Answer from '../../../../components/questionnaire/Answer'
-import { SEND_RESPONSE} from '../../../../mutations/questionnaire';
+import Answer from '../../../../components/questionnaire/Answer';
+import { SEND_RESPONSE } from '../../../../mutations/questionnaire';
 
 const AnswerPage = () => {
     const router = useRouter();
     const { loading, error, data } = useQuery(GET_QUESTIONNAIRE, {
         variables: { id: router.query.id }
     });
-    const [ sendQuestionnaireResponse ] = useMutation(SEND_RESPONSE);
+    const [sendQuestionnaireResponse] = useMutation(SEND_RESPONSE);
     const [answers, setAnswers] = useState({});
-    if (loading) return <p>Loading questionnaire...</p>
+
+    if (loading) return <p>Loading questionnaire...</p>;
 
     if (error || !data) {
-        return <pre>{JSON.stringify(error) || "AHHhhhh!"}</pre>
-    }
-    else {
-        console.log(data)
+        return <pre>{JSON.stringify(error, null, 2) || 'AHHhhhh!'}</pre>;
+    } else {
+        console.log(data);
     }
 
     const handleSendResponse = () => {
@@ -36,26 +36,38 @@ const AnswerPage = () => {
             });
         }
 
-        console.log(submittableAnswers)
-        sendQuestionnaireResponse({ variables: {
-            questionnaireID: "6012d58d0af9d51504558fa0", answers: submittableAnswers}}).then(res => {
+        console.log(submittableAnswers);
+        sendQuestionnaireResponse({
+            variables: {
+                questionnaireID: '6012d58d0af9d51504558fa0',
+                answers: submittableAnswers
+            }
+        }).then((res) => {
             console.log(res);
-        })
-    }
+        });
+    };
 
     return (
         <>
             <Head>
-                <title>{data.getQuestionnaire.title || "Loading..."} </title>
+                <title>{data.getQuestionnaire.title || 'Loading...'} </title>
             </Head>
             <Navigation />
             <main>
                 <Container className={styles.questionnaireContainer}>
                     <h1 className={itemStyles.questionnaireTitle}>{data.getQuestionnaire.title}</h1>
-                    {data && data.getQuestionnaire.questions.map(question => (
-                        <Answer key={question.qID} {...question} setAnswers={setAnswers} answers={answers} />
-                    ))}
-                    <Button onClick={handleSendResponse} variant="success">Submit</Button>
+                    {data &&
+                        data.getQuestionnaire.questions.map((question) => (
+                            <Answer
+                                key={question.qID}
+                                {...question}
+                                setAnswers={setAnswers}
+                                answers={answers}
+                            />
+                        ))}
+                    <Button onClick={handleSendResponse} variant="success">
+                        Submit
+                    </Button>
                 </Container>
             </main>
         </>
