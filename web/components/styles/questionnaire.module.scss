@@ -1,17 +1,39 @@
 .questionnaireCard {
-    margin: 0 auto;
-    margin-top: 2vh;
-    margin-bottom: 2vh;
-    width: 100%;
+    margin: 1rem 0;
+    overflow: hidden;
 }
 
 .questionnaireCardItem {
-    margin-left: 4;
-    margin-right: 4;
+    margin: 1rem;
 }
 
 .questionnaireContainer {
     padding-left: 0;
+    margin: 2rem 0;
+}
+
+.questionnaireQuestion{
+    background-color: #444;
+    color: #eee;
+    overflow: hidden;
+}
+
+.questionnaireTitle{
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+.questionnaireQuestionTitle{
+    margin: 1rem;
+    margin-bottom: 0.2rem;
+}
+
+.questionnaireQuestionDescription{
+    margin: 1rem;
+}
+
+.questionnaireAnswerContainer{
+    margin: 1rem;
 }
 
 .checkboxContainer {

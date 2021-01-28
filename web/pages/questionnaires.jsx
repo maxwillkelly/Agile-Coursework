@@ -1,15 +1,15 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useQuery, useMutation } from '@apollo/client';
-import { Button, Container, ListGroup } from 'react-bootstrap';
+import { Button, Container, Col, ListGroup } from 'react-bootstrap';
 import Navigation from '../components/Navigation';
 import { GET_QUESTIONNAIRES } from '../queries/questionnaire';
-import { CREATE_QUESTIONNAIRE } from '../mutations/questionnaire';
+import { CREATE_QUESTIONNAIRE, REMOVE_QUESTIONNAIRE } from '../mutations/questionnaire';
 import styles from '../styles/questionnaires.module.scss';
 
 const QuestionnairesPage = () => {
     const router = useRouter();
-    const [createQuestionnaireMutation] = useMutation(CREATE_QUESTIONNAIRE); 
+    const [createQuestionnaireMutation] = useMutation(CREATE_QUESTIONNAIRE);
     const getQuestionnaires = useQuery(GET_QUESTIONNAIRES);
 
     const createQuestionnaire = async () => {
@@ -34,7 +34,10 @@ const QuestionnairesPage = () => {
             <main>
                 <Container className="mt-3">
                     <h2 className="mx-3">All Questionnaires</h2>
-                    <Questionnaires getQuestionnaires={getQuestionnaires} />
+                    <Questionnaires
+                        getQuestionnaires={getQuestionnaires}
+                        refetch={getQuestionnaires.refetch}
+                    />
                     <Button className="float-right mt-3" onClick={createQuestionnaire}>
                         Create Questionnaire
                     </Button>
@@ -44,8 +47,14 @@ const QuestionnairesPage = () => {
     );
 };
 
-const Questionnaires = ({ getQuestionnaires }) => {
+const Questionnaires = ({ getQuestionnaires, refetch }) => {
     const { loading, error, data } = getQuestionnaires;
+    const [removeQuestionnaire] = useMutation(REMOVE_QUESTIONNAIRE);
+
+    const deleteQuestionnaire = async (questionnaire) => {
+        await removeQuestionnaire({ variables: { questionnaireID: questionnaire.id } });
+        refetch();
+    };
 
     const router = useRouter();
 
@@ -58,12 +67,16 @@ const Questionnaires = ({ getQuestionnaires }) => {
                 return (
                     <ListGroup.Item key={i}>
                         <div className={styles.questionnaireItem}>
-                            <p className="m-0">{q.title}</p>
-                            <p className="m-0">{q.description}</p>
+                            <Col>
+                                <p className="m-0">{q.title}</p>
+                            </Col>
+                            <Col>
+                                <p className="m-0">{q.description}</p>
+                            </Col>
                             <div>
                                 <Button
                                     variant="primary"
-                                    onClick={() => router.push(`/studies/questionnaire/${q.id}`)}>
+                                    onClick={() => router.push(`/studies/questionnaire/answer/${q.id}`)}>
                                     View
                                 </Button>
 
@@ -72,6 +85,13 @@ const Questionnaires = ({ getQuestionnaires }) => {
                                     variant="secondary"
                                     onClick={() => router.push(`/studies/questionnaire/${q.id}`)}>
                                     Edit
+                                </Button>
+
+                                <Button
+                                    className="ml-4"
+                                    variant="danger"
+                                    onClick={() => deleteQuestionnaire(q)}>
+                                    Delete
                                 </Button>
                             </div>
                         </div>

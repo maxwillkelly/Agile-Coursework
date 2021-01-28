@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { Col, Container, Row } from 'react-bootstrap';
 import TitleForm from '../../../components/questionnaire/TitleForm';
 import AddQuestionForm from '../../../components/questionnaire/AddQuestionForm';
@@ -13,7 +13,7 @@ import { GET_QUESTIONNAIRE } from '../../../queries/questionnaire';
 const QuestionnaireCreatorPage = () => {
     // const [questions, setQuestions] = useState(questionArray);
     const router = useRouter();
-    const { loading, error, data } = useQuery(GET_QUESTIONNAIRE, {
+    const { loading, error, data, refetch } = useQuery(GET_QUESTIONNAIRE, {
         variables: { id: router.query.id }
     });
 
@@ -28,19 +28,29 @@ const QuestionnaireCreatorPage = () => {
                 <Container>
                     <Row>
                         <Col>
-                            <h1 className="py-4">Create a Questionnaire</h1>
+                            <h1 className="py-4">Create aQuestionnaire</h1>
                         </Col>
                     </Row>
                     <Row>
                         <Col>
                             {loading && <p>Loading...</p>}
                             {error && <pre>{JSON.stringify(error, null, 2)}</pre>}
-                            {data && <QuestionnaireOptions questionnaire={data.getQuestionnaire} />}
+                            {data && (
+                                <QuestionnaireOptions
+                                    questionnaire={data.getQuestionnaire}
+                                    refetch={refetch}
+                                />
+                            )}
                         </Col>
                         <Col>
                             {data &&
                                 data.getQuestionnaire.questions.map((question, index) => (
-                                    <Question question={question} key={index} />
+                                    <Question
+                                        question={question}
+                                        questionnaire={data.getQuestionnaire}
+                                        refetch={refetch}
+                                        key={index}
+                                    />
                                 ))}
                         </Col>
                     </Row>
@@ -50,15 +60,15 @@ const QuestionnaireCreatorPage = () => {
     );
 };
 
-const QuestionnaireOptions = ({ questionnaire }) => {
+const QuestionnaireOptions = ({ questionnaire, refetch }) => {
     return (
         <>
             <h5>Your Questionnaire</h5>
             <TitleForm questionnaire={questionnaire} />
-            <h5>Add a Question</h5>
-            <AddQuestionForm questionnaire={questionnaire} />
-            <h5>Add Paragraph Section</h5>
-            <AddTextSection questionnaire={questionnaire} />
+            <h5 className="mt-5">Add a Question</h5>
+            <AddQuestionForm questionnaire={questionnaire} refetch={refetch} />
+            <h5 className="mt-5">Add Text Section</h5>
+            <AddTextSection questionnaire={questionnaire} refetch={refetch} />
         </>
     );
 };

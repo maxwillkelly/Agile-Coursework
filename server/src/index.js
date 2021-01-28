@@ -77,8 +77,10 @@ app.post('/login', async (req, res) => {
                 // Send token
                 res.send({
                     success: true,
-                    token: token,
-                    expire: expire
+                    token,
+                    id: loginEntry._id,
+                    level: loginEntry.level,
+                    expire
                 })
             } else {
                 res.status(401).send({

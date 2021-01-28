@@ -1,16 +1,43 @@
-import { Button, ButtonGroup, Form, Container, Card, InputGroup } from 'react-bootstrap';
+import { useState, useRef } from 'react';
+import { Button, Form, Container, Card, InputGroup, Overlay, Tooltip } from 'react-bootstrap';
+import { useMutation } from '@apollo/client';
+import { EDIT_QUESTION, REMOVE_QUESTION_FROM_QUESTIONNAIRE } from '../../mutations/questionnaire';
 import { Formik, FieldArray } from 'formik';
+import { UniqueInputFieldNamesRule } from 'graphql';
 // import styles from '../styles/questionnaire.module.scss';
 
-const Question = ({ question }) => {
-    const deleteQuestion = () => {};
-    const updateQuestion = (values) => {};
+const Question = ({ question, questionnaire, refetch }) => {
+    const [editQuestion] = useMutation(EDIT_QUESTION);
+    const [removeQuestionFromQuestionnaire] = useMutation(REMOVE_QUESTION_FROM_QUESTIONNAIRE);
+    const [showTooltip, setShowTooltip] = useState(false);
+    const buttonRef = useRef(null);
+
+    const deleteQuestion = async () => {
+        await removeQuestionFromQuestionnaire({
+            variables: { questionnaireID: questionnaire.id, questionID: question.qID }
+        });
+        refetch();
+    };
+    const updateQuestion = async (questionValues) => {
+        const variables = {
+            questionnaireID: questionnaire.id,
+            questionID: question.qID,
+            qType: question.qType,
+            order: questionValues.order,
+            message: questionValues.title,
+            description: questionValues.description,
+            values: questionValues.questionOptions
+        };
+        await editQuestion({ variables });
+        setShowTooltip(true);
+        setTimeout(() => setShowTooltip(false), 2000);
+    };
 
     return (
         <Container>
             <Card className="p-0 m-5">
                 <Card.Header>
-                    Question
+                    {question.qType === 'paragraph' ? 'Text Section' : 'Question'}
                     <Button variant="danger" className="float-right" onClick={deleteQuestion}>
                         Delete
                     </Button>
@@ -18,9 +45,10 @@ const Question = ({ question }) => {
                 <div className="m-4">
                     <Formik
                         initialValues={{
-                            title: question.title,
+                            title: question.message,
                             description: question.description,
-                            questionOptions: question.options
+                            questionOptions: question.values,
+                            order: question.order
                         }}
                         onSubmit={updateQuestion}>
                         {({
@@ -33,7 +61,9 @@ const Question = ({ question }) => {
                             // isSubmitting
                         }) => (
                             <Form onSubmit={handleSubmit}>
-                                <Form.Label>Question Title</Form.Label>
+                                <Form.Label>
+                                    {question.qType === 'paragraph' ? 'Heading' : 'Question Title'}
+                                </Form.Label>
                                 <Form.Control
                                     type="text"
                                     name="title"
@@ -42,7 +72,11 @@ const Question = ({ question }) => {
                                     onBlur={handleBlur}
                                     value={values.title}
                                 />
-                                <Form.Label className="mt-3">Question Description</Form.Label>
+                                <Form.Label className="mt-3">
+                                    {question.qType === 'paragraph'
+                                        ? 'Paragraph'
+                                        : 'Question Description'}
+                                </Form.Label>
                                 <Form.Control
                                     type="text"
                                     name="description"
@@ -52,54 +86,94 @@ const Question = ({ question }) => {
                                     value={values.description}
                                 />
 
-                                <Form.Label className="mt-3">Question Options</Form.Label>
-                                <FieldArray name="questionOptions">
-                                    {(arrayHelpers) => {
-                                        return (
-                                            <>
-                                                {values.questionOptions &&
-                                                    values.questionOptions.map((option, index) => (
-                                                        // <div className={styles.checkboxContainer}>
-                                                        <InputGroup className="my-3" key={index}>
-                                                            <InputGroup.Prepend>
-                                                                <QuestionPrepend
-                                                                    question={question}
-                                                                />
-                                                            </InputGroup.Prepend>
-                                                            <Form.Control
-                                                                type="text"
-                                                                name={`questionOptions.${index}`}
-                                                                onChange={handleChange}
-                                                                onBlur={handleBlur}
-                                                                value={option}
-                                                                key={index}
-                                                            />
-                                                            <InputGroup.Append>
+                                {(question.qType === 'radio' || question.qType === 'checkbox') &&
+                                    values.questionOptions && (
+                                        <>
+                                            <Form.Label className="mt-3">
+                                                Question Options
+                                            </Form.Label>
+                                            <FieldArray name="questionOptions">
+                                                {(arrayHelpers) => {
+                                                    return (
+                                                        <>
+                                                            {values.questionOptions.map(
+                                                                (option, index) => (
+                                                                    // <div className={styles.checkboxContainer}>
+                                                                    <InputGroup
+                                                                        className="my-3"
+                                                                        key={index}>
+                                                                        <InputGroup.Prepend>
+                                                                            <QuestionPrepend
+                                                                                question={question}
+                                                                            />
+                                                                        </InputGroup.Prepend>
+                                                                        <Form.Control
+                                                                            type="text"
+                                                                            name={`questionOptions.${index}`}
+                                                                            onChange={handleChange}
+                                                                            onBlur={handleBlur}
+                                                                            value={option}
+                                                                            key={index}
+                                                                        />
+                                                                        <InputGroup.Append>
+                                                                            <Button
+                                                                                variant="danger"
+                                                                                onClick={() =>
+                                                                                    arrayHelpers.remove(
+                                                                                        index
+                                                                                    )
+                                                                                }>
+                                                                                Delete
+                                                                            </Button>
+                                                                        </InputGroup.Append>
+                                                                    </InputGroup>
+                                                                    // </div>
+                                                                )
+                                                            )}
+                                                            <div className="mt-3 float-right">
                                                                 <Button
-                                                                    variant="danger"
+                                                                    className="mr-2"
+                                                                    variant="success"
                                                                     onClick={() =>
-                                                                        arrayHelpers.remove(index)
+                                                                        arrayHelpers.push('')
                                                                     }>
-                                                                    Delete
+                                                                    Add option
                                                                 </Button>
-                                                            </InputGroup.Append>
-                                                        </InputGroup>
-                                                        // </div>
-                                                    ))}
-                                                <ButtonGroup className="mt-3 float-right">
-                                                    <Button
-                                                        className="mr-2"
-                                                        variant="success"
-                                                        onClick={() => arrayHelpers.push('')}>
-                                                        Add option
-                                                    </Button>
-                                                    <Button type="submit">Save</Button>
-                                                </ButtonGroup>
-                                                {/* <pre>{JSON.stringify(values, null, 2)}</pre> */}
-                                            </>
-                                        );
-                                    }}
-                                </FieldArray>
+                                                                <Button
+                                                                    ref={buttonRef}
+                                                                    type="submit">
+                                                                    Save
+                                                                </Button>
+                                                            </div>
+                                                            {/* <pre>{JSON.stringify(values, null, 2)}</pre> */}
+                                                        </>
+                                                    );
+                                                }}
+                                            </FieldArray>
+                                        </>
+                                    )}
+                                {(question.qType === 'short' || question.qType === 'long') && (
+                                    <>
+                                        <Form.Label className="mt-3">
+                                            Question Type:
+                                            {question.qType === 'short'
+                                                ? ' Short answer'
+                                                : ' Long answer'}
+                                        </Form.Label>
+                                        <Button
+                                            ref={buttonRef}
+                                            type="submit"
+                                            className="mt-2 float-right">
+                                            Save
+                                        </Button>
+                                    </>
+                                )}
+                                <Overlay
+                                    target={buttonRef.current}
+                                    show={showTooltip}
+                                    placement="bottom">
+                                    {(props) => <Tooltip {...props}>Question saved!</Tooltip>}
+                                </Overlay>
                             </Form>
                         )}
                     </Formik>
@@ -110,7 +184,7 @@ const Question = ({ question }) => {
 };
 
 const QuestionPrepend = ({ question }) => {
-    switch (question.type) {
+    switch (question.qType) {
         case 'checkbox':
             return <InputGroup.Text>☐</InputGroup.Text>;
         case 'radio':

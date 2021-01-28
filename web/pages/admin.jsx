@@ -5,6 +5,7 @@ import UserProfile from '../components/users/UserProfile';
 import { useState } from 'react';
 import { Alert } from 'react-bootstrap';
 import styles from '../styles/admin.module.scss';
+import Navigation from '../components/Navigation';
 
 export const AdminDashboard = () => {
     const [successVal, setSuccessVal] = useState([null]);
@@ -15,6 +16,7 @@ export const AdminDashboard = () => {
             <Head>
                 <title>Admin Dashboard</title>
             </Head>
+            <Navigation />
 
             <main className={styles.container}>
                 <h1>Admin Dashboard</h1>
