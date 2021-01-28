@@ -37,7 +37,7 @@ const Question = ({ question, questionnaire, refetch }) => {
         <Container>
             <Card className="p-0 m-5">
                 <Card.Header>
-                    Question
+                    {question.qType === 'paragraph' ? 'Text Section' : 'Question'}
                     <Button variant="danger" className="float-right" onClick={deleteQuestion}>
                         Delete
                     </Button>
@@ -61,7 +61,9 @@ const Question = ({ question, questionnaire, refetch }) => {
                             // isSubmitting
                         }) => (
                             <Form onSubmit={handleSubmit}>
-                                <Form.Label>Question Title</Form.Label>
+                                <Form.Label>
+                                    {question.qType === 'paragraph' ? 'Heading' : 'Question Title'}
+                                </Form.Label>
                                 <Form.Control
                                     type="text"
                                     name="title"
@@ -70,7 +72,11 @@ const Question = ({ question, questionnaire, refetch }) => {
                                     onBlur={handleBlur}
                                     value={values.title}
                                 />
-                                <Form.Label className="mt-3">Question Description</Form.Label>
+                                <Form.Label className="mt-3">
+                                    {question.qType === 'paragraph'
+                                        ? 'Paragraph'
+                                        : 'Question Description'}
+                                </Form.Label>
                                 <Form.Control
                                     type="text"
                                     name="description"

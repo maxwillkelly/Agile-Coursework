@@ -65,10 +65,10 @@ const QuestionnaireOptions = ({ questionnaire, refetch }) => {
         <>
             <h5>Your Questionnaire</h5>
             <TitleForm questionnaire={questionnaire} />
-            <h5>Add a Question</h5>
+            <h5 className="mt-5">Add a Question</h5>
             <AddQuestionForm questionnaire={questionnaire} refetch={refetch} />
-            <h5>Add Paragraph Section</h5>
-            <AddTextSection questionnaire={questionnaire} />
+            <h5 className="mt-5">Add Text Section</h5>
+            <AddTextSection questionnaire={questionnaire} refetch={refetch} />
         </>
     );
 };
