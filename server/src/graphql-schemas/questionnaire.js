@@ -113,7 +113,7 @@ const resolvers = {
                 }
                 catch (err) {
                     throw new Error(
-                        `error ${err}`
+                        `Error: ${err}`
                     )
                 }
             } else {
