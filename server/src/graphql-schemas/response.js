@@ -27,7 +27,7 @@ type rValues{
     values: [String]
 }
 
-"Represents details of a reponse"
+"Represents details of a response"
 type Response{
     id: ID
     questionnaireID: ID
@@ -35,15 +35,15 @@ type Response{
 }
 
 extend type Query {
-    "Get a reponse using ID of a response"
+    "Get a response using ID of a response"
     getResponse(id:ID!): Response
     getResponses(questionnaireInputID: ID!): [Response]
 }
 
 extend type Mutation{
-    "Deletes are reponse"
+    "Deletes are response"
     deleteResponse(id:ID!): Response
-    "Create a reponse"
+    "Create a response"
     createResponse(
         response: ResponseInput!
     ): Response
@@ -158,11 +158,11 @@ const resolvers = {
 
         createResponse: async (parent, arg, ctx, info) => {
             const ResponseCollection = database.getDb().collection('responses');
-            const QuestionnaireCollection = database.getDb().collection('questionaires');
+            const QuestionnaireCollection = database.getDb().collection('questionnaires');
             const q_id = new mongo.ObjectID(arg.response.questionnaireID);
             const currQuestionnaire = await QuestionnaireCollection.findOne({ _id: q_id })
             if (!currQuestionnaire) {
-                throw new IdError("Invalid QuestionniareID")
+                throw new IdError("Invalid QuestionnaireID")
             }
             var answerID = []
             for (let x in arg.response.answers) {
@@ -186,7 +186,7 @@ const resolvers = {
             try{
                 const newDocument = {
                     questionnaireID: {
-                        $ref: "questionaires",
+                        $ref: "questionnaires",
                         $id: q_id
                     },
                     answers: []

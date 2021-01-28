@@ -54,7 +54,7 @@ const typeDefs = gql`
 
     extend type Mutation {
         "Create a new Questionnaire"
-        createQuestionaire(
+        createQuestionnaire(
             questionnaire: QuestionnaireInput!
         ): Questionnaire
         "Remove as questionnaire"
@@ -97,7 +97,7 @@ const resolvers = {
         getQuestionnaire: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 try {
-                    const QuestionnaireCollection = database.getDb().collection('questionaires');
+                    const QuestionnaireCollection = database.getDb().collection('questionnaires');
                     const q_id = new mongo.ObjectID(arg.id);
                     const currQuestionnaire = await QuestionnaireCollection.findOne({ _id: q_id })
                     if (currQuestionnaire) {
@@ -130,7 +130,7 @@ const resolvers = {
             if (ctx.auth) {
                 if (ctx.user.Level >= 2) {
                     try {
-                        const QuestionnaireCollection = database.getDb().collection('questionaires');
+                        const QuestionnaireCollection = database.getDb().collection('questionnaires');
                         const questionnaires = await QuestionnaireCollection.find().toArray()
                         var replyList = []
                         for (let x in questionnaires) {
@@ -165,7 +165,7 @@ const resolvers = {
 
         getStudyQuestionnaires: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
-                const QuestionnaireCollection = database.getDb().collection('questionaires');
+                const QuestionnaireCollection = database.getDb().collection('questionnaires');
                 try {
                     var s_id = arg.studyID;
                     console.log(s_id);
@@ -199,10 +199,10 @@ const resolvers = {
     },
 
     Mutation: {
-        createQuestionaire: async (parent, arg, ctx, info) => {
+        createQuestionnaire: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 try {
-                    const QuestionnaireCollection = database.getDb().collection('questionaires');
+                    const QuestionnaireCollection = database.getDb().collection('questionnaires');
                     const StudyCollection = database.getDb().collection('study');
                     const s_id = new mongo.ObjectID(arg.questionnaire.studyID);
                     const staff_id = new mongo.ObjectID(ctx.user.ID);
@@ -254,7 +254,7 @@ const resolvers = {
         addQuestion: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 try {
-                    const QuestionnaireCollection = database.getDb().collection('questionaires');
+                    const QuestionnaireCollection = database.getDb().collection('questionnaires');
                     const StudyCollection = database.getDb().collection('study');
                     const q_id = new mongo.ObjectID(arg.questionnaireID);
                     const staff_id = new mongo.ObjectID(ctx.user.ID);
@@ -318,7 +318,7 @@ const resolvers = {
         },
         editQuestionnaire: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
-                const QuestionnaireCollection = database.getDb().collection('questionaires');
+                const QuestionnaireCollection = database.getDb().collection('questionnaires');
                 const StudyCollection = database.getDb().collection('study');
                 const q_id = new mongo.ObjectID(arg.questionnaireID);
                 const staff_id = new mongo.ObjectID(ctx.user.ID);
@@ -375,7 +375,7 @@ const resolvers = {
         },
         removeQuestionnaire: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
-                const QuestionnaireCollection = database.getDb().collection('questionaires');
+                const QuestionnaireCollection = database.getDb().collection('questionnaires');
                 const StudyCollection = database.getDb().collection('study');
                 const q_id = new mongo.ObjectID(arg.questionnaireID);
                 const staff_id = new mongo.ObjectID(ctx.user.ID);
@@ -421,7 +421,7 @@ const resolvers = {
         },
         removeQuestionFromQuestionnaire: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
-                const QuestionnaireCollection = database.getDb().collection('questionaires');
+                const QuestionnaireCollection = database.getDb().collection('questionnaires');
                 const StudyCollection = database.getDb().collection('study');
                 const q_id = new mongo.ObjectID(arg.questionnaireID);
                 const staff_id = new mongo.ObjectID(ctx.user.ID);
@@ -487,7 +487,7 @@ const resolvers = {
         },
         editQuestion: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
-                const QuestionnaireCollection = database.getDb().collection('questionaires');
+                const QuestionnaireCollection = database.getDb().collection('questionnaires');
                 const StudyCollection = database.getDb().collection('study');
                 const q_id = new mongo.ObjectID(arg.questionnaireID);
                 const staff_id = new mongo.ObjectID(ctx.user.ID);
