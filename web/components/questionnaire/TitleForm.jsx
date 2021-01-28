@@ -1,14 +1,19 @@
-import { Form, Button, Container, Card } from 'react-bootstrap';
+import { useState, useRef } from 'react';
+import { Form, Button, Container, Card, Overlay, Tooltip } from 'react-bootstrap';
 import { Formik } from 'formik';
 import { useMutation } from '@apollo/client';
 import { EDIT_QUESTIONNAIRE } from '../../mutations/questionnaire';
 import styles from '../styles/questionnaire.module.scss';
 
 const TitleForm = ({ questionnaire }) => {
+    const [showTooltip, setShowTooltip] = useState(false);
     const [editQuestionnaire] = useMutation(EDIT_QUESTIONNAIRE);
+    const buttonRef = useRef(null);
 
     const updateValues = async (variables) => {
-        editQuestionnaire({ variables });
+        await editQuestionnaire({ variables });
+        setShowTooltip(true);
+        setTimeout(() => setShowTooltip(false), 2000);
     };
 
     return (
@@ -27,8 +32,7 @@ const TitleForm = ({ questionnaire }) => {
                         // touched,
                         handleChange,
                         handleBlur,
-                        handleSubmit,
-                        isSubmitting
+                        handleSubmit
                     }) => (
                         // {console.log(values)}
                         <Form onSubmit={handleSubmit}>
@@ -55,9 +59,19 @@ const TitleForm = ({ questionnaire }) => {
                                     value={values.description}
                                 />
                             </Form.Group>
-                            <Button className="float-right" variant="primary" type="submit" disabled={isSubmitting}>
+                            <Button
+                                ref={buttonRef}
+                                className="float-right"
+                                variant="primary"
+                                type="submit">
                                 Save
                             </Button>
+                            <Overlay
+                                target={buttonRef.current}
+                                show={showTooltip}
+                                placement="bottom">
+                                {(props) => <Tooltip {...props}>Questionnaire saved!</Tooltip>}
+                            </Overlay>
                         </Form>
                     )}
                 </Formik>
