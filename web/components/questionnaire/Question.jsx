@@ -74,54 +74,76 @@ const Question = ({ question, questionnaire, refetch }) => {
                                     value={values.description}
                                 />
 
-                                <Form.Label className="mt-3">Question Options</Form.Label>
-                                <FieldArray name="questionOptions">
-                                    {(arrayHelpers) => {
-                                        return (
-                                            <>
-                                                {values.questionOptions &&
-                                                    values.questionOptions.map((option, index) => (
-                                                        // <div className={styles.checkboxContainer}>
-                                                        <InputGroup className="my-3" key={index}>
-                                                            <InputGroup.Prepend>
-                                                                <QuestionPrepend
-                                                                    question={question}
-                                                                />
-                                                            </InputGroup.Prepend>
-                                                            <Form.Control
-                                                                type="text"
-                                                                name={`questionOptions.${index}`}
-                                                                onChange={handleChange}
-                                                                onBlur={handleBlur}
-                                                                value={option}
-                                                                key={index}
-                                                            />
-                                                            <InputGroup.Append>
+                                {(question.qType === 'radio' || question.qType === 'checkbox') &&
+                                    values.questionOptions && (
+                                        <>
+                                            <Form.Label className="mt-3">
+                                                Question Options
+                                            </Form.Label>
+                                            <FieldArray name="questionOptions">
+                                                {(arrayHelpers) => {
+                                                    return (
+                                                        <>
+                                                            {values.questionOptions.map(
+                                                                (option, index) => (
+                                                                    // <div className={styles.checkboxContainer}>
+                                                                    <InputGroup
+                                                                        className="my-3"
+                                                                        key={index}>
+                                                                        <InputGroup.Prepend>
+                                                                            <QuestionPrepend
+                                                                                question={question}
+                                                                            />
+                                                                        </InputGroup.Prepend>
+                                                                        <Form.Control
+                                                                            type="text"
+                                                                            name={`questionOptions.${index}`}
+                                                                            onChange={handleChange}
+                                                                            onBlur={handleBlur}
+                                                                            value={option}
+                                                                            key={index}
+                                                                        />
+                                                                        <InputGroup.Append>
+                                                                            <Button
+                                                                                variant="danger"
+                                                                                onClick={() =>
+                                                                                    arrayHelpers.remove(
+                                                                                        index
+                                                                                    )
+                                                                                }>
+                                                                                Delete
+                                                                            </Button>
+                                                                        </InputGroup.Append>
+                                                                    </InputGroup>
+                                                                    // </div>
+                                                                )
+                                                            )}
+                                                            <ButtonGroup className="mt-3 float-right">
                                                                 <Button
-                                                                    variant="danger"
+                                                                    className="mr-2"
+                                                                    variant="success"
                                                                     onClick={() =>
-                                                                        arrayHelpers.remove(index)
+                                                                        arrayHelpers.push('')
                                                                     }>
-                                                                    Delete
+                                                                    Add option
                                                                 </Button>
-                                                            </InputGroup.Append>
-                                                        </InputGroup>
-                                                        // </div>
-                                                    ))}
-                                                <ButtonGroup className="mt-3 float-right">
-                                                    <Button
-                                                        className="mr-2"
-                                                        variant="success"
-                                                        onClick={() => arrayHelpers.push('')}>
-                                                        Add option
-                                                    </Button>
-                                                    <Button type="submit">Save</Button>
-                                                </ButtonGroup>
-                                                {/* <pre>{JSON.stringify(values, null, 2)}</pre> */}
-                                            </>
-                                        );
-                                    }}
-                                </FieldArray>
+                                                                <Button type="submit">Save</Button>
+                                                            </ButtonGroup>
+                                                            {/* <pre>{JSON.stringify(values, null, 2)}</pre> */}
+                                                        </>
+                                                    );
+                                                }}
+                                            </FieldArray>
+                                        </>
+                                    )}
+                                {(question.qType === 'short' || question.qType === 'long') && (
+                                    <Form.Label className="mt-3">
+                                        Question Type:
+                                        {question.qType === 'short'
+                                            ? ' Short answer'
+                                            : ' Long answer'}
+                                    </Form.Label>
+                                )}
                             </Form>
                         )}
                     </Formik>
@@ -132,7 +154,7 @@ const Question = ({ question, questionnaire, refetch }) => {
 };
 
 const QuestionPrepend = ({ question }) => {
-    switch (question.type) {
+    switch (question.qType) {
         case 'checkbox':
             return <InputGroup.Text>☐</InputGroup.Text>;
         case 'radio':
