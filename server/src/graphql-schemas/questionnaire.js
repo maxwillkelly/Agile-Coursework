@@ -171,9 +171,9 @@ const resolvers = {
                 const QuestionnaireCollection = database.getDb().collection('questionnaires');
                 const StudyCollection = database.getDb().collection('study');
                 var s_id = new mongo.ObjectID(arg.studyID);
-                const o_id = new mongo.ObjectID(ctx.user.ID);
                 if (ctx.user.Level < 2) {
-                    const studyDocument = await StudyCollection.findOne({ _id: s_id, staff: mongo.DBRef("users", o_id) })
+                    const staff_id = new mongo.ObjectID(ctx.user.ID);
+                    const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", staff_id) })
                     if (!studyDocument) {
                         throw new ForbiddenError("User not part of study")
                     }
@@ -221,7 +221,7 @@ const resolvers = {
                         throw new Error("Invalid studyID")
                     }
                     if (ctx.user.Level < 2) {
-                        const studyDocument = await StudyCollection.findOne({ _id: s_id, staff: mongo.DBRef("users", o_id) })
+                        const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", staff_id) })
                         if (!studyDocument) {
                             throw new ForbiddenError("User not part of study")
                         }
@@ -283,7 +283,7 @@ const resolvers = {
                         throw new Error("Unable to find linked study")
                     }
                     if (ctx.user.Level < 2) {
-                        const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", o_id) })
+                        const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", staff_id) })
                         if (!studyDocument) {
                             throw new ForbiddenError("User not part of study")
                         }
@@ -343,7 +343,6 @@ const resolvers = {
                 const QuestionnaireCollection = database.getDb().collection('questionnaires');
                 const StudyCollection = database.getDb().collection('study');
                 const q_id = new mongo.ObjectID(arg.questionnaireID);
-                const staff_id = new mongo.ObjectID(ctx.user.ID);
                 var currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                 if (!currQuestionnaire) {
                     throw new IdError("Invalid questionnaireID")
@@ -353,7 +352,8 @@ const resolvers = {
                     throw new Error("Unable to find linked study")
                 }
                 if (ctx.user.Level < 2) {
-                    const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", o_id) })
+                    const staff_id = new mongo.ObjectID(ctx.user.ID);
+                    const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", staff_id) })
                     if (!studyDocument) {
                         throw new ForbiddenError("User not part of study")
                     }
@@ -397,7 +397,6 @@ const resolvers = {
                 const QuestionnaireCollection = database.getDb().collection('questionnaires');
                 const StudyCollection = database.getDb().collection('study');
                 const q_id = new mongo.ObjectID(arg.questionnaireID);
-                const staff_id = new mongo.ObjectID(ctx.user.ID);
                 var currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                 if (!currQuestionnaire) {
                     throw new IdError("Invalid questionnaireID")
@@ -407,7 +406,8 @@ const resolvers = {
                     throw new Error("Unable to find linked study")
                 }
                 if (ctx.user.Level < 2) {
-                    const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", o_id) })
+                    const staff_id = new mongo.ObjectID(ctx.user.ID);
+                    const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", staff_id) })
                     if (!studyDocument) {
                         throw new ForbiddenError("User not part of study")
                     }
@@ -440,7 +440,6 @@ const resolvers = {
                 const QuestionnaireCollection = database.getDb().collection('questionnaires');
                 const StudyCollection = database.getDb().collection('study');
                 const q_id = new mongo.ObjectID(arg.questionnaireID);
-                const staff_id = new mongo.ObjectID(ctx.user.ID);
                 var currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                 if (!currQuestionnaire) {
                     throw new IdError("Invalid questionnaireID")
@@ -450,7 +449,8 @@ const resolvers = {
                     throw new Error("Unable to find linked study")
                 }
                 if (ctx.user.Level < 2) {
-                    const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", o_id) })
+                    const staff_id = new mongo.ObjectID(ctx.user.ID);
+                    const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", staff_id) })
                     if (!studyDocument) {
                         throw new ForbiddenError("User not part of study")
                     }
@@ -503,7 +503,6 @@ const resolvers = {
                 const QuestionnaireCollection = database.getDb().collection('questionnaires');
                 const StudyCollection = database.getDb().collection('study');
                 const q_id = new mongo.ObjectID(arg.questionnaireID);
-                const staff_id = new mongo.ObjectID(ctx.user.ID);
                 var currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                 if (!currQuestionnaire) {
                     throw new IdError("Invalid questionnaireID")
@@ -513,7 +512,8 @@ const resolvers = {
                     throw new Error("Unable to find linked study")
                 }
                 if (ctx.user.Level < 2) {
-                    const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", o_id) })
+                    const staff_id = new mongo.ObjectID(ctx.user.ID);
+                    const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", staff_id) })
                     if (!studyDocument) {
                         throw new ForbiddenError("User not part of study")
                     }
