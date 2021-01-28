@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Form, Container, Card, InputGroup } from 'react-bootstrap';
+import { Button, Form, Container, Card, InputGroup } from 'react-bootstrap';
 import { useMutation } from '@apollo/client';
 import { EDIT_QUESTION, REMOVE_QUESTION_FROM_QUESTIONNAIRE } from '../../mutations/questionnaire';
 import { Formik, FieldArray } from 'formik';
@@ -118,7 +118,7 @@ const Question = ({ question, questionnaire, refetch }) => {
                                                                     // </div>
                                                                 )
                                                             )}
-                                                            <ButtonGroup className="mt-3 float-right">
+                                                            <div className="mt-3 float-right">
                                                                 <Button
                                                                     className="mr-2"
                                                                     variant="success"
@@ -128,7 +128,7 @@ const Question = ({ question, questionnaire, refetch }) => {
                                                                     Add option
                                                                 </Button>
                                                                 <Button type="submit">Save</Button>
-                                                            </ButtonGroup>
+                                                            </div>
                                                             {/* <pre>{JSON.stringify(values, null, 2)}</pre> */}
                                                         </>
                                                     );
@@ -137,12 +137,17 @@ const Question = ({ question, questionnaire, refetch }) => {
                                         </>
                                     )}
                                 {(question.qType === 'short' || question.qType === 'long') && (
-                                    <Form.Label className="mt-3">
-                                        Question Type:
-                                        {question.qType === 'short'
-                                            ? ' Short answer'
-                                            : ' Long answer'}
-                                    </Form.Label>
+                                    <>
+                                        <Form.Label className="mt-3">
+                                            Question Type:
+                                            {question.qType === 'short'
+                                                ? ' Short answer'
+                                                : ' Long answer'}
+                                        </Form.Label>
+                                        <Button type="submit" className="mt-2 float-right">
+                                            Save
+                                        </Button>
+                                    </>
                                 )}
                             </Form>
                         )}

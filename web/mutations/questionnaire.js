@@ -46,6 +46,7 @@ export const EDIT_QUESTION = gql`
         $qType: String
         $order: Int
         $message: String
+        $description: String
         $values: [String]
     ) {
         editQuestion(
@@ -54,6 +55,7 @@ export const EDIT_QUESTION = gql`
             qType: $qType
             order: $order
             message: $message
+            description: $description
             values: $values
         ) {
             id

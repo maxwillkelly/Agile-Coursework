@@ -55,7 +55,7 @@ const TitleForm = ({ questionnaire }) => {
                                     value={values.description}
                                 />
                             </Form.Group>
-                            <Button variant="primary" type="submit" disabled={isSubmitting}>
+                            <Button className="float-right" variant="primary" type="submit" disabled={isSubmitting}>
                                 Save
                             </Button>
                         </Form>
