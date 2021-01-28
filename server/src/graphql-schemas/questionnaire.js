@@ -5,6 +5,8 @@ const { gql, AuthenticationError, ForbiddenError } = require('apollo-server-expr
 const { IdError, PermissionsError } = require('../func/errors');
 const database = require('../database');
 const mongo = require('mongodb');
+const studyHelper = require('../func/study');
+const study = require('../func/study');
 
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
@@ -39,7 +41,8 @@ const typeDefs = gql`
         id: ID
         title: String
         description: String
-        studyID: ID  #TODO: Update to use study type
+        "Study is only returned if user is logged in"
+        study: Study
         questions: [Question]
     }
 
@@ -93,37 +96,36 @@ const typeDefs = gql`
 // Resolvers define the technique for fetching the types defined in the Schema above
 const resolvers = {
     Query: {
-
         getQuestionnaire: async (parent, arg, ctx, info) => {
-            if (ctx.auth) {
-                try {
-                    const QuestionnaireCollection = database.getDb().collection('questionnaires');
-                    const q_id = new mongo.ObjectID(arg.id);
-                    const currQuestionnaire = await QuestionnaireCollection.findOne({ _id: q_id })
-                    if (currQuestionnaire) {
-                        return {
-                            id: currQuestionnaire._id,
-                            title: currQuestionnaire.title,
-                            description: currQuestionnaire.description,
-                            studyID: currQuestionnaire.studyID.oid,
-                            questions: currQuestionnaire.questions,
-                        }
-                    } else {
-                        throw new Error(
-                            'Invalid ID'
-                        )
+            try {
+                const QuestionnaireCollection = database.getDb().collection('questionnaires');
+                const q_id = new mongo.ObjectID(arg.id);
+                const currQuestionnaire = await QuestionnaireCollection.findOne({ _id: q_id })
+                if (currQuestionnaire) {
+                    if (ctx.auth) {
+                        studyDetails = await studyHelper.getStudy(currQuestionnaire.studyID.oid)
+                    }else{
+                        studyDetails = null
                     }
-                }
-                catch (err) {
-                    throw new Error(
-                        `Error: ${err}`
+                    return {
+                        id: currQuestionnaire._id,
+                        title: currQuestionnaire.title,
+                        description: currQuestionnaire.description,
+                        study: studyDetails,
+                        questions: currQuestionnaire.questions,
+                    }
+                } else {
+                    throw new IdError(
+                        'Invalid ID'
                     )
                 }
-            } else {
-                throw new ForbiddenError(
-                    'Authentication token is invalid, please log in'
+            }
+            catch (err) {
+                throw new Error(
+                    `Error: ${err}`
                 )
             }
+
         },
 
         getQuestionnaires: async (parent, arg, ctx, info) => {
@@ -139,7 +141,7 @@ const resolvers = {
                                     id: questionnaires[x]._id,
                                     title: questionnaires[x].title,
                                     description: questionnaires[x].description,
-                                    studyID: questionnaires[x].studyID.oid,
+                                    study: await studyHelper.getStudy(questionnaires[x].studyID.oid),
                                     questions: questionnaires[x].questions
                                 }
                             )
@@ -177,7 +179,7 @@ const resolvers = {
                                 id: questionnaires[x]._id,
                                 title: questionnaires[x].title,
                                 description: questionnaires[x].description,
-                                studyID: questionnaires[x].studyID.oid,
+                                study: await studyHelper.getStudy(questionnaires[x].studyID.oid),
                                 questions: questionnaires[x].questions
                             }
                         )
@@ -236,7 +238,7 @@ const resolvers = {
                         id: response.ops[0]._id,
                         title: response.ops[0].title,
                         description: response.ops[0].description,
-                        studyID: response.ops[0].studyID.$id,
+                        study: await studyHelper.getStudy(response.ops[0].studyID.$id),
                         questions: response.ops[0].questions
                     }
                 } catch (err) {
@@ -301,7 +303,7 @@ const resolvers = {
                             id: currQuestionnaire._id,
                             title: currQuestionnaire.title,
                             description: currQuestionnaire.description,
-                            studyID: currQuestionnaire.studyID.oid,
+                            study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
                             questions: currQuestionnaire.questions,
                         }
                     }
@@ -358,7 +360,7 @@ const resolvers = {
                             id: currQuestionnaire._id,
                             title: currQuestionnaire.title,
                             description: currQuestionnaire.description,
-                            studyID: currQuestionnaire.studyID.oid,
+                            study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
                             questions: currQuestionnaire.questions,
                         }
                     }
@@ -405,7 +407,7 @@ const resolvers = {
                         id: currQuestionnaire._id,
                         title: currQuestionnaire.title,
                         description: currQuestionnaire.description,
-                        studyID: currQuestionnaire.studyID.oid,
+                        study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
                         questions: currQuestionnaire.questions,
                     }
                 } catch (err) {
@@ -471,7 +473,7 @@ const resolvers = {
                         id: currQuestionnaire._id,
                         title: currQuestionnaire.title,
                         description: currQuestionnaire.description,
-                        studyID: currQuestionnaire.studyID.oid,
+                        study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
                         questions: currQuestionnaire.questions,
                     }
                 } catch (err) {
@@ -528,35 +530,35 @@ const resolvers = {
                         // updateQuestion.qType = arg.qType
                         await QuestionnaireCollection.updateOne(
                             findQuery,
-                            {$set: {"questions.$.qType": arg.qType}}
+                            { $set: { "questions.$.qType": arg.qType } }
                         )
                     }
                     if ('order' in arg) {
                         // updateQuestion.order - arg.order
                         await QuestionnaireCollection.updateOne(
                             findQuery,
-                            {$set: {"questions.$.order": arg.order}}
+                            { $set: { "questions.$.order": arg.order } }
                         )
                     }
                     if ('message' in arg) {
                         // updateQuestion.message = arg.message
                         await QuestionnaireCollection.updateOne(
                             findQuery,
-                            {$set: {"questions.$.message": arg.message}}
+                            { $set: { "questions.$.message": arg.message } }
                         )
                     }
                     if ('values' in arg) {
                         // updateQuestion.values = arg.values
                         await QuestionnaireCollection.updateOne(
                             findQuery,
-                            {$set: {"questions.$.values": arg.values}}
+                            { $set: { "questions.$.values": arg.values } }
                         )
                     }
                     if ('description' in arg) {
                         // updateQuestion.values = arg.values
                         await QuestionnaireCollection.updateOne(
                             findQuery,
-                            {$set: {"questions.$.description": arg.description}}
+                            { $set: { "questions.$.description": arg.description } }
                         )
                     }
                     currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
@@ -564,7 +566,7 @@ const resolvers = {
                         id: currQuestionnaire._id,
                         title: currQuestionnaire.title,
                         description: currQuestionnaire.description,
-                        studyID: currQuestionnaire.studyID.oid,
+                        study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
                         questions: currQuestionnaire.questions,
                     }
                 } catch (err) {
