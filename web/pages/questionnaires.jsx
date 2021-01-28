@@ -8,16 +8,21 @@ import { CREATE_QUESTIONNAIRE } from '../mutations/questionnaire';
 import styles from '../styles/questionnaires.module.scss';
 
 const QuestionnairesPage = () => {
-    // const router = useRouter();
+    const router = useRouter();
     const [createQuestionnaireMutation] = useMutation(CREATE_QUESTIONNAIRE);
     const getQuestionnaires = useQuery(GET_QUESTIONNAIRES);
 
-    const createQuestionnaire = () => {
-        const questionnaire = { title: '', description: '', studyID: '' };
-        createQuestionnaireMutation({
+    const createQuestionnaire = async () => {
+        const questionnaire = {
+            title: 'New Questionnaire',
+            description: 'This is a new questionnaire',
+            studyID: '60103d9bec827463c8a40e34'
+        };
+        const { data } = await createQuestionnaireMutation({
             variables: { questionnaire }
-        }).then((data) => console.log(data));
-        // data.then(() => router.push(`/studies/questionnaire/${data.createQuestionaire.id}`));
+        });
+        getQuestionnaires.refetch();
+        router.push(`/studies/questionnaire/${data.createQuestionaire.id}`);
     };
 
     return (
@@ -51,7 +56,7 @@ const Questionnaires = ({ getQuestionnaires }) => {
         <ListGroup>
             {data.getQuestionnaires.map((q, i) => {
                 return (
-                    <ListGroup.Item className="mt-3" key={i}>
+                    <ListGroup.Item key={i}>
                         <div className={styles.questionnaireItem}>
                             <p className="m-0">{q.title}</p>
                             <p className="m-0">{q.description}</p>

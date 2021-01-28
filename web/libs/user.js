@@ -6,7 +6,7 @@ export const getUserToken = () => {
     try {
         userToken = JSON.parse(cookies.userToken);
     } catch (err) {
-        console.log(err);
+        //
     }
 
     return userToken;
