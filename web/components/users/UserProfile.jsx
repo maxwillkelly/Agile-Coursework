@@ -15,7 +15,7 @@ export const UserProfile = ({ selectedUser: user, setSuccessVal, setAlertVisibil
             return;
         }
         updateUser({
-            variables: { id: details.id }
+            variables: { ...details }
         })
             .then(() => {
                 setSuccessVal([true, 'Successfully updated user']);
@@ -29,7 +29,7 @@ export const UserProfile = ({ selectedUser: user, setSuccessVal, setAlertVisibil
     };
     const handleDeleteUser = () => {
         deleteUser({
-            variables: { ...details, id: user.id, level: parseInt(details.level) || 0 }
+            variables: { id: user.id }
         })
             .then(() => {
                 setSuccessVal([true, 'Successfully deleted user']);
@@ -105,10 +105,11 @@ export const UserProfile = ({ selectedUser: user, setSuccessVal, setAlertVisibil
                     <Form.Control
                         value={details.id || ''}
                         type="text"
+                        readOnly={true}
                         onChange={(e) => setDetails((prev) => ({ ...prev, id: e.target.value }))}
                     />
                 </Form.Group>
-                <Form.Group>
+                <Form.Group className={styles.profileButtons}>
                     <Button onClick={handleUpdateUser} variant="success">
                         Update
                     </Button>
