@@ -126,6 +126,10 @@ const resolvers = {
                         `error ${err}`
                     )
                 }
+            }else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
             }
         },
 
@@ -166,7 +170,7 @@ const resolvers = {
                 }
             }
             else {
-                throw new ForbiddenError(
+                throw new AuthenticationError(
                     'Authentication token is invalid, please log in'
                 )
             }
@@ -209,7 +213,7 @@ const resolvers = {
                 }
             }
             else {
-                throw new ForbiddenError(
+                throw new AuthenticationError(
                     'Authentication token is invalid, please log in'
                 )
             }
@@ -273,7 +277,7 @@ const resolvers = {
                     )
                 }
             } else {
-                throw new ForbiddenError(
+                throw new AuthenticationError(
                     'Authentication token is invalid, please log in'
                 )
             }
@@ -312,7 +316,7 @@ const resolvers = {
                 }
             }
             else {
-                throw new ForbiddenError(
+                throw new AuthenticationError(
                     'Authentication token is invalid, please log in'
                 )
             }
@@ -373,7 +377,7 @@ const resolvers = {
                     )
                 }
             } else {
-                throw new ForbiddenError(
+                throw new AuthenticationError(
                     'Authentication token is invalid, please log in'
                 )
             }
@@ -442,7 +446,7 @@ const resolvers = {
                     )
                 }
             } else {
-                throw new ForbiddenError(
+                throw new AuthenticationError(
                     'Authentication token is invalid, please log in'
                 )
             }
@@ -520,7 +524,7 @@ const resolvers = {
                     )
                 }
             } else {
-                throw new ForbiddenError(
+                throw new AuthenticationError(
                     'Authentication token is invalid, please log in'
                 )
             }

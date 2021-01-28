@@ -79,7 +79,7 @@ const resolvers = {
                     )
                 }
             } else {
-                throw new ForbiddenError(
+                throw new AuthenticationError(
                     'Authentication token is invalid, please log in'
                 )
             }
@@ -118,6 +118,10 @@ const resolvers = {
                 catch (err) {
                     `Error bro: ${err}`
                 }
+            } else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
             }
         }
     },
@@ -146,7 +150,7 @@ const resolvers = {
                     throw new Error(`Internal error: ${err}`)
                 }
             } else {
-                throw new ForbiddenError('Authentication token is invalid, please log in');
+                throw new AuthenticationError('Authentication token is invalid, please log in');
             }
         }
     }
