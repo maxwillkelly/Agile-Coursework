@@ -56,7 +56,7 @@ const Questionnaires = ({ getQuestionnaires }) => {
         <ListGroup>
             {data.getQuestionnaires.map((q, i) => {
                 return (
-                    <ListGroup.Item className="mt-3" key={i}>
+                    <ListGroup.Item key={i}>
                         <div className={styles.questionnaireItem}>
                             <p className="m-0">{q.title}</p>
                             <p className="m-0">{q.description}</p>
