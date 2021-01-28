@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useQuery, useMutation } from '@apollo/client';
-import { Button, Container, ListGroup } from 'react-bootstrap';
+import { Button, Container, Col, ListGroup } from 'react-bootstrap';
 import Navigation from '../components/Navigation';
 import { GET_QUESTIONNAIRES } from '../queries/questionnaire';
 import { CREATE_QUESTIONNAIRE } from '../mutations/questionnaire';
@@ -9,7 +9,7 @@ import styles from '../styles/questionnaires.module.scss';
 
 const QuestionnairesPage = () => {
     const router = useRouter();
-    const [createQuestionnaireMutation] = useMutation(CREATE_QUESTIONNAIRE); 
+    const [createQuestionnaireMutation] = useMutation(CREATE_QUESTIONNAIRE);
     const getQuestionnaires = useQuery(GET_QUESTIONNAIRES);
 
     const createQuestionnaire = async () => {
@@ -58,8 +58,12 @@ const Questionnaires = ({ getQuestionnaires }) => {
                 return (
                     <ListGroup.Item key={i}>
                         <div className={styles.questionnaireItem}>
-                            <p className="m-0">{q.title}</p>
-                            <p className="m-0">{q.description}</p>
+                            <Col>
+                                <p className="m-0">{q.title}</p>
+                            </Col>
+                            <Col>
+                                <p className="m-0">{q.description}</p>
+                            </Col>
                             <div>
                                 <Button
                                     variant="primary"
