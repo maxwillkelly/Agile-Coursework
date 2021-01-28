@@ -7,6 +7,7 @@ const database = require('../database');
 const mongo = require('mongodb');
 const studyHelper = require('../func/study');
 const study = require('../func/study');
+const questionnaire = require('../func/questionnaire');
 
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
@@ -169,9 +170,9 @@ const resolvers = {
             if (ctx.auth) {
                 const QuestionnaireCollection = database.getDb().collection('questionnaires');
                 try {
-                    var s_id = arg.studyID;
-                    console.log(s_id);
-                    const questionnaires = await QuestionnaireCollection.find({ studyID: s_id }).toArray()
+                    var s_id = new mongo.ObjectID(arg.studyID);
+                    const questionnaires = await QuestionnaireCollection.find({ studyID: mongo.DBRef("study", s_id) }).toArray()
+                    console.log(questionnaires)
                     var replyList = []
                     for (let x in questionnaires) {
                         replyList.push(
