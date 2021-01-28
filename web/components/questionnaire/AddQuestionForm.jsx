@@ -1,24 +1,26 @@
 import { Form, Button, Container, Card } from 'react-bootstrap';
+import { useMutation } from '@apollo/client';
 import { Formik } from 'formik';
-import lodash from 'lodash';
+import { ADD_QUESTION } from '../mutations/questionnaire';
 import styles from '../styles/questionnaire.module.scss';
 
-const AddQuestionForm = ({ onQuestionSet }) => {
-    const submitValues = (values, onQuestionSet) => {
-        onQuestionSet((state) => {
-            const copy = lodash.cloneDeep(state);
-            values.options = [''];
-            copy.push(values);
-            return copy;
-        });
+const AddQuestionForm = ({ questionnaire }) => {
+    const [addQuestion] = useMutation(ADD_QUESTION);
+
+    const submitValues = (variables) => {
+        addQuestion({ variables: { questionnaireID: questionnaire.id, question: variables } });
     };
 
     return (
         <Container className={`${styles.questionnaireContainer}`}>
             <Card className={`${styles.questionnaireCard} p-4`}>
                 <Formik
-                    initialValues={{ title: '', description: '', type: '' }}
-                    onSubmit={(values) => submitValues(values, onQuestionSet)}>
+                    initialValues={{
+                        message: '',
+                        description: '',
+                        qType: ''
+                    }}
+                    onSubmit={submitValues}>
                     {({
                         values,
                         // errors,
@@ -33,11 +35,11 @@ const AddQuestionForm = ({ onQuestionSet }) => {
                                 <Form.Label>Question Title</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    name="title"
+                                    name="message"
                                     placeholder="Enter a title"
                                     onChange={handleChange}
                                     onBlur={handleBlur}
-                                    value={values.title}
+                                    value={values.message}
                                 />
                             </Form.Group>
 
@@ -57,7 +59,7 @@ const AddQuestionForm = ({ onQuestionSet }) => {
                                 <Form.Label>Question type</Form.Label>
                                 <Form.Check
                                     type="radio"
-                                    name="type"
+                                    name="qType"
                                     label="Single choice (Radio)"
                                     id="radio"
                                     onChange={handleChange}
@@ -66,7 +68,7 @@ const AddQuestionForm = ({ onQuestionSet }) => {
                                 />
                                 <Form.Check
                                     type="radio"
-                                    name="type"
+                                    name="qType"
                                     id="checkbox"
                                     label="Multiple choice (Checkbox)"
                                     onChange={handleChange}
@@ -75,13 +77,13 @@ const AddQuestionForm = ({ onQuestionSet }) => {
                                 />
                                 <Form.Check
                                     type="radio"
-                                    name="type"
+                                    name="qType"
                                     id="short"
                                     label="Short answer"
                                 />
                                 <Form.Check
                                     type="radio"
-                                    name="type"
+                                    name="qType"
                                     id="long"
                                     label="Long answer"
                                 />
