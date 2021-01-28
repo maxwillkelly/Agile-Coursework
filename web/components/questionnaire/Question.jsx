@@ -14,7 +14,16 @@ const Question = ({ question, questionnaire, refetch }) => {
         });
         refetch();
     };
-    const updateQuestion = (variables) => {
+    const updateQuestion = (questionValues) => {
+        const variables = {
+            questionnaireID: questionnaire.id,
+            questionID: question.qID,
+            qType: question.qType,
+            order: questionValues.order,
+            message: questionValues.title,
+            description: questionValues.description,
+            values: questionValues.questionOptions
+        };
         editQuestion({ variables });
     };
 
@@ -32,7 +41,8 @@ const Question = ({ question, questionnaire, refetch }) => {
                         initialValues={{
                             title: question.message,
                             description: question.description,
-                            questionOptions: question.values
+                            questionOptions: question.values,
+                            order: question.order
                         }}
                         onSubmit={updateQuestion}>
                         {({
