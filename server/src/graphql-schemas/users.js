@@ -2,6 +2,7 @@
 Defines all the Scheme for User related GraphQL functions
 */
 const { gql, AuthenticationError, ForbiddenError } = require('apollo-server-express');
+const { IdError, PermissionsError } = require('../func/errors');
 const database = require('../database');
 const { permLevel } = require('../func/permissions');
 const bcrypt = require('bcrypt');
@@ -168,7 +169,7 @@ const resolvers = {
                             permission: permLevel[loginUser.level]
                         };
                     } else {
-                        throw new Error('user ID invalid');
+                        throw new IdError('user ID invalid');
                     }
                 } else {
                     throw new ForbiddenError('Insufficient permission level');

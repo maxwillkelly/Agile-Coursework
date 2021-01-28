@@ -71,7 +71,7 @@ const resolvers = {
                         }
                     }
                     catch (err) {
-                        throw new Error(
+                        throw new IdError(
                             `Invalid or nonexistent ID : ${err}`
                         )
                     }
