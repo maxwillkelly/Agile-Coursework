@@ -1,9 +1,10 @@
 import { useQuery } from '@apollo/client';
-import { USERS_QUERY } from '../queries/users';
-import { UserListSingle } from '../components/users/UserListSingle';
-import { UserForm } from '../components/users/UserCreate';
-import styles from '../styles/users.module.scss';
+import { USERS_QUERY } from '../../../queries/users';
+import { UserListSingle } from '../../../components/users/UserListSingle';
+import { UserForm } from '../../../components/users/UserCreate';
+import styles from '../../../styles/users.module.scss';
 import Head from 'next/head';
+import Navigation from '../../../components/Navigation';
 
 const UserList = ({ users }) => {
     console.log(users);
@@ -21,6 +22,7 @@ const UserDashboard = () => {
             <Head>
                 <title>UserDashboard</title>
             </Head>
+            <Navigation />
             <div className={styles.userDashboard}>
                 <div className="user-list">
                     <h3 className={styles.sectionHeader}>Users</h3>

@@ -29,12 +29,14 @@ const typeDefs = gql`
         staff: [ID]
     }
 
+    "Represents details a study's permissions"
     type StudyPermissions{
         edit: Int
         create: Int
         delete: Int
     }
 
+    "Represents details of a study"
     type Study{
         id: ID
         title: String
@@ -63,7 +65,24 @@ const typeDefs = gql`
         createNewStudy(
             study: StudyInput
         ):Study
+        "Delete a Study"
         deleteStudy(studyID: ID!): Study
+        "Edit details of a study"
+        editStudy(
+            studyID: ID!
+            title: String
+            description: String
+        ): Study
+        "Add staff to a study"
+        addStaffToStudy(
+            studyID: ID!
+            staffID: ID!
+        ): Study
+        "Remove staff from a study"
+        removeStaffFromStudy(
+            studyID: ID!
+            staffID: ID!
+        ): Study
     }
 `;
 
@@ -109,6 +128,10 @@ const resolvers = {
                         `error ${err}`
                     )
                 }
+            }else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
             }
         },
 
@@ -149,7 +172,7 @@ const resolvers = {
                 }
             }
             else {
-                throw new ForbiddenError(
+                throw new AuthenticationError(
                     'Authentication token is invalid, please log in'
                 )
             }
@@ -192,7 +215,7 @@ const resolvers = {
                 }
             }
             else {
-                throw new ForbiddenError(
+                throw new AuthenticationError(
                     'Authentication token is invalid, please log in'
                 )
             }
@@ -256,7 +279,7 @@ const resolvers = {
                     )
                 }
             } else {
-                throw new ForbiddenError(
+                throw new AuthenticationError(
                     'Authentication token is invalid, please log in'
                 )
             }
@@ -295,7 +318,215 @@ const resolvers = {
                 }
             }
             else {
-                throw new ForbiddenError(
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        },
+
+        editStudy: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                const StudyCollection = database.getDb().collection('study');
+                var s_id = new mongo.ObjectID(arg.studyID);
+                var currStudy = await StudyCollection.findOne({ "_id": s_id });
+                if (!currStudy) {
+                    throw new Error(
+                        "Invalid studyID"
+                    )
+                }
+                if (ctx.user.Level < currStudy.permissions.edit) {
+                    throw new ForbiddenError(
+                        "Insufficent Permissions"
+                    )
+                }
+                var updateField = {}
+                if ('title' in arg) {
+                    updateField.title = arg.title
+                }
+                if ('description' in arg) {
+                    updateField.description = arg.description
+                }
+                try {
+                    const r = await StudyCollection.updateOne({ "_id": s_id }, { $set: updateField })
+                    currStudy = await StudyCollection.findOne({ "_id": s_id });
+                    if (currStudy) {
+                        staffReply = []
+                        for (let y in currStudy.staff) {
+                            try {
+                                staffReply.push(
+                                    await staffHelper.getStaffDetails(currStudy.staff[y].oid)
+                                )
+                            } catch
+                            {
+
+                            }
+                        }
+                        return {
+                            id: currStudy._id,
+                            title: currStudy.title,
+                            description: currStudy.description,
+                            permissions: currStudy.permissions,
+                            staff: staffReply
+                        }
+                    } else {
+                        throw new Error(
+                            "Unable to return values"
+                        )
+                    }
+                } catch (err) {
+                    throw new Error(
+                        `Internal Error ${err}`
+                    )
+                }
+            } else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        },
+        addStaffToStudy: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                if (ctx.user.Level < 2) {
+                    throw new ForbiddenError(
+                        "Invalid permissions"
+                    )
+                }
+                const StudyCollection = database.getDb().collection('study');
+                const s_id = new mongo.ObjectID(arg.studyID);
+                var currStudy = await StudyCollection.findOne({ "_id": s_id });
+                if (!currStudy) {
+                    throw new Error(
+                        "Invalid studyID"
+                    )
+                }
+                const UserCollection = database.getDb().collection('users');
+                const o_id = new mongo.ObjectID(arg.staffID);
+                const currstaff = await UserCollection.findOne({ "_id": o_id });
+                if (!currstaff) {
+                    throw new Error(
+                        "Invalid staffID"
+                    )
+                }
+                try {
+                    const response = await StudyCollection.updateOne({ "_id": s_id },
+                        {
+                            $addToSet: {
+                                staff: {
+                                    $ref: "users",
+                                    $id: o_id
+                                }
+                            }
+                        })
+                } catch (err) {
+                    throw new Error(
+                        `Internal Error ${err}`
+                    )
+                }
+                currStudy = await StudyCollection.findOne({ "_id": s_id });
+                if (currStudy) {
+                    staffReply = []
+                    for (let y in currStudy.staff) {
+                        try {
+                            staffReply.push(
+                                await staffHelper.getStaffDetails(currStudy.staff[y].oid)
+                            )
+                        } catch
+                        {
+
+                        }
+                    }
+                    return {
+                        id: currStudy._id,
+                        title: currStudy.title,
+                        description: currStudy.description,
+                        permissions: currStudy.permissions,
+                        staff: staffReply
+                    }
+                } else {
+                    throw new Error(
+                        "Unable to return values"
+                    )
+                }
+            } else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        },
+        removeStaffFromStudy: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                if (ctx.user.Level < 2) {
+                    throw new ForbiddenError(
+                        "Invalid permissions"
+                    )
+                }
+                const StudyCollection = database.getDb().collection('study');
+                const s_id = new mongo.ObjectID(arg.studyID);
+                var currStudy = await StudyCollection.findOne({ "_id": s_id });
+                if (!currStudy) {
+                    throw new Error(
+                        "Invalid studyID"
+                    )
+                }
+                const UserCollection = database.getDb().collection('users');
+                const o_id = new mongo.ObjectID(arg.staffID);
+                const currstaff = await UserCollection.findOne({ "_id": o_id });
+                if (!currstaff) {
+                    throw new Error(
+                        "Invalid staffID"
+                    )
+                }
+                var staffInStudy = false
+                for (let x in currStudy.staff) {
+                    if (currStudy.staff[x].oid.equals(o_id)) {
+                        staffInStudy = true
+                    }
+                }
+                if (!staffInStudy) {
+                    throw new Error("User not part of study")
+                }
+                try {
+                    const response = await StudyCollection.updateOne({ "_id": s_id },
+                        {
+                            $pull: {
+                                staff: {
+                                    $ref: "users",
+                                    $id: o_id
+                                }
+                            }
+                        })
+                } catch (err) {
+                    throw new Error(
+                        `Internal Error ${err}`
+                    )
+                }
+                currStudy = await StudyCollection.findOne({ "_id": s_id });
+                if (currStudy) {
+                    staffReply = []
+                    for (let y in currStudy.staff) {
+                        try {
+                            staffReply.push(
+                                await staffHelper.getStaffDetails(currStudy.staff[y].oid)
+                            )
+                        } catch
+                        {
+
+                        }
+                    }
+                    return {
+                        id: currStudy._id,
+                        title: currStudy.title,
+                        description: currStudy.description,
+                        permissions: currStudy.permissions,
+                        staff: staffReply
+                    }
+                } else {
+                    throw new Error(
+                        "Unable to return values"
+                    )
+                }
+            } else {
+                throw new AuthenticationError(
                     'Authentication token is invalid, please log in'
                 )
             }

@@ -8,6 +8,7 @@ const bcrypt = require('bcrypt');
 const mongo = require('mongodb');
 
 const typeDefs = gql`
+    "Represents details of a user"
     type User {
         id: ID
         firstName: String
@@ -69,7 +70,7 @@ const resolvers = {
                     throw new Error('Internal Error');
                 }
             } else {
-                throw new ForbiddenError('Authentication token is invalid, please log in');
+                throw new AuthenticationError('Authentication token is invalid, please log in');
             }
         },
 
@@ -95,7 +96,7 @@ const resolvers = {
                     throw new Error('Internal Error');
                 }
             } else {
-                throw new ForbiddenError('Authentication token is invalid, please log in');
+                throw new AuthenticationError('Authentication token is invalid, please log in');
             }
         }
     },
@@ -126,7 +127,7 @@ const resolvers = {
                     throw new ForbiddenError('Insufficient permission level');
                 }
             } else {
-                throw new ForbiddenError('Authentication token is invalid, please log in');
+                throw new AuthenticationError('Authentication token is invalid, please log in');
             }
         },
 
@@ -173,7 +174,7 @@ const resolvers = {
                     throw new ForbiddenError('Insufficient permission level');
                 }
             } else {
-                throw new ForbiddenError('Authentication token is invalid, please log in');
+                throw new AuthenticationError('Authentication token is invalid, please log in');
             }
         },
 
@@ -187,13 +188,6 @@ const resolvers = {
                         if (ctx.user.ID == arg.id) {
                             throw new Error('Cannot delete current user');
                         } else {
-                            console.log('-----------------');
-                            console.log('-----------------');
-                            console.log(ctx.user.ID);
-                            console.log('-----------------');
-                            console.log(arg.id);
-                            console.log('-----------------');
-                            console.log('-----------------');
                             await UserCollection.deleteOne({ _id: o_id });
 
                             return {
@@ -211,6 +205,8 @@ const resolvers = {
                 } catch (err) {
                     throw new Error(`Internal error: ${err}`);
                 }
+            } else {
+                throw new AuthenticationError('Authentication token is invalid, please log in');
             }
         }
     }
