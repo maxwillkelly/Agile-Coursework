@@ -73,6 +73,15 @@ const typeDefs = gql`
             questionnaireID: ID!
             questionID: ID!
         ): Questionnaire
+        "edit a question in a Questionnaire"
+        editQuestion(
+            questionnaireID: ID!
+            questionID: ID!
+            qType: String
+            order: Int
+            message: String
+            values: [String]
+        ): Questionnaire
     }
 `;
 
@@ -105,7 +114,7 @@ const resolvers = {
                         `error ${err}`
                     )
                 }
-            }else {
+            } else {
                 throw new ForbiddenError(
                     'Authentication token is invalid, please log in'
                 )
@@ -472,7 +481,94 @@ const resolvers = {
                 )
             }
         },
-
+        editQuestion: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                const QuestionnaireCollection = database.getDb().collection('questionaires');
+                const StudyCollection = database.getDb().collection('study');
+                const q_id = new mongo.ObjectID(arg.questionnaireID);
+                const staff_id = new mongo.ObjectID(ctx.user.ID);
+                var currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
+                if (!currQuestionnaire) {
+                    throw new Error("Invalid questionnaireID")
+                }
+                const studyDetails = await StudyCollection.findOne({ "_id": currQuestionnaire.studyID.oid })
+                if (!studyDetails) {
+                    throw new Error("Unable to find linked study")
+                }
+                var staffInStudy = false
+                for (let x in studyDetails.staff) {
+                    if (studyDetails.staff[x].oid.equals(staff_id)) {
+                        staffInStudy = true
+                    }
+                }
+                if (!staffInStudy) {
+                    throw new ForbiddenError("User not part of study")
+                }
+                if (ctx.user.Level < studyDetails.permissions.delete) {
+                    throw new ForbiddenError("Invalid Permissions")
+                }
+                var existCheck = false
+                const question_id = new mongo.ObjectID(arg.questionID);
+                for (let x in currQuestionnaire.questions) {
+                    if (currQuestionnaire.questions[x].qID.equals(question_id)) {
+                        existCheck = true
+                    }
+                }
+                if (!existCheck) {
+                    throw new Error(
+                        "Invalid questionID"
+                    )
+                }
+                try {
+                    const question_id = new mongo.ObjectID(arg.questionID);
+                    findQuery = { "_id": q_id, "questions.qID": question_id }
+                    if ('qType' in arg) {
+                        // updateQuestion.qType = arg.qType
+                        await QuestionnaireCollection.updateOne(
+                            findQuery,
+                            {$set: {"questions.$.qType": arg.qType}}
+                        )
+                    }
+                    if ('order' in arg) {
+                        // updateQuestion.order - arg.order
+                        await QuestionnaireCollection.updateOne(
+                            findQuery,
+                            {$set: {"questions.$.order": arg.order}}
+                        )
+                    }
+                    if ('message' in arg) {
+                        // updateQuestion.message = arg.message
+                        await QuestionnaireCollection.updateOne(
+                            findQuery,
+                            {$set: {"questions.$.message": arg.message}}
+                        )
+                    }
+                    if ('values' in arg) {
+                        // updateQuestion.values = arg.values
+                        await QuestionnaireCollection.updateOne(
+                            findQuery,
+                            {$set: {"questions.$.values": arg.values}}
+                        )
+                    }
+                    currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
+                    return {
+                        id: currQuestionnaire._id,
+                        title: currQuestionnaire.title,
+                        description: currQuestionnaire.description,
+                        studyID: currQuestionnaire.studyID.oid,
+                        questions: currQuestionnaire.questions,
+                    }
+                } catch (err) {
+                    throw new Error(
+                        `Internal error: ${err}`
+                    )
+                }
+            } else {
+                throw new ForbiddenError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        },
     }
 };
 
