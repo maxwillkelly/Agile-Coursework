@@ -1,7 +1,7 @@
 import { Form, Button, Container, Card } from 'react-bootstrap';
 import { useMutation } from '@apollo/client';
 import { Formik } from 'formik';
-import { ADD_QUESTION } from '../mutations/questionnaire';
+import { ADD_QUESTION } from '../../mutations/questionnaire';
 import styles from '../styles/questionnaire.module.scss';
 
 const AddQuestionForm = ({ questionnaire }) => {
