@@ -105,7 +105,7 @@ const resolvers = {
                 if (currQuestionnaire) {
                     if (ctx.auth) {
                         studyDetails = await studyHelper.getStudy(currQuestionnaire.studyID.oid)
-                    }else{
+                    } else {
                         studyDetails = null
                     }
                     return {
@@ -169,10 +169,17 @@ const resolvers = {
         getStudyQuestionnaires: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const QuestionnaireCollection = database.getDb().collection('questionnaires');
+                const StudyCollection = database.getDb().collection('study');
+                var s_id = new mongo.ObjectID(arg.studyID);
+                const o_id = new mongo.ObjectID(ctx.user.ID);
+                if (ctx.user.Level < 2) {
+                    const studyDocument = await StudyCollection.findOne({ _id: s_id, staff: mongo.DBRef("users", o_id) })
+                    if (!studyDocument) {
+                        throw new ForbiddenError("User not part of study")
+                    }
+                }
                 try {
-                    var s_id = new mongo.ObjectID(arg.studyID);
                     const questionnaires = await QuestionnaireCollection.find({ studyID: mongo.DBRef("study", s_id) }).toArray()
-                    console.log(questionnaires)
                     var replyList = []
                     for (let x in questionnaires) {
                         replyList.push(
@@ -212,6 +219,12 @@ const resolvers = {
                     const StudyDetails = await StudyCollection.findOne({ "_id": s_id })
                     if (!StudyDetails) {
                         throw new Error("Invalid studyID")
+                    }
+                    if (ctx.user.Level < 2) {
+                        const studyDocument = await StudyCollection.findOne({ _id: s_id, staff: mongo.DBRef("users", o_id) })
+                        if (!studyDocument) {
+                            throw new ForbiddenError("User not part of study")
+                        }
                     }
                     var staffInStudy = false
                     for (let x in StudyDetails.staff) {
@@ -268,6 +281,12 @@ const resolvers = {
                     const studyDetails = await StudyCollection.findOne({ "_id": currQuestionnaire.studyID.oid })
                     if (!studyDetails) {
                         throw new Error("Unable to find linked study")
+                    }
+                    if (ctx.user.Level < 2) {
+                        const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", o_id) })
+                        if (!studyDocument) {
+                            throw new ForbiddenError("User not part of study")
+                        }
                     }
                     var staffInStudy = false
                     for (let x in studyDetails.staff) {
@@ -333,14 +352,11 @@ const resolvers = {
                 if (!studyDetails) {
                     throw new Error("Unable to find linked study")
                 }
-                var staffInStudy = false
-                for (let x in studyDetails.staff) {
-                    if (studyDetails.staff[x].oid.equals(staff_id)) {
-                        staffInStudy = true
+                if (ctx.user.Level < 2) {
+                    const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", o_id) })
+                    if (!studyDocument) {
+                        throw new ForbiddenError("User not part of study")
                     }
-                }
-                if (!staffInStudy) {
-                    throw new ForbiddenError("User not part of study")
                 }
                 if (ctx.user.Level < studyDetails.permissions.edit) {
                     throw new PermissionsError("Invalid Permissions")
@@ -390,14 +406,11 @@ const resolvers = {
                 if (!studyDetails) {
                     throw new Error("Unable to find linked study")
                 }
-                var staffInStudy = false
-                for (let x in studyDetails.staff) {
-                    if (studyDetails.staff[x].oid.equals(staff_id)) {
-                        staffInStudy = true
+                if (ctx.user.Level < 2) {
+                    const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", o_id) })
+                    if (!studyDocument) {
+                        throw new ForbiddenError("User not part of study")
                     }
-                }
-                if (!staffInStudy) {
-                    throw new ForbiddenError("User not part of study")
                 }
                 if (ctx.user.Level < studyDetails.permissions.delete) {
                     throw new PermissionsError("Invalid Permissions")
@@ -436,14 +449,11 @@ const resolvers = {
                 if (!studyDetails) {
                     throw new Error("Unable to find linked study")
                 }
-                var staffInStudy = false
-                for (let x in studyDetails.staff) {
-                    if (studyDetails.staff[x].oid.equals(staff_id)) {
-                        staffInStudy = true
+                if (ctx.user.Level < 2) {
+                    const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", o_id) })
+                    if (!studyDocument) {
+                        throw new ForbiddenError("User not part of study")
                     }
-                }
-                if (!staffInStudy) {
-                    throw new ForbiddenError("User not part of study")
                 }
                 if (ctx.user.Level < studyDetails.permissions.delete) {
                     throw new PermissionsError("Invalid Permissions")
@@ -502,14 +512,11 @@ const resolvers = {
                 if (!studyDetails) {
                     throw new Error("Unable to find linked study")
                 }
-                var staffInStudy = false
-                for (let x in studyDetails.staff) {
-                    if (studyDetails.staff[x].oid.equals(staff_id)) {
-                        staffInStudy = true
+                if (ctx.user.Level < 2) {
+                    const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", o_id) })
+                    if (!studyDocument) {
+                        throw new ForbiddenError("User not part of study")
                     }
-                }
-                if (!staffInStudy) {
-                    throw new ForbiddenError("User not part of study")
                 }
                 if (ctx.user.Level < studyDetails.permissions.delete) {
                     throw new PermissionsError("Invalid Permissions")
