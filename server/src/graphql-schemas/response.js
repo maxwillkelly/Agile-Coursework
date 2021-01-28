@@ -4,7 +4,6 @@ Defines all the Scheme for Product related GraphQL functions
 const { gql, AuthenticationError, ForbiddenError } = require('apollo-server-express');
 const { IdError } = require('../func/errors');
 const database = require('../database');
-const { DBRef } = require('mongodb');
 const mongo = require('mongodb');
 
 // A schema is a collection of type definitions (hence "typeDefs")
@@ -21,11 +20,13 @@ input ResponseInput{
     questionnaireID: ID!
 }
 
+"Value of a question response"
 type rValues{
     qID: ID
     values: [String]
 }
 
+"Represents details of a reponse"
 type Response{
     id: ID
     questionnaireID: ID
@@ -33,11 +34,13 @@ type Response{
 }
 
 extend type Query {
+    "Get a reponse using ID of a response"
     getResponse(id:ID!): Response
     getResponses(questionnaireInputID: ID!): [Response]
 }
 
 extend type Mutation{
+    "Deletes are reponse"
     deleteResponse(id:ID!): Response
 }
 `;
@@ -79,7 +82,7 @@ const resolvers = {
                     )
                 }
             } else {
-                throw new ForbiddenError(
+                throw new AuthenticationError(
                     'Authentication token is invalid, please log in'
                 )
             }
@@ -118,6 +121,10 @@ const resolvers = {
                 catch (err) {
                     `Error bro: ${err}`
                 }
+            } else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
             }
         }
     },
@@ -146,7 +153,7 @@ const resolvers = {
                     throw new Error(`Internal error: ${err}`)
                 }
             } else {
-                throw new ForbiddenError('Authentication token is invalid, please log in');
+                throw new AuthenticationError('Authentication token is invalid, please log in');
             }
         }
     }

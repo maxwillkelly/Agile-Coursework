@@ -8,6 +8,7 @@ const bcrypt = require('bcrypt');
 const mongo = require('mongodb');
 
 const typeDefs = gql`
+    "Represents details of a user"
     type User {
         id: ID
         firstName: String
@@ -69,7 +70,7 @@ const resolvers = {
                     throw new Error('Internal Error');
                 }
             } else {
-                throw new ForbiddenError('Authentication token is invalid, please log in');
+                throw new AuthenticationError('Authentication token is invalid, please log in');
             }
         },
 
@@ -95,7 +96,7 @@ const resolvers = {
                     throw new Error('Internal Error');
                 }
             } else {
-                throw new ForbiddenError('Authentication token is invalid, please log in');
+                throw new AuthenticationError('Authentication token is invalid, please log in');
             }
         }
     },
@@ -126,7 +127,7 @@ const resolvers = {
                     throw new ForbiddenError('Insufficient permission level');
                 }
             } else {
-                throw new ForbiddenError('Authentication token is invalid, please log in');
+                throw new AuthenticationError('Authentication token is invalid, please log in');
             }
         },
 
@@ -173,7 +174,7 @@ const resolvers = {
                     throw new ForbiddenError('Insufficient permission level');
                 }
             } else {
-                throw new ForbiddenError('Authentication token is invalid, please log in');
+                throw new AuthenticationError('Authentication token is invalid, please log in');
             }
         },
 
@@ -205,7 +206,7 @@ const resolvers = {
                     throw new Error(`Internal error: ${err}`);
                 }
             } else {
-                throw new ForbiddenError('Authentication token is invalid, please log in');
+                throw new AuthenticationError('Authentication token is invalid, please log in');
             }
         }
     }
