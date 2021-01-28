@@ -71,7 +71,7 @@ const resolvers = {
                         }
                     }
                     catch (err) {
-                        throw new Error(
+                        throw new IdError(
                             `Invalid or nonexistent ID : ${err}`
                         )
                     }
@@ -94,11 +94,7 @@ const resolvers = {
                     const ResponseCollection = database.getDb().collection('responses');
                     // dbref this shit
                     var q_id = arg.questionnaireInputID
-                    console.log(`${q_id} == ${arg.questionnaireInputID}`)
                     const responses = await ResponseCollection.find({ questionnaireID: q_id }).toArray();
-                    console.log("----------------------");
-                    console.log(responses);
-                    console.log("----------------------");
                     var responseList = []
                     if (responses) {
                         for (let x in responses) {
@@ -114,7 +110,7 @@ const resolvers = {
                     }
                     else {
                         throw new Error(
-                            `What the fuck man`
+                            `No responses found`
                         )
                     }
                 }
@@ -143,8 +139,7 @@ const resolvers = {
                         return {
                             id: currResponse._id,
                             questionnaireID: currResponse.questionnaireID,
-                            responses: currResponse.responses,
-                            action: "completed it mate"
+                            responses: currResponse.responses
                         }
                     } else {
                         throw new Error("Response doesn't exists");
