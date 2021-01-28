@@ -32,6 +32,7 @@ const typeDefs = gql`
    }
 
     type Questionnaire{
+        id: ID
         title: String
         description: String
         studyID: ID
@@ -47,7 +48,7 @@ const typeDefs = gql`
 
     extend type Mutation {
         "Create a new Questionnaire"
-        createQuestionair(
+        createQuestionaire(
             questionnaire: QuestionnaireInput!
         ): Questionnaire
         "Remove as questionnaire"
@@ -99,7 +100,7 @@ const resolvers = {
                 }
                 catch (err) {
                     throw new Error(
-                        `error ${err}`
+                        `Error: ${err}`
                     )
                 }
             }else {
