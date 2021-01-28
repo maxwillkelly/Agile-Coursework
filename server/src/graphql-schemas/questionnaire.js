@@ -14,6 +14,7 @@ const typeDefs = gql`
 
     input QuestionInput{
         qType: String!
+        order: Int!
         message: String!
         values: [String]!
     }
@@ -27,6 +28,7 @@ const typeDefs = gql`
    type Question{
         qID: ID
         qType: String
+        order: Int
         message: String
         values: [String]
    }
@@ -267,7 +269,8 @@ const resolvers = {
                         qID: new mongo.ObjectID(),
                         qType: arg.question.qType,
                         message: arg.question.message,
-                        values: arg.question.values
+                        values: arg.question.values,
+                        order: arg.question.order
                     }
                     const response = await QuestionnaireCollection.updateOne(
                         { "_id": q_id },
