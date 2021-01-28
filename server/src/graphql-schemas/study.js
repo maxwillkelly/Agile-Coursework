@@ -29,12 +29,14 @@ const typeDefs = gql`
         staff: [ID]
     }
 
+    "Represents details a study's permissions"
     type StudyPermissions{
         edit: Int
         create: Int
         delete: Int
     }
 
+    "Represents details of a study"
     type Study{
         id: ID
         title: String
@@ -126,6 +128,10 @@ const resolvers = {
                         `error ${err}`
                     )
                 }
+            }else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
             }
         },
 
@@ -166,7 +172,7 @@ const resolvers = {
                 }
             }
             else {
-                throw new ForbiddenError(
+                throw new AuthenticationError(
                     'Authentication token is invalid, please log in'
                 )
             }
@@ -209,7 +215,7 @@ const resolvers = {
                 }
             }
             else {
-                throw new ForbiddenError(
+                throw new AuthenticationError(
                     'Authentication token is invalid, please log in'
                 )
             }
@@ -273,7 +279,7 @@ const resolvers = {
                     )
                 }
             } else {
-                throw new ForbiddenError(
+                throw new AuthenticationError(
                     'Authentication token is invalid, please log in'
                 )
             }
@@ -312,7 +318,7 @@ const resolvers = {
                 }
             }
             else {
-                throw new ForbiddenError(
+                throw new AuthenticationError(
                     'Authentication token is invalid, please log in'
                 )
             }
@@ -373,7 +379,7 @@ const resolvers = {
                     )
                 }
             } else {
-                throw new ForbiddenError(
+                throw new AuthenticationError(
                     'Authentication token is invalid, please log in'
                 )
             }
@@ -442,7 +448,7 @@ const resolvers = {
                     )
                 }
             } else {
-                throw new ForbiddenError(
+                throw new AuthenticationError(
                     'Authentication token is invalid, please log in'
                 )
             }
@@ -520,7 +526,7 @@ const resolvers = {
                     )
                 }
             } else {
-                throw new ForbiddenError(
+                throw new AuthenticationError(
                     'Authentication token is invalid, please log in'
                 )
             }
