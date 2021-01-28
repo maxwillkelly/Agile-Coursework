@@ -54,11 +54,11 @@ const QuestionnaireOptions = ({ questionnaire }) => {
     return (
         <>
             <h5>Your Questionnaire</h5>
-            <TitleForm />
+            <TitleForm questionnaire={questionnaire} />
             <h5>Add a Question</h5>
             <AddQuestionForm questionnaire={questionnaire} />
             <h5>Add Paragraph Section</h5>
-            <AddTextSection />
+            <AddTextSection questionnaire={questionnaire} />
         </>
     );
 };
