@@ -4,14 +4,12 @@ Defines all the Scheme for Product related GraphQL functions
 const { gql, AuthenticationError, ForbiddenError } = require('apollo-server-express');
 const { IdError } = require('../func/errors');
 const database = require('../database');
-const { DBRef } = require('mongodb');
 const mongo = require('mongodb');
 
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
 // your data.
 const typeDefs = gql`
-
     input QuestionInput{
         qType: String!
         order: Int!
@@ -25,26 +23,30 @@ const typeDefs = gql`
         studyID: ID!
     }
 
-   type Question{
+    "Represents details of a question"
+    type Question{
         qID: ID
         qType: String
         order: Int
         message: String
         values: [String]
-   }
+    }
 
+    "Represents details of a questionnaire"
     type Questionnaire{
         id: ID
         title: String
         description: String
-        studyID: ID
+        studyID: ID  #TODO: Update to use study type
         questions: [Question]
     }
 
     extend type Query {
         "returns a questionnaire"
         getQuestionnaire(id:ID!): Questionnaire
+        "returns all questionnaires in the system"
         getQuestionnaires: [Questionnaire]
+        "Returns all the questionnaires in a study"
         getStudyQuestionnaires(studyID: ID!): [Questionnaire]
     }
 

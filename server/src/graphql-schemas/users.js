@@ -8,6 +8,7 @@ const bcrypt = require('bcrypt');
 const mongo = require('mongodb');
 
 const typeDefs = gql`
+    "Represents details of a user"
     type User {
         id: ID
         firstName: String

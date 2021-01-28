@@ -29,12 +29,14 @@ const typeDefs = gql`
         staff: [ID]
     }
 
+    "Represents details a study's permissions"
     type StudyPermissions{
         edit: Int
         create: Int
         delete: Int
     }
 
+    "Represents details of a study"
     type Study{
         id: ID
         title: String
