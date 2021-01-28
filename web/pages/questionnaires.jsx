@@ -76,7 +76,7 @@ const Questionnaires = ({ getQuestionnaires, refetch }) => {
                             <div>
                                 <Button
                                     variant="primary"
-                                    onClick={() => router.push(`/studies/questionnaire/${q.id}`)}>
+                                    onClick={() => router.push(`/studies/questionnaire/answer/${q.id}`)}>
                                     View
                                 </Button>
 
