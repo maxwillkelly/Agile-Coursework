@@ -70,3 +70,23 @@ export const EDIT_QUESTION = gql`
         }
     }
 `;
+
+export const SEND_RESPONSE = gql`
+mutation CreateResponse(
+    $questionnaireID: ID!
+    $answers: [rValuesInput]
+) {
+    createResponse(
+        response:{
+            questionnaireID: $questionnaireID
+            answers: $answers
+        }
+    ) {
+        id
+        questionnaireID
+        answers {
+            qID
+            values
+        }
+    }
+}`;
