@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { Col, Container, Row } from 'react-bootstrap';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import TitleForm from '../../../components/questionnaire/TitleForm';
@@ -9,6 +9,7 @@ import AddTextSection from '../../../components/questionnaire/AddTextSection';
 import Question from '../../../components/questionnaire/Question';
 import Navigation from '../../../components/Navigation';
 import { GET_QUESTIONNAIRE } from '../../../queries/questionnaire';
+import { EDIT_QUESTION } from '../../../mutations/questionnaire';
 // import styles from '../../../styles/questionnaire-creator.module.scss';
 
 const QuestionnaireCreatorPage = () => {
@@ -57,23 +58,6 @@ const QuestionnaireCreatorPage = () => {
     );
 };
 
-const Questions = ({ questionnaire, refetch }) => {
-    return (
-        <>
-            {/* <DragDropContext onDragEnd={this.onDragEnd}> */}
-            {questionnaire.questions.map((question, index) => (
-                <Question
-                    question={question}
-                    questionnaire={questionnaire}
-                    refetch={refetch}
-                    key={index}
-                />
-            ))}
-            {/* </DragDropContext> */}
-        </>
-    );
-};
-
 const QuestionnaireOptions = ({ questionnaire, refetch }) => {
     return (
         <>
@@ -84,6 +68,56 @@ const QuestionnaireOptions = ({ questionnaire, refetch }) => {
             <h5 className="mt-5">Add Text Section</h5>
             <AddTextSection questionnaire={questionnaire} refetch={refetch} />
         </>
+    );
+};
+
+const Questions = ({ questionnaire, refetch }) => {
+    const [editQuestion] = useMutation(EDIT_QUESTION);
+
+    const onDragEnd = async (result) => {
+        // dropped outside the list
+        if (!result.destination) return;
+
+        const question = questionnaire.questions[result.source.index];
+
+        const variables = {
+            questionnaireID: questionnaire.id,
+            questionID: question.qID,
+            qType: question.qType,
+            order: result.destination.index,
+            message: question.message,
+            description: question.description,
+            values: question.values
+        };
+
+        await editQuestion({ variables });
+
+        refetch();
+    };
+
+    return (
+        <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="droppable">
+                {(provided) => (
+                    <div {...provided.droppableProps} ref={provided.innerRef}>
+                        {questionnaire.questions.map((question, index) => (
+                            <Draggable key={question.qID} draggableId={question.qID} index={index}>
+                                {(provided) => (
+                                    <Question
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        {...provided.dragHandleProps}
+                                        question={question}
+                                        questionnaire={questionnaire}
+                                        refetch={refetch}
+                                    />
+                                )}
+                            </Draggable>
+                        ))}
+                    </div>
+                )}
+            </Droppable>
+        </DragDropContext>
     );
 };
 
