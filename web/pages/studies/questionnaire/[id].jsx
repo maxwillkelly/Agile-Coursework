@@ -2,6 +2,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useQuery } from '@apollo/client';
 import { Col, Container, Row } from 'react-bootstrap';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import TitleForm from '../../../components/questionnaire/TitleForm';
 import AddQuestionForm from '../../../components/questionnaire/AddQuestionForm';
 import AddTextSection from '../../../components/questionnaire/AddTextSection';
@@ -11,7 +12,6 @@ import { GET_QUESTIONNAIRE } from '../../../queries/questionnaire';
 // import styles from '../../../styles/questionnaire-creator.module.scss';
 
 const QuestionnaireCreatorPage = () => {
-    // const [questions, setQuestions] = useState(questionArray);
     const router = useRouter();
     const { loading, error, data, refetch } = useQuery(GET_QUESTIONNAIRE, {
         variables: { id: router.query.id }
@@ -28,7 +28,7 @@ const QuestionnaireCreatorPage = () => {
                 <Container>
                     <Row>
                         <Col>
-                            <h1 className="py-4">Create aQuestionnaire</h1>
+                            <h1 className="py-4">Create a Questionnaire</h1>
                         </Col>
                     </Row>
                     <Row>
@@ -43,20 +43,34 @@ const QuestionnaireCreatorPage = () => {
                             )}
                         </Col>
                         <Col>
-                            {data &&
-                                data.getQuestionnaire.questions.map((question, index) => (
-                                    <Question
-                                        question={question}
-                                        questionnaire={data.getQuestionnaire}
-                                        refetch={refetch}
-                                        key={index}
-                                    />
-                                ))}
+                            {data && (
+                                <Questions
+                                    questionnaire={data.getQuestionnaire}
+                                    refetch={refetch}
+                                />
+                            )}
                         </Col>
                     </Row>
                 </Container>
             </main>
         </div>
+    );
+};
+
+const Questions = ({ questionnaire, refetch }) => {
+    return (
+        <>
+            {/* <DragDropContext onDragEnd={this.onDragEnd}> */}
+            {questionnaire.questions.map((question, index) => (
+                <Question
+                    question={question}
+                    questionnaire={questionnaire}
+                    refetch={refetch}
+                    key={index}
+                />
+            ))}
+            {/* </DragDropContext> */}
+        </>
     );
 };
 
