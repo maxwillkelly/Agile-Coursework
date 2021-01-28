@@ -7,7 +7,7 @@ import styles from '../styles/questionnaire.module.scss';
 const TitleForm = ({ questionnaire }) => {
     const [editQuestionnaire] = useMutation(EDIT_QUESTIONNAIRE);
 
-    const updateValues = (variables) => {
+    const updateValues = async (variables) => {
         editQuestionnaire({ variables });
     };
 

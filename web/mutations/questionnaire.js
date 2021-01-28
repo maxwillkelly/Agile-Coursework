@@ -20,6 +20,14 @@ export const EDIT_QUESTIONNAIRE = gql`
     }
 `;
 
+export const REMOVE_QUESTIONNAIRE = gql`
+    mutation RemoveQuestionnaire($questionnaireID: ID!) {
+        removeQuestionnaire(questionnaireID: $questionnaireID) {
+            id
+        }
+    }
+`;
+
 export const ADD_QUESTION = gql`
     mutation AddQuestion($questionnaireID: ID!, $question: QuestionInput!) {
         addQuestion(questionnaireID: $questionnaireID, question: $question) {

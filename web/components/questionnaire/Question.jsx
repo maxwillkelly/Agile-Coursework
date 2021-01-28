@@ -1,4 +1,4 @@
-import { Button, Form, Container, Card, InputGroup } from 'react-bootstrap';
+import { Button, Form, Container, Card, InputGroup, Overlay, Tooltip } from 'react-bootstrap';
 import { useMutation } from '@apollo/client';
 import { EDIT_QUESTION, REMOVE_QUESTION_FROM_QUESTIONNAIRE } from '../../mutations/questionnaire';
 import { Formik, FieldArray } from 'formik';
@@ -147,6 +147,11 @@ const Question = ({ question, questionnaire, refetch }) => {
                                         <Button type="submit" className="mt-2 float-right">
                                             Save
                                         </Button>
+                                        <Overlay>
+                                            {(props) => (
+                                                <Tooltip {...props}>Question saved!</Tooltip>
+                                            )}
+                                        </Overlay>
                                     </>
                                 )}
                             </Form>

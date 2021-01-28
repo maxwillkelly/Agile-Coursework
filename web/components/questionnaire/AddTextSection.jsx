@@ -13,8 +13,7 @@ const AddTextSection = () => {
                         // touched,
                         handleChange,
                         handleBlur,
-                        handleSubmit,
-                        isSubmitting
+                        handleSubmit
                     }) => (
                         // {console.log(values)}
                         <Form onSubmit={handleSubmit}>
