@@ -99,10 +99,10 @@ const AddQuestionForm = ({ questionnaire, refetch }) => {
                                 />
                             </Form.Group>
 
-                            <Button variant="primary" type="submit">
+                            <Button className="float-right" variant="primary" type="submit">
                                 Add
                             </Button>
-                            <pre>{JSON.stringify(values, null, 2)}</pre>
+                            {/* <pre>{JSON.stringify(values, null, 2)}</pre> */}
                         </Form>
                     )}
                 </Formik>

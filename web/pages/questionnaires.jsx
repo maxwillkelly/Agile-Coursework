@@ -4,7 +4,7 @@ import { useQuery, useMutation } from '@apollo/client';
 import { Button, Container, Col, ListGroup } from 'react-bootstrap';
 import Navigation from '../components/Navigation';
 import { GET_QUESTIONNAIRES } from '../queries/questionnaire';
-import { CREATE_QUESTIONNAIRE } from '../mutations/questionnaire';
+import { CREATE_QUESTIONNAIRE, REMOVE_QUESTIONNAIRE } from '../mutations/questionnaire';
 import styles from '../styles/questionnaires.module.scss';
 
 const QuestionnairesPage = () => {
@@ -34,7 +34,10 @@ const QuestionnairesPage = () => {
             <main>
                 <Container className="mt-3">
                     <h2 className="mx-3">All Questionnaires</h2>
-                    <Questionnaires getQuestionnaires={getQuestionnaires} />
+                    <Questionnaires
+                        getQuestionnaires={getQuestionnaires}
+                        refetch={getQuestionnaires.refetch}
+                    />
                     <Button className="float-right mt-3" onClick={createQuestionnaire}>
                         Create Questionnaire
                     </Button>
@@ -44,8 +47,14 @@ const QuestionnairesPage = () => {
     );
 };
 
-const Questionnaires = ({ getQuestionnaires }) => {
+const Questionnaires = ({ getQuestionnaires, refetch }) => {
     const { loading, error, data } = getQuestionnaires;
+    const [removeQuestionnaire] = useMutation(REMOVE_QUESTIONNAIRE);
+
+    const deleteQuestionnaire = async (questionnaire) => {
+        await removeQuestionnaire({ variables: { questionnaireID: questionnaire.id } });
+        refetch();
+    };
 
     const router = useRouter();
 
@@ -76,6 +85,13 @@ const Questionnaires = ({ getQuestionnaires }) => {
                                     variant="secondary"
                                     onClick={() => router.push(`/studies/questionnaire/${q.id}`)}>
                                     Edit
+                                </Button>
+
+                                <Button
+                                    className="ml-4"
+                                    variant="danger"
+                                    onClick={() => deleteQuestionnaire(q)}>
+                                    Delete
                                 </Button>
                             </div>
                         </div>

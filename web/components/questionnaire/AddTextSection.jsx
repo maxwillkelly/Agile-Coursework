@@ -13,8 +13,7 @@ const AddTextSection = () => {
                         // touched,
                         handleChange,
                         handleBlur,
-                        handleSubmit,
-                        isSubmitting
+                        handleSubmit
                     }) => (
                         // {console.log(values)}
                         <Form onSubmit={handleSubmit}>
@@ -42,7 +41,7 @@ const AddTextSection = () => {
                                 />
                             </Form.Group>
 
-                            <Button variant="primary" type="submit" disabled={isSubmitting}>
+                            <Button className="float-right" variant="primary" type="submit">
                                 Add
                             </Button>
                         </Form>
