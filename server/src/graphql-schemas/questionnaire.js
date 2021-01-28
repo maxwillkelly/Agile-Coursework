@@ -14,6 +14,7 @@ const typeDefs = gql`
         qType: String!
         order: Int!
         message: String!
+        description: String!
         values: [String]!
     }
 
@@ -29,6 +30,7 @@ const typeDefs = gql`
         qType: String
         order: Int
         message: String
+        description: String
         values: [String]
     }
 
@@ -81,6 +83,7 @@ const typeDefs = gql`
             questionID: ID!
             qType: String
             order: Int
+            description: String
             message: String
             values: [String]
         ): Questionnaire
@@ -280,6 +283,7 @@ const resolvers = {
                         qID: new mongo.ObjectID(),
                         qType: arg.question.qType,
                         message: arg.question.message,
+                        description: arg.question.description,
                         values: arg.question.values,
                         order: arg.question.order
                     }
@@ -546,6 +550,13 @@ const resolvers = {
                         await QuestionnaireCollection.updateOne(
                             findQuery,
                             {$set: {"questions.$.values": arg.values}}
+                        )
+                    }
+                    if ('description' in arg) {
+                        // updateQuestion.values = arg.values
+                        await QuestionnaireCollection.updateOne(
+                            findQuery,
+                            {$set: {"questions.$.description": arg.description}}
                         )
                     }
                     currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })

@@ -11,6 +11,7 @@ export const GET_QUESTIONNAIRE = gql`
                 qID
                 qType
                 message
+                description
                 values
             }
         }

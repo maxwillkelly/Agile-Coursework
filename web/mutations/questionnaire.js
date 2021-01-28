@@ -21,8 +21,41 @@ export const EDIT_QUESTIONNAIRE = gql`
 `;
 
 export const ADD_QUESTION = gql`
-    mutation AddQuestion($questionnaireID: ID!, $question: QuestionInput) {
+    mutation AddQuestion($questionnaireID: ID!, $question: QuestionInput!) {
         addQuestion(questionnaireID: $questionnaireID, question: $question) {
+            id
+        }
+    }
+`;
+
+export const REMOVE_QUESTION_FROM_QUESTIONNAIRE = gql`
+    mutation RemoveQuestionFromQuestionnaire($questionnaireID: ID!, $questionID: ID!) {
+        removeQuestionFromQuestionnaire(
+            questionnaireID: $questionnaireID
+            questionID: $questionID
+        ) {
+            id
+        }
+    }
+`;
+
+export const EDIT_QUESTION = gql`
+    mutation EditQuestion(
+        $questionnaireID: ID!
+        $questionID: ID!
+        $qType: String
+        $order: Int
+        $message: String
+        $values: [String]
+    ) {
+        editQuestion(
+            questionnaireID: $questionnaireID
+            questionID: $questionID
+            qType: $qType
+            order: $order
+            message: $message
+            values: $values
+        ) {
             id
         }
     }
