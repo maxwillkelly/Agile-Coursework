@@ -179,6 +179,11 @@ const resolvers = {
         },
         getStaffStudies: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
+                if(ctx.user.ID != arg){
+                    if(!(ctx.user.Level >= 2)){
+                        throw new ForbiddenError("Invalid Permissions")
+                    }
+                }
                 const StudyCollection = database.getDb().collection('study');
                 try {
                     var o_id = new mongo.ObjectID(arg.staffID);
