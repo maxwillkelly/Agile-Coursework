@@ -157,6 +157,7 @@ const resolvers = {
         },
 
         createResponse: async (parent, arg, ctx, info) => {
+            console.log(arg);
             const ResponseCollection = database.getDb().collection('responses');
             const QuestionnaireCollection = database.getDb().collection('questionaires');
             const q_id = new mongo.ObjectID(arg.response.questionnaireID);

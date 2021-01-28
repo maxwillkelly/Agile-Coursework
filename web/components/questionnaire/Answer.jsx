@@ -5,20 +5,23 @@ import RadioInput from './RadioInput';
 import CheckboxInput from './CheckBoxInput';
 import TextboxInput from './TextboxInput';
 
-export const Answer = ({message, values, qType, qID}) => {
+export const Answer = ({message, values, qType, qID, description, setAnswers, answers}) => {
   const renderType = () => {
     if (qType === "radio") {
-      return (<RadioInput values={values} qID={qID} />)
-    } else if (qType === "checkBox") {
-      return (<CheckboxInput values={values} qID={qID}/>)
-    } else if (qType === "textbox") {
-      return (<TextboxInput/>)
+      return (<RadioInput key={qID} values={values} qID={qID} setAnswers={setAnswers} answers={answers}/>)
+    } else if (qType === "checkbox") {
+      return (<CheckboxInput key={qID} values={values} qID={qID} setAnswers={setAnswers} answers={answers}/>)
+    } else if (qType === "short" || qType === "long") {
+      return (<TextboxInput key={qID} qID={qID} setAnswers={setAnswers} />)
     }
   } 
 
-  return <Card className={`${styles.questionnaireCard}`}>
-    <h3 className={styles.questionnaireQuestion}>{message}</h3>
-    <div className={styles.questionnaireAnswer}>
+  return <Card className={styles.questionnaireCard}>
+    <div className={styles.questionnaireQuestion}>
+    <h3 className={styles.questionnaireQuestionTitle}>{message}</h3>
+    <h6 className={styles.questionnaireQuestionDescription}>{description}</h6>
+    </div>
+    <div className={styles.questionnaireAnswerContainer}>
       {renderType()}
     </div>
   </Card>

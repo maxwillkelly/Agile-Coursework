@@ -28,7 +28,7 @@ const QuestionnaireCreatorPage = () => {
                 <Container>
                     <Row>
                         <Col>
-                            <h1 className="py-4">Create a Questionnaire</h1>
+                            <h1 className="py-4">Create aQuestionnaire</h1>
                         </Col>
                     </Row>
                     <Row>

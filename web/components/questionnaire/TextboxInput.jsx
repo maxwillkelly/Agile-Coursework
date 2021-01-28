@@ -1,14 +1,12 @@
 import Form from 'react-bootstrap/Form';
 import styles from '../styles/questionnaire.module.scss';
 
-export const RadioInput = ({ values, qID }) => {
-  return <div className={styles.questionnaireAnswerContainer}>
-    {values && values.map(value => {
-      return (
-        <Form.Text label={value} id={`${qID}-${value}`} name={qID}></Form.Text>
-      )
-    })}
+export const TextboxInput = ({ qID, setAnswers, answers }) => {
+  return <div>
+    <Form.Control onChange={(e) => {
+      setAnswers(prev => ({...prev, [qID]: [e.target.value]}))
+    }} id={`${qID}-answer`} className={styles.questionnaireAnswerItem} placeholder="Enter text here..."/>
   </div>
 }
 
-export default RadioInput
+export default TextboxInput
