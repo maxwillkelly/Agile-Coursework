@@ -18,6 +18,7 @@ input rValuesInput{
 
 input ResponseInput{
     questionnaireID: ID!
+    answers: [rValuesInput]
 }
 
 "Value of a question response"
@@ -30,7 +31,7 @@ type rValues{
 type Response{
     id: ID
     questionnaireID: ID
-    responses: [rValues]
+    answers: [rValues]
 }
 
 extend type Query {
@@ -42,6 +43,10 @@ extend type Query {
 extend type Mutation{
     "Deletes are reponse"
     deleteResponse(id:ID!): Response
+    "Create a reponse"
+    createResponse(
+        response: ResponseInput!
+    ): Response
 }
 `;
 
@@ -61,7 +66,7 @@ const resolvers = {
                             return {
                                 id: currResponse._id,
                                 questionnaireID: currResponse.questionnaireID,
-                                responses: currResponse.responses
+                                answers: currResponse.answers
                             }
                         }
                         else {
@@ -102,7 +107,7 @@ const resolvers = {
                                 {
                                     id: responses[x]._id,
                                     questionnaireID: responses[x].questionnaireID,
-                                    responses: responses[x].responses
+                                    answers: responses[x].answers
                                 }
                             )
                         }
@@ -126,7 +131,6 @@ const resolvers = {
     },
 
     Mutation: {
-
         deleteResponse: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 try {
@@ -139,7 +143,7 @@ const resolvers = {
                         return {
                             id: currResponse._id,
                             questionnaireID: currResponse.questionnaireID,
-                            responses: currResponse.responses
+                            answers: currResponse.answers
                         }
                     } else {
                         throw new Error("Response doesn't exists");
@@ -149,6 +153,60 @@ const resolvers = {
                 }
             } else {
                 throw new AuthenticationError('Authentication token is invalid, please log in');
+            }
+        },
+
+        createResponse: async (parent, arg, ctx, info) => {
+            const ResponseCollection = database.getDb().collection('responses');
+            const QuestionnaireCollection = database.getDb().collection('questionaires');
+            const q_id = new mongo.ObjectID(arg.response.questionnaireID);
+            const currQuestionnaire = await QuestionnaireCollection.findOne({ _id: q_id })
+            if (!currQuestionnaire) {
+                throw new IdError("Invalid QuestionniareID")
+            }
+            var answerID = []
+            for (let x in arg.response.answers) {
+                answerID.push(new mongo.ObjectID(arg.response.answers[x].qID))
+            }
+            //Check if number of questions match
+            if (answerID.length != (currQuestionnaire.questions).length) {
+                throw new Error('No. answers sent does not match')
+            }
+            // Goes through the questions in the questionnaire and removes 
+            for (let y in currQuestionnaire.questions) {
+                answerID = answerID.filter(
+                    answerID => {
+                        return !answerID.equals(currQuestionnaire.questions[y].qID)
+                    }
+                )
+            }
+            if (answerID.length > 0) {
+                throw new Error("Invalid question ID sent")
+            }
+            try{
+                const newDocument = {
+                    questionnaireID: {
+                        $ref: "questionaires",
+                        $id: q_id
+                    },
+                    answers: []
+                }
+                for (let x in arg.response.answers) {
+                    newDocument.answers.push({
+                        qID: new mongo.ObjectID(arg.response.answers[x].qID),
+                        values: arg.response.answers[x].values
+                    })
+                }
+                const response = await ResponseCollection.insertOne(newDocument)
+                return {
+                    id: response.ops[0]._id,
+                    questionnaireID: q_id,
+                    answers: newDocument.answers,
+                }
+            }catch(err){
+                throw new Error(
+                    `Internal Error ${err}`
+                )
             }
         }
     }
