@@ -1,12 +1,16 @@
+import { useState, useRef } from 'react';
 import { Button, Form, Container, Card, InputGroup, Overlay, Tooltip } from 'react-bootstrap';
 import { useMutation } from '@apollo/client';
 import { EDIT_QUESTION, REMOVE_QUESTION_FROM_QUESTIONNAIRE } from '../../mutations/questionnaire';
 import { Formik, FieldArray } from 'formik';
+import { UniqueInputFieldNamesRule } from 'graphql';
 // import styles from '../styles/questionnaire.module.scss';
 
 const Question = ({ question, questionnaire, refetch }) => {
     const [editQuestion] = useMutation(EDIT_QUESTION);
     const [removeQuestionFromQuestionnaire] = useMutation(REMOVE_QUESTION_FROM_QUESTIONNAIRE);
+    const [showTooltip, setShowTooltip] = useState(false);
+    const buttonRef = useRef(null);
 
     const deleteQuestion = async () => {
         await removeQuestionFromQuestionnaire({
@@ -14,7 +18,7 @@ const Question = ({ question, questionnaire, refetch }) => {
         });
         refetch();
     };
-    const updateQuestion = (questionValues) => {
+    const updateQuestion = async (questionValues) => {
         const variables = {
             questionnaireID: questionnaire.id,
             questionID: question.qID,
@@ -24,7 +28,9 @@ const Question = ({ question, questionnaire, refetch }) => {
             description: questionValues.description,
             values: questionValues.questionOptions
         };
-        editQuestion({ variables });
+        await editQuestion({ variables });
+        setShowTooltip(true);
+        setTimeout(() => setShowTooltip(false), 2000);
     };
 
     return (
@@ -127,7 +133,11 @@ const Question = ({ question, questionnaire, refetch }) => {
                                                                     }>
                                                                     Add option
                                                                 </Button>
-                                                                <Button type="submit">Save</Button>
+                                                                <Button
+                                                                    ref={buttonRef}
+                                                                    type="submit">
+                                                                    Save
+                                                                </Button>
                                                             </div>
                                                             {/* <pre>{JSON.stringify(values, null, 2)}</pre> */}
                                                         </>
@@ -144,16 +154,20 @@ const Question = ({ question, questionnaire, refetch }) => {
                                                 ? ' Short answer'
                                                 : ' Long answer'}
                                         </Form.Label>
-                                        <Button type="submit" className="mt-2 float-right">
+                                        <Button
+                                            ref={buttonRef}
+                                            type="submit"
+                                            className="mt-2 float-right">
                                             Save
                                         </Button>
-                                        <Overlay>
-                                            {(props) => (
-                                                <Tooltip {...props}>Question saved!</Tooltip>
-                                            )}
-                                        </Overlay>
                                     </>
                                 )}
+                                <Overlay
+                                    target={buttonRef.current}
+                                    show={showTooltip}
+                                    placement="bottom">
+                                    {(props) => <Tooltip {...props}>Question saved!</Tooltip>}
+                                </Overlay>
                             </Form>
                         )}
                     </Formik>
