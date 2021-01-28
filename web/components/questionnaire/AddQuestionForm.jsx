@@ -4,11 +4,14 @@ import { Formik } from 'formik';
 import { ADD_QUESTION } from '../../mutations/questionnaire';
 import styles from '../styles/questionnaire.module.scss';
 
-const AddQuestionForm = ({ questionnaire }) => {
+const AddQuestionForm = ({ questionnaire, refetch }) => {
     const [addQuestion] = useMutation(ADD_QUESTION);
 
-    const submitValues = (variables) => {
-        addQuestion({ variables: { questionnaireID: questionnaire.id, question: variables } });
+    const submitValues = async (variables) => {
+        await addQuestion({
+            variables: { questionnaireID: questionnaire.id, question: variables }
+        });
+        refetch();
     };
 
     return (
@@ -18,7 +21,9 @@ const AddQuestionForm = ({ questionnaire }) => {
                     initialValues={{
                         message: '',
                         description: '',
-                        qType: ''
+                        qType: '',
+                        order: questionnaire.questions.length,
+                        values: []
                     }}
                     onSubmit={submitValues}>
                     {({
@@ -29,7 +34,6 @@ const AddQuestionForm = ({ questionnaire }) => {
                         handleBlur,
                         handleSubmit
                     }) => (
-                        // {console.log(values)
                         <Form onSubmit={handleSubmit}>
                             <Form.Group>
                                 <Form.Label>Question Title</Form.Label>
@@ -56,7 +60,7 @@ const AddQuestionForm = ({ questionnaire }) => {
                             </Form.Group>
 
                             <Form.Group>
-                                <Form.Label>Question type</Form.Label>
+                                <Form.Label>Question Type</Form.Label>
                                 <Form.Check
                                     type="radio"
                                     name="qType"
@@ -80,18 +84,25 @@ const AddQuestionForm = ({ questionnaire }) => {
                                     name="qType"
                                     id="short"
                                     label="Short answer"
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    value="short"
                                 />
                                 <Form.Check
                                     type="radio"
                                     name="qType"
                                     id="long"
                                     label="Long answer"
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    value="long"
                                 />
                             </Form.Group>
 
                             <Button variant="primary" type="submit">
                                 Add
                             </Button>
+                            <pre>{JSON.stringify(values, null, 2)}</pre>
                         </Form>
                     )}
                 </Formik>
