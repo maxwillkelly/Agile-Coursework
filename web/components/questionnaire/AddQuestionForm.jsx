@@ -4,11 +4,14 @@ import { Formik } from 'formik';
 import { ADD_QUESTION } from '../../mutations/questionnaire';
 import styles from '../styles/questionnaire.module.scss';
 
-const AddQuestionForm = ({ questionnaire }) => {
+const AddQuestionForm = ({ questionnaire, refetch }) => {
     const [addQuestion] = useMutation(ADD_QUESTION);
 
-    const submitValues = (variables) => {
-        addQuestion({ variables: { questionnaireID: questionnaire.id, question: variables } });
+    const submitValues = async (variables) => {
+        await addQuestion({
+            variables: { questionnaireID: questionnaire.id, question: variables }
+        });
+        refetch();
     };
 
     return (
@@ -18,7 +21,9 @@ const AddQuestionForm = ({ questionnaire }) => {
                     initialValues={{
                         message: '',
                         description: '',
-                        qType: ''
+                        qType: '',
+                        order: questionnaire.questions.length,
+                        values: []
                     }}
                     onSubmit={submitValues}>
                     {({

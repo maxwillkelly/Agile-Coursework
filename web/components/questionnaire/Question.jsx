@@ -1,10 +1,22 @@
 import { Button, ButtonGroup, Form, Container, Card, InputGroup } from 'react-bootstrap';
+import { useMutation } from '@apollo/client';
+import { EDIT_QUESTION, REMOVE_QUESTION_FROM_QUESTIONNAIRE } from '../../mutations/questionnaire';
 import { Formik, FieldArray } from 'formik';
 // import styles from '../styles/questionnaire.module.scss';
 
-const Question = ({ question }) => {
-    const deleteQuestion = () => {};
-    const updateQuestion = (values) => {};
+const Question = ({ question, questionnaire, refetch }) => {
+    const [editQuestion] = useMutation(EDIT_QUESTION);
+    const [removeQuestionFromQuestionnaire] = useMutation(REMOVE_QUESTION_FROM_QUESTIONNAIRE);
+
+    const deleteQuestion = async () => {
+        await removeQuestionFromQuestionnaire({
+            variables: { questionnaireID: questionnaire.id, questionID: question.qID }
+        });
+        refetch();
+    };
+    const updateQuestion = (variables) => {
+        editQuestion({ variables });
+    };
 
     return (
         <Container>
@@ -18,9 +30,9 @@ const Question = ({ question }) => {
                 <div className="m-4">
                     <Formik
                         initialValues={{
-                            title: question.title,
+                            title: question.message,
                             description: question.description,
-                            questionOptions: question.options
+                            questionOptions: question.values
                         }}
                         onSubmit={updateQuestion}>
                         {({
