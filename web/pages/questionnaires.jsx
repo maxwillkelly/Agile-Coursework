@@ -9,7 +9,7 @@ import styles from '../styles/questionnaires.module.scss';
 
 const QuestionnairesPage = () => {
     const router = useRouter();
-    const [createQuestionnaireMutation] = useMutation(CREATE_QUESTIONNAIRE);
+    const [createQuestionnaireMutation] = useMutation(CREATE_QUESTIONNAIRE); 
     const getQuestionnaires = useQuery(GET_QUESTIONNAIRES);
 
     const createQuestionnaire = async () => {

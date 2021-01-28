@@ -1,12 +1,26 @@
 import { Form, Button, Container, Card } from 'react-bootstrap';
 import { Formik } from 'formik';
+import { useMutation } from '@apollo/client';
+import { EDIT_QUESTIONNAIRE } from '../../mutations/questionnaire';
 import styles from '../styles/questionnaire.module.scss';
 
-const TitleForm = () => {
+const TitleForm = ({ questionnaire }) => {
+    const [editQuestionnaire] = useMutation(EDIT_QUESTIONNAIRE);
+
+    const updateValues = (variables) => {
+        editQuestionnaire({ variables });
+    };
+
     return (
         <Container className={`${styles.questionnaireContainer}`}>
             <Card className={`${styles.questionnaireCard} p-4`}>
-                <Formik initialValues={{ title: '', description: '' }}>
+                <Formik
+                    initialValues={{
+                        questionnaireID: questionnaire.id,
+                        title: questionnaire.title,
+                        description: questionnaire.description
+                    }}
+                    onSubmit={updateValues}>
                     {({
                         values,
                         // errors,
