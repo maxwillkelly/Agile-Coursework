@@ -70,10 +70,10 @@ app.post('/login', async (req, res) => {
                     ID: loginEntry._id,
                     Level: loginEntry.level,
                     Email: loginEntry.email
-                }, SESSION_SECRECT, { expiresIn: '1h' });
+                }, SESSION_SECRECT, { expiresIn: '8h' });
                 // Get the time token will expire for user
                 var expire = new Date();
-                expire.setHours(expire.getHours() + 1);
+                expire.setHours(expire.getHours() + 8);
                 // Send token
                 res.send({
                     success: true,
