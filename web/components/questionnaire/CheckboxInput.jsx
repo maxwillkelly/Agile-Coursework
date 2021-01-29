@@ -1,7 +1,7 @@
 import Form from 'react-bootstrap/Form';
 import styles from '../styles/questionnaire.module.scss';
 
-export const CheckBox = ({ values, qID, setAnswers }) => {
+export const CheckboxInput = ({ values, qID, setAnswers }) => {
     console.log(values);
     return (
         <div>
@@ -34,4 +34,4 @@ export const CheckBox = ({ values, qID, setAnswers }) => {
     );
 };
 
-export default CheckBox;
+export default CheckboxInput;

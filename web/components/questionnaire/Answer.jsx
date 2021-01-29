@@ -1,7 +1,7 @@
 import Card from 'react-bootstrap/Card';
 import styles from '../styles/questionnaire.module.scss';
 import RadioInput from './RadioInput';
-import CheckboxInput from './CheckBoxInput';
+import CheckboxInput from './CheckboxInput';
 import TextboxInput from './TextboxInput';
 
 export const Answer = ({ message, values, qType, qID, description, setAnswers, answers }) => {
