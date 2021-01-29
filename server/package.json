@@ -21,7 +21,10 @@
     "jsonwebtoken": "^8.5.1",
     "kerberos": "^1.1.4",
     "lodash": "^4.17.20",
-    "mongodb": "^3.6.3"
+    "mongodb": "^3.6.3",
+    "aws-sdk": "^2.833.0",
+    "csv-writer": "^1.6.0",
+    "moment": "^2.29.1"
   },
   "devDependencies": {
     "apollo-server-testing": "^2.19.2",
