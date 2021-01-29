@@ -22,7 +22,7 @@ const QuestionnairesPage = () => {
             variables: { questionnaire }
         });
         getQuestionnaires.refetch();
-        router.push(`/studies/questionnaire/${data.createQuestionaire.id}`);
+        router.push(`/studies/questionnaire/${data.createQuestionnaire.id}`);
     };
 
     return (
