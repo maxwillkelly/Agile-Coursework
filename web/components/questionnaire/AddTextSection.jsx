@@ -1,20 +1,37 @@
 import { Form, Button, Container, Card } from 'react-bootstrap';
+import { useMutation } from '@apollo/client';
 import { Formik } from 'formik';
+import { ADD_QUESTION } from '../../mutations/questionnaire';
 import styles from '../styles/questionnaire.module.scss';
 
-const AddTextSection = () => {
+const AddTextSection = ({ questionnaire, refetch }) => {
+    const [addQuestion] = useMutation(ADD_QUESTION);
+
+    const submitValues = async (variables) => {
+        await addQuestion({
+            variables: { questionnaireID: questionnaire.id, question: variables }
+        });
+        refetch();
+    };
     return (
         <Container className={`${styles.questionnaireContainer}`}>
             <Card className={`${styles.questionnaireCard} p-4`}>
-                <Formik initialValues={{ heading: '', paragraph: '' }}>
+                <Formik
+                    initialValues={{
+                        message: '',
+                        description: '',
+                        qType: 'paragraph',
+                        order: questionnaire.questions.length,
+                        values: []
+                    }}
+                    onSubmit={submitValues}>
                     {({
                         values,
                         // errors,
                         // touched,
                         handleChange,
                         handleBlur,
-                        handleSubmit,
-                        isSubmitting
+                        handleSubmit
                     }) => (
                         // {console.log(values)}
                         <Form onSubmit={handleSubmit}>
@@ -22,11 +39,11 @@ const AddTextSection = () => {
                                 <Form.Label>Heading</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    name="heading"
+                                    name="message"
                                     placeholder="Enter a heading"
                                     onChange={handleChange}
                                     onBlur={handleBlur}
-                                    value={values.heading}
+                                    value={values.message}
                                 />
                             </Form.Group>
 
@@ -34,15 +51,15 @@ const AddTextSection = () => {
                                 <Form.Label>Paragraph</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    name="paragraph"
+                                    name="description"
                                     placeholder="Type your text here"
                                     onChange={handleChange}
                                     onBlur={handleBlur}
-                                    value={values.paragraph}
+                                    value={values.description}
                                 />
                             </Form.Group>
 
-                            <Button variant="primary" type="submit" disabled={isSubmitting}>
+                            <Button className="float-right" variant="primary" type="submit">
                                 Add
                             </Button>
                         </Form>

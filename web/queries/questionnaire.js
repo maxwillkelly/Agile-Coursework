@@ -6,7 +6,11 @@ export const GET_QUESTIONNAIRE = gql`
             id
             title
             description
-            studyID
+            study {
+                id
+                title
+                description
+            }
             questions {
                 qID
                 qType
@@ -24,7 +28,11 @@ export const GET_QUESTIONNAIRES = gql`
             id
             title
             description
-            studyID
+            study {
+                id
+                title
+                description
+            }
             questions {
                 qID
                 qType
@@ -40,7 +48,11 @@ export const GET_STUDY_QUESTIONNAIRES = gql`
         getStudyQuestionnaires(studyID: $studyID) {
             title
             description
-            studyID
+            study {
+                id
+                title
+                description
+            }
             questions {
                 qID
                 qType

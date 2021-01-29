@@ -5,6 +5,9 @@ const { gql, AuthenticationError, ForbiddenError } = require('apollo-server-expr
 const { IdError, PermissionsError } = require('../func/errors');
 const database = require('../database');
 const mongo = require('mongodb');
+const studyHelper = require('../func/study');
+const study = require('../func/study');
+const questionnaire = require('../func/questionnaire');
 
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
@@ -39,7 +42,8 @@ const typeDefs = gql`
         id: ID
         title: String
         description: String
-        studyID: ID  #TODO: Update to use study type
+        "Study is only returned if user is logged in"
+        study: Study
         questions: [Question]
     }
 
@@ -54,7 +58,7 @@ const typeDefs = gql`
 
     extend type Mutation {
         "Create a new Questionnaire"
-        createQuestionaire(
+        createQuestionnaire(
             questionnaire: QuestionnaireInput!
         ): Questionnaire
         "Remove as questionnaire"
@@ -93,44 +97,43 @@ const typeDefs = gql`
 // Resolvers define the technique for fetching the types defined in the Schema above
 const resolvers = {
     Query: {
-
         getQuestionnaire: async (parent, arg, ctx, info) => {
-            if (ctx.auth) {
-                try {
-                    const QuestionnaireCollection = database.getDb().collection('questionaires');
-                    const q_id = new mongo.ObjectID(arg.id);
-                    const currQuestionnaire = await QuestionnaireCollection.findOne({ _id: q_id })
-                    if (currQuestionnaire) {
-                        return {
-                            id: currQuestionnaire._id,
-                            title: currQuestionnaire.title,
-                            description: currQuestionnaire.description,
-                            studyID: currQuestionnaire.studyID.oid,
-                            questions: currQuestionnaire.questions,
-                        }
+            try {
+                const QuestionnaireCollection = database.getDb().collection('questionnaires');
+                const q_id = new mongo.ObjectID(arg.id);
+                const currQuestionnaire = await QuestionnaireCollection.findOne({ _id: q_id })
+                if (currQuestionnaire) {
+                    if (ctx.auth) {
+                        studyDetails = await studyHelper.getStudy(currQuestionnaire.studyID.oid)
                     } else {
-                        throw new Error(
-                            'Invalid ID'
-                        )
+                        studyDetails = null
                     }
-                }
-                catch (err) {
-                    throw new Error(
-                        `Error: ${err}`
+                    return {
+                        id: currQuestionnaire._id,
+                        title: currQuestionnaire.title,
+                        description: currQuestionnaire.description,
+                        study: studyDetails,
+                        questions: currQuestionnaire.questions,
+                    }
+                } else {
+                    throw new IdError(
+                        'Invalid ID'
                     )
                 }
-            } else {
-                throw new ForbiddenError(
-                    'Authentication token is invalid, please log in'
+            }
+            catch (err) {
+                throw new Error(
+                    `Error: ${err}`
                 )
             }
+
         },
 
         getQuestionnaires: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 if (ctx.user.Level >= 2) {
                     try {
-                        const QuestionnaireCollection = database.getDb().collection('questionaires');
+                        const QuestionnaireCollection = database.getDb().collection('questionnaires');
                         const questionnaires = await QuestionnaireCollection.find().toArray()
                         var replyList = []
                         for (let x in questionnaires) {
@@ -139,7 +142,7 @@ const resolvers = {
                                     id: questionnaires[x]._id,
                                     title: questionnaires[x].title,
                                     description: questionnaires[x].description,
-                                    studyID: questionnaires[x].studyID.oid,
+                                    study: await studyHelper.getStudy(questionnaires[x].studyID.oid),
                                     questions: questionnaires[x].questions
                                 }
                             )
@@ -165,11 +168,18 @@ const resolvers = {
 
         getStudyQuestionnaires: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
-                const QuestionnaireCollection = database.getDb().collection('questionaires');
+                const QuestionnaireCollection = database.getDb().collection('questionnaires');
+                const StudyCollection = database.getDb().collection('study');
+                var s_id = new mongo.ObjectID(arg.studyID);
+                if (ctx.user.Level < 2) {
+                    const staff_id = new mongo.ObjectID(ctx.user.ID);
+                    const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", staff_id) })
+                    if (!studyDocument) {
+                        throw new ForbiddenError("User not part of study")
+                    }
+                }
                 try {
-                    var s_id = arg.studyID;
-                    console.log(s_id);
-                    const questionnaires = await QuestionnaireCollection.find({ studyID: s_id }).toArray()
+                    const questionnaires = await QuestionnaireCollection.find({ studyID: mongo.DBRef("study", s_id) }).toArray()
                     var replyList = []
                     for (let x in questionnaires) {
                         replyList.push(
@@ -177,7 +187,7 @@ const resolvers = {
                                 id: questionnaires[x]._id,
                                 title: questionnaires[x].title,
                                 description: questionnaires[x].description,
-                                studyID: questionnaires[x].studyID.oid,
+                                study: await studyHelper.getStudy(questionnaires[x].studyID.oid),
                                 questions: questionnaires[x].questions
                             }
                         )
@@ -199,16 +209,22 @@ const resolvers = {
     },
 
     Mutation: {
-        createQuestionaire: async (parent, arg, ctx, info) => {
+        createQuestionnaire: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 try {
-                    const QuestionnaireCollection = database.getDb().collection('questionaires');
+                    const QuestionnaireCollection = database.getDb().collection('questionnaires');
                     const StudyCollection = database.getDb().collection('study');
                     const s_id = new mongo.ObjectID(arg.questionnaire.studyID);
                     const staff_id = new mongo.ObjectID(ctx.user.ID);
                     const StudyDetails = await StudyCollection.findOne({ "_id": s_id })
                     if (!StudyDetails) {
                         throw new Error("Invalid studyID")
+                    }
+                    if (ctx.user.Level < 2) {
+                        const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", staff_id) })
+                        if (!studyDocument) {
+                            throw new ForbiddenError("User not part of study")
+                        }
                     }
                     var staffInStudy = false
                     for (let x in StudyDetails.staff) {
@@ -236,7 +252,7 @@ const resolvers = {
                         id: response.ops[0]._id,
                         title: response.ops[0].title,
                         description: response.ops[0].description,
-                        studyID: response.ops[0].studyID.$id,
+                        study: await studyHelper.getStudy(response.ops[0].studyID.$id),
                         questions: response.ops[0].questions
                     }
                 } catch (err) {
@@ -254,7 +270,7 @@ const resolvers = {
         addQuestion: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 try {
-                    const QuestionnaireCollection = database.getDb().collection('questionaires');
+                    const QuestionnaireCollection = database.getDb().collection('questionnaires');
                     const StudyCollection = database.getDb().collection('study');
                     const q_id = new mongo.ObjectID(arg.questionnaireID);
                     const staff_id = new mongo.ObjectID(ctx.user.ID);
@@ -265,6 +281,12 @@ const resolvers = {
                     const studyDetails = await StudyCollection.findOne({ "_id": currQuestionnaire.studyID.oid })
                     if (!studyDetails) {
                         throw new Error("Unable to find linked study")
+                    }
+                    if (ctx.user.Level < 2) {
+                        const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", staff_id) })
+                        if (!studyDocument) {
+                            throw new ForbiddenError("User not part of study")
+                        }
                     }
                     var staffInStudy = false
                     for (let x in studyDetails.staff) {
@@ -301,7 +323,7 @@ const resolvers = {
                             id: currQuestionnaire._id,
                             title: currQuestionnaire.title,
                             description: currQuestionnaire.description,
-                            studyID: currQuestionnaire.studyID.oid,
+                            study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
                             questions: currQuestionnaire.questions,
                         }
                     }
@@ -318,10 +340,9 @@ const resolvers = {
         },
         editQuestionnaire: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
-                const QuestionnaireCollection = database.getDb().collection('questionaires');
+                const QuestionnaireCollection = database.getDb().collection('questionnaires');
                 const StudyCollection = database.getDb().collection('study');
                 const q_id = new mongo.ObjectID(arg.questionnaireID);
-                const staff_id = new mongo.ObjectID(ctx.user.ID);
                 var currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                 if (!currQuestionnaire) {
                     throw new IdError("Invalid questionnaireID")
@@ -330,14 +351,12 @@ const resolvers = {
                 if (!studyDetails) {
                     throw new Error("Unable to find linked study")
                 }
-                var staffInStudy = false
-                for (let x in studyDetails.staff) {
-                    if (studyDetails.staff[x].oid.equals(staff_id)) {
-                        staffInStudy = true
+                if (ctx.user.Level < 2) {
+                    const staff_id = new mongo.ObjectID(ctx.user.ID);
+                    const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", staff_id) })
+                    if (!studyDocument) {
+                        throw new ForbiddenError("User not part of study")
                     }
-                }
-                if (!staffInStudy) {
-                    throw new ForbiddenError("User not part of study")
                 }
                 if (ctx.user.Level < studyDetails.permissions.edit) {
                     throw new PermissionsError("Invalid Permissions")
@@ -358,7 +377,7 @@ const resolvers = {
                             id: currQuestionnaire._id,
                             title: currQuestionnaire.title,
                             description: currQuestionnaire.description,
-                            studyID: currQuestionnaire.studyID.oid,
+                            study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
                             questions: currQuestionnaire.questions,
                         }
                     }
@@ -375,10 +394,9 @@ const resolvers = {
         },
         removeQuestionnaire: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
-                const QuestionnaireCollection = database.getDb().collection('questionaires');
+                const QuestionnaireCollection = database.getDb().collection('questionnaires');
                 const StudyCollection = database.getDb().collection('study');
                 const q_id = new mongo.ObjectID(arg.questionnaireID);
-                const staff_id = new mongo.ObjectID(ctx.user.ID);
                 var currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                 if (!currQuestionnaire) {
                     throw new IdError("Invalid questionnaireID")
@@ -387,14 +405,12 @@ const resolvers = {
                 if (!studyDetails) {
                     throw new Error("Unable to find linked study")
                 }
-                var staffInStudy = false
-                for (let x in studyDetails.staff) {
-                    if (studyDetails.staff[x].oid.equals(staff_id)) {
-                        staffInStudy = true
+                if (ctx.user.Level < 2) {
+                    const staff_id = new mongo.ObjectID(ctx.user.ID);
+                    const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", staff_id) })
+                    if (!studyDocument) {
+                        throw new ForbiddenError("User not part of study")
                     }
-                }
-                if (!staffInStudy) {
-                    throw new ForbiddenError("User not part of study")
                 }
                 if (ctx.user.Level < studyDetails.permissions.delete) {
                     throw new PermissionsError("Invalid Permissions")
@@ -405,7 +421,7 @@ const resolvers = {
                         id: currQuestionnaire._id,
                         title: currQuestionnaire.title,
                         description: currQuestionnaire.description,
-                        studyID: currQuestionnaire.studyID.oid,
+                        study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
                         questions: currQuestionnaire.questions,
                     }
                 } catch (err) {
@@ -421,10 +437,9 @@ const resolvers = {
         },
         removeQuestionFromQuestionnaire: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
-                const QuestionnaireCollection = database.getDb().collection('questionaires');
+                const QuestionnaireCollection = database.getDb().collection('questionnaires');
                 const StudyCollection = database.getDb().collection('study');
                 const q_id = new mongo.ObjectID(arg.questionnaireID);
-                const staff_id = new mongo.ObjectID(ctx.user.ID);
                 var currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                 if (!currQuestionnaire) {
                     throw new IdError("Invalid questionnaireID")
@@ -433,14 +448,12 @@ const resolvers = {
                 if (!studyDetails) {
                     throw new Error("Unable to find linked study")
                 }
-                var staffInStudy = false
-                for (let x in studyDetails.staff) {
-                    if (studyDetails.staff[x].oid.equals(staff_id)) {
-                        staffInStudy = true
+                if (ctx.user.Level < 2) {
+                    const staff_id = new mongo.ObjectID(ctx.user.ID);
+                    const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", staff_id) })
+                    if (!studyDocument) {
+                        throw new ForbiddenError("User not part of study")
                     }
-                }
-                if (!staffInStudy) {
-                    throw new ForbiddenError("User not part of study")
                 }
                 if (ctx.user.Level < studyDetails.permissions.delete) {
                     throw new PermissionsError("Invalid Permissions")
@@ -471,7 +484,7 @@ const resolvers = {
                         id: currQuestionnaire._id,
                         title: currQuestionnaire.title,
                         description: currQuestionnaire.description,
-                        studyID: currQuestionnaire.studyID.oid,
+                        study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
                         questions: currQuestionnaire.questions,
                     }
                 } catch (err) {
@@ -487,10 +500,9 @@ const resolvers = {
         },
         editQuestion: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
-                const QuestionnaireCollection = database.getDb().collection('questionaires');
+                const QuestionnaireCollection = database.getDb().collection('questionnaires');
                 const StudyCollection = database.getDb().collection('study');
                 const q_id = new mongo.ObjectID(arg.questionnaireID);
-                const staff_id = new mongo.ObjectID(ctx.user.ID);
                 var currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                 if (!currQuestionnaire) {
                     throw new IdError("Invalid questionnaireID")
@@ -499,14 +511,12 @@ const resolvers = {
                 if (!studyDetails) {
                     throw new Error("Unable to find linked study")
                 }
-                var staffInStudy = false
-                for (let x in studyDetails.staff) {
-                    if (studyDetails.staff[x].oid.equals(staff_id)) {
-                        staffInStudy = true
+                if (ctx.user.Level < 2) {
+                    const staff_id = new mongo.ObjectID(ctx.user.ID);
+                    const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", staff_id) })
+                    if (!studyDocument) {
+                        throw new ForbiddenError("User not part of study")
                     }
-                }
-                if (!staffInStudy) {
-                    throw new ForbiddenError("User not part of study")
                 }
                 if (ctx.user.Level < studyDetails.permissions.delete) {
                     throw new PermissionsError("Invalid Permissions")
@@ -528,35 +538,35 @@ const resolvers = {
                         // updateQuestion.qType = arg.qType
                         await QuestionnaireCollection.updateOne(
                             findQuery,
-                            {$set: {"questions.$.qType": arg.qType}}
+                            { $set: { "questions.$.qType": arg.qType } }
                         )
                     }
                     if ('order' in arg) {
                         // updateQuestion.order - arg.order
                         await QuestionnaireCollection.updateOne(
                             findQuery,
-                            {$set: {"questions.$.order": arg.order}}
+                            { $set: { "questions.$.order": arg.order } }
                         )
                     }
                     if ('message' in arg) {
                         // updateQuestion.message = arg.message
                         await QuestionnaireCollection.updateOne(
                             findQuery,
-                            {$set: {"questions.$.message": arg.message}}
+                            { $set: { "questions.$.message": arg.message } }
                         )
                     }
                     if ('values' in arg) {
                         // updateQuestion.values = arg.values
                         await QuestionnaireCollection.updateOne(
                             findQuery,
-                            {$set: {"questions.$.values": arg.values}}
+                            { $set: { "questions.$.values": arg.values } }
                         )
                     }
                     if ('description' in arg) {
                         // updateQuestion.values = arg.values
                         await QuestionnaireCollection.updateOne(
                             findQuery,
-                            {$set: {"questions.$.description": arg.description}}
+                            { $set: { "questions.$.description": arg.description } }
                         )
                     }
                     currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
@@ -564,7 +574,7 @@ const resolvers = {
                         id: currQuestionnaire._id,
                         title: currQuestionnaire.title,
                         description: currQuestionnaire.description,
-                        studyID: currQuestionnaire.studyID.oid,
+                        study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
                         questions: currQuestionnaire.questions,
                     }
                 } catch (err) {

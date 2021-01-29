@@ -179,6 +179,11 @@ const resolvers = {
         },
         getStaffStudies: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
+                if(ctx.user.ID != arg){
+                    if(!(ctx.user.Level >= 2)){
+                        throw new ForbiddenError("Invalid Permissions")
+                    }
+                }
                 const StudyCollection = database.getDb().collection('study');
                 try {
                     var o_id = new mongo.ObjectID(arg.staffID);
@@ -293,8 +298,8 @@ const resolvers = {
                         var s_id = new mong.ObjectID(arg.id);
                         const currStudy = await StudyCollection.findOne({ "_id": s_id });
                         if (currStudy) {
-                            const QuestionnaireCollection = database.getDb().collection('questionaires');
-                            const questionnaires = await QuestionnaireCollection.find({ studyID: DBRef("questionaires", s_id) }).toArray()
+                            const QuestionnaireCollection = database.getDb().collection('questionnaires');
+                            const questionnaires = await QuestionnaireCollection.find({ studyID: DBRef("questionnaires", s_id) }).toArray()
 
                             if (questionnaires) {
                                 for (let x in questionnaires) {
@@ -334,7 +339,7 @@ const resolvers = {
                 }
                 if (ctx.user.Level < currStudy.permissions.edit) {
                     throw new PermissionsError(
-                        "Insufficent Permissions"
+                        "Insufficient Permissions"
                     )
                 }
                 var updateField = {}
@@ -399,8 +404,8 @@ const resolvers = {
                 }
                 const UserCollection = database.getDb().collection('users');
                 const o_id = new mongo.ObjectID(arg.staffID);
-                const currstaff = await UserCollection.findOne({ "_id": o_id });
-                if (!currstaff) {
+                const currStaff = await UserCollection.findOne({ "_id": o_id });
+                if (!currStaff) {
                     throw new Error(
                         "Invalid staffID"
                     )
@@ -466,8 +471,8 @@ const resolvers = {
                 }
                 const UserCollection = database.getDb().collection('users');
                 const o_id = new mongo.ObjectID(arg.staffID);
-                const currstaff = await UserCollection.findOne({ "_id": o_id });
-                if (!currstaff) {
+                const currStaff = await UserCollection.findOne({ "_id": o_id });
+                if (!currStaff) {
                     throw new IdError(
                         "Invalid staffID"
                     )

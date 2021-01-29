@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const CREATE_QUESTIONNAIRE = gql`
-    mutation CreateQuestionaire($questionnaire: QuestionnaireInput!) {
-        createQuestionaire(questionnaire: $questionnaire) {
+    mutation CreateQuestionnaire($questionnaire: QuestionnaireInput!) {
+        createQuestionnaire(questionnaire: $questionnaire) {
             id
         }
     }
@@ -15,6 +15,14 @@ export const EDIT_QUESTIONNAIRE = gql`
             title: $title
             description: $description
         ) {
+            id
+        }
+    }
+`;
+
+export const REMOVE_QUESTIONNAIRE = gql`
+    mutation RemoveQuestionnaire($questionnaireID: ID!) {
+        removeQuestionnaire(questionnaireID: $questionnaireID) {
             id
         }
     }
@@ -46,6 +54,7 @@ export const EDIT_QUESTION = gql`
         $qType: String
         $order: Int
         $message: String
+        $description: String
         $values: [String]
     ) {
         editQuestion(
@@ -54,9 +63,30 @@ export const EDIT_QUESTION = gql`
             qType: $qType
             order: $order
             message: $message
+            description: $description
             values: $values
         ) {
             id
         }
     }
 `;
+
+export const SEND_RESPONSE = gql`
+mutation CreateResponse(
+    $questionnaireID: ID!
+    $answers: [rValuesInput]
+) {
+    createResponse(
+        response:{
+            questionnaireID: $questionnaireID
+            answers: $answers
+        }
+    ) {
+        id
+        questionnaireID
+        answers {
+            qID
+            values
+        }
+    }
+}`;
