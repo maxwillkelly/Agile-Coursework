@@ -34,7 +34,7 @@ export const ADD_STAFF_TO_STUDY = gql`
 
 export const REMOVE_STAFF_FROM_STUDY = gql`
     mutation RemoveStaffFromStudy($studyID: ID!, $staffID: ID!) {
-        RemoveStaffFromStudy(studyID: $studyID, staffID: $staffID) {
+        removeStaffFromStudy(studyID: $studyID, staffID: $staffID) {
             id
         }
     }
