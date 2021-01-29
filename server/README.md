@@ -5,6 +5,7 @@ This folder contains all the code and defintions for the GraphQL API.
 ## Technologies used
 - [Apollo Server](https://www.apollographql.com/docs/apollo-server/)
 - [MongoDB](https://www.mongodb.com/)
+- 
 
 ## create your dev `.env` file
 
@@ -12,34 +13,24 @@ This folder contains all the code and defintions for the GraphQL API.
 
 2. Add the following values and into the `.env` file created
     ```
-    DBSTRING = Your MongoDB connection string
-    PORT = port to run your server on
-    SESSIONSECRECT = a long random sting of chars used for JWT encryption
+    DBSTRING = MongoDB connection String
+    SESSIONSECRECT = Random Session secret to generate JWT
+    SPACES_ACCESS_KEY_ID = DO spaces Access key
+    SPACES_SECRET_ACCESS_KEY = DO spaces Access Secret
+    BUCKET_NAME = DO spaces Bucket Link
+    LINK = DO spaces Base CDN link
+    AWS_ENDPOINT = DO spaces Endpoint
+    CERT = HTTPS cert location
+    HTTPS = TRUE/FALSE to enable 
     ```
 
 ## How to configure & run
 
-1. Update DB details
-Configure the `src/knexfile.js` file with the credentials of your Database, and state the Database connector you're using
+1. Create `.env` file or export enviorment variables
 
-2. Edit Secrets
-In the `src/index.js` file update the following constants to what you want to use
-
-- SESSION_SECRECT
-- PORT
-
-3. Configure GraphQL
-In the `src/index.js` on line 51 you may want to disable the following for **production**
-
-- playground
-- tracing
-- debug
-
-4. Run Server
+2. Run Server
 Execute the following command to start the server
 
 ```bash
-node src/index.js
+yarn dev
 ```
-
-*You may want to install and use `nodemon` if you're doing development  to reload the server when a file is updates*
