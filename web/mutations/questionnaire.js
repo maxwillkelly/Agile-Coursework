@@ -83,7 +83,7 @@ mutation CreateResponse(
         }
     ) {
         id
-        questionnaireID
+        questionnaire{ id }
         answers {
             qID
             values
