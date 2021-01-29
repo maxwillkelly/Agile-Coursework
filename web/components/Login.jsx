@@ -65,7 +65,7 @@ const Login = () => {
                             disabled={isSubmitting}>
                             Login
                         </Button>
-                        {userToken && <pre>{JSON.stringify(userToken, null, 2)}</pre>}
+                        {/* {userToken && <pre>{JSON.stringify(userToken, null, 2)}</pre>} */}
                     </Form>
                 )}
             </Formik>
