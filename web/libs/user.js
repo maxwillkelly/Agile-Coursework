@@ -11,3 +11,11 @@ export const getUserToken = () => {
 
     return userToken;
 };
+
+export const login = (res) => {
+    Cookies.set('userToken', res, { expires: new Date(res.expire) });
+};
+
+export const logout = () => {
+    Cookies.remove('userToken');
+};

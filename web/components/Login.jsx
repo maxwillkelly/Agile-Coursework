@@ -3,13 +3,13 @@ import { useContext, useState } from 'react';
 import { Card, Form, Button } from 'react-bootstrap';
 import { Formik, useField } from 'formik';
 import * as yup from 'yup';
-import Cookies from 'js-cookie';
 import { UserContext } from '../contexts';
+import { login } from '../libs/user';
 import loginAsync from '../pages/api/login';
 import styles from './styles/login.module.scss';
 
 const Login = () => {
-    const { userToken, setUserToken } = useContext(UserContext);
+    const { setUserToken } = useContext(UserContext);
     const [error, setError] = useState(false);
     // const router = useRouter();
 
@@ -24,7 +24,7 @@ const Login = () => {
             const res = await loginAsync(values);
             resetForm();
             setUserToken(res);
-            Cookies.set('userToken', res, { expires: new Date(res.expire) });
+            login(res);
             // if (typeof window !== 'undefined') router.push(routes.shift);
             setError(false);
         } catch (err) {
