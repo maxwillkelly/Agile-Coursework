@@ -31,7 +31,7 @@ const QuestionnairesPage = () => {
     return (
         <>
             <Head>
-                <title>Questionnaires</title>W
+                <title>Questionnaires</title>
             </Head>
             <Navigation />
             <main>
