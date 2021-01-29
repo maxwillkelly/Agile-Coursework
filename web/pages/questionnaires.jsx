@@ -1,7 +1,10 @@
+import { useState, useRef } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useQuery, useMutation } from '@apollo/client';
-import { Button, Container, Col, ListGroup } from 'react-bootstrap';
+import { Button, Container, Col, ListGroup, Overlay, Tooltip } from 'react-bootstrap';
+import copy from 'copy-to-clipboard';
+
 import Navigation from '../components/Navigation';
 import { GET_QUESTIONNAIRES } from '../queries/questionnaire';
 import { CREATE_QUESTIONNAIRE, REMOVE_QUESTIONNAIRE } from '../mutations/questionnaire';
@@ -28,7 +31,7 @@ const QuestionnairesPage = () => {
     return (
         <>
             <Head>
-                <title>Questionnaires</title>W
+                <title>Questionnaires</title>
             </Head>
             <Navigation />
             <main>
@@ -63,14 +66,24 @@ const Questionnaires = ({ getQuestionnaires, refetch }) => {
 };
 
 const Questionnaire = ({ q, refetch }) => {
+    const [showTooltip, setShowTooltip] = useState(false);
     const [removeQuestionnaire] = useMutation(REMOVE_QUESTIONNAIRE);
+    const router = useRouter();
+    const buttonRef = useRef(null);
+
+    const MAIN_PATH = '/studies/questionnaire';
+    const VIEW_PATH = `${MAIN_PATH}/answer/${q.id}`;
+
+    const copyToClipboard = (VIEW_PATH) => {
+        copy(`${window.location.hostname}:${window.location.port}${VIEW_PATH}`);
+        setShowTooltip(true);
+        setTimeout(() => setShowTooltip(false), 2000);
+    };
 
     const deleteQuestionnaire = async (questionnaire) => {
         await removeQuestionnaire({ variables: { questionnaireID: questionnaire.id } });
         refetch();
     };
-
-    const router = useRouter();
 
     return (
         <ListGroup.Item>
@@ -83,15 +96,26 @@ const Questionnaire = ({ q, refetch }) => {
                 </Col>
                 <div>
                     <Button
+                        variant="success"
+                        ref={buttonRef}
+                        onClick={() => copyToClipboard(VIEW_PATH)}>
+                        Copy
+                    </Button>
+                    <Overlay target={buttonRef.current} show={showTooltip} placement="bottom">
+                        {(props) => <Tooltip {...props}>Link copied!</Tooltip>}
+                    </Overlay>
+
+                    <Button
+                        className="ml-4"
                         variant="primary"
-                        onClick={() => router.push(`/studies/questionnaire/answer/${q.id}`)}>
+                        onClick={() => router.push(VIEW_PATH)}>
                         View
                     </Button>
 
                     <Button
                         className="ml-4"
                         variant="secondary"
-                        onClick={() => router.push(`/studies/questionnaire/${q.id}`)}>
+                        onClick={() => router.push(`${MAIN_PATH}/${q.id}`)}>
                         Edit
                     </Button>
 
