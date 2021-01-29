@@ -39,7 +39,7 @@ const AnswerPage = () => {
         console.log(submittableAnswers);
         sendQuestionnaireResponse({
             variables: {
-                questionnaireID: '6012d58d0af9d51504558fa0',
+                questionnaireID: router.query.id,
                 answers: submittableAnswers
             }
         }).then((res) => {
