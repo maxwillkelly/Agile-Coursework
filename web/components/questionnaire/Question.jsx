@@ -1,12 +1,11 @@
-import { useState, useRef } from 'react';
+import { forwardRef, useState, useRef } from 'react';
 import { Button, Form, Container, Card, InputGroup, Overlay, Tooltip } from 'react-bootstrap';
 import { useMutation } from '@apollo/client';
 import { EDIT_QUESTION, REMOVE_QUESTION_FROM_QUESTIONNAIRE } from '../../mutations/questionnaire';
 import { Formik, FieldArray } from 'formik';
-import { UniqueInputFieldNamesRule } from 'graphql';
 // import styles from '../styles/questionnaire.module.scss';
 
-const Question = ({ question, questionnaire, refetch }) => {
+const Question = forwardRef(function Question({ question, questionnaire, refetch }, ref) {
     const [editQuestion] = useMutation(EDIT_QUESTION);
     const [removeQuestionFromQuestionnaire] = useMutation(REMOVE_QUESTION_FROM_QUESTIONNAIRE);
     const [showTooltip, setShowTooltip] = useState(false);
@@ -18,6 +17,7 @@ const Question = ({ question, questionnaire, refetch }) => {
         });
         refetch();
     };
+
     const updateQuestion = async (questionValues) => {
         const variables = {
             questionnaireID: questionnaire.id,
@@ -34,7 +34,7 @@ const Question = ({ question, questionnaire, refetch }) => {
     };
 
     return (
-        <Container>
+        <Container ref={ref}>
             <Card className="p-0 m-5">
                 <Card.Header>
                     {question.qType === 'paragraph' ? 'Text Section' : 'Question'}
@@ -181,7 +181,7 @@ const Question = ({ question, questionnaire, refetch }) => {
             </Card>
         </Container>
     );
-};
+});
 
 const QuestionPrepend = ({ question }) => {
     switch (question.qType) {

@@ -33,7 +33,7 @@ const QuestionnairesPage = () => {
             <Navigation />
             <main>
                 <Container className="mt-3">
-                    <h2 className="mx-3">All Questionnaires</h2>
+                    <h2 className="mx-3 mt-5 mb-3">All Questionnaires</h2>
                     <Questionnaires
                         getQuestionnaires={getQuestionnaires}
                         refetch={getQuestionnaires.refetch}
@@ -49,6 +49,20 @@ const QuestionnairesPage = () => {
 
 const Questionnaires = ({ getQuestionnaires, refetch }) => {
     const { loading, error, data } = getQuestionnaires;
+
+    if (loading) return <p>Loading...</p>;
+    if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
+
+    return (
+        <ListGroup>
+            {data.getQuestionnaires.map((q, i) => (
+                <Questionnaire q={q} refetch={refetch} key={i} />
+            ))}
+        </ListGroup>
+    );
+};
+
+const Questionnaire = ({ q, refetch }) => {
     const [removeQuestionnaire] = useMutation(REMOVE_QUESTIONNAIRE);
 
     const deleteQuestionnaire = async (questionnaire) => {
@@ -58,47 +72,38 @@ const Questionnaires = ({ getQuestionnaires, refetch }) => {
 
     const router = useRouter();
 
-    if (loading) return <p>Loading...</p>;
-    if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
-
     return (
-        <ListGroup>
-            {data.getQuestionnaires.map((q, i) => {
-                return (
-                    <ListGroup.Item key={i}>
-                        <div className={styles.questionnaireItem}>
-                            <Col>
-                                <p className="m-0">{q.title}</p>
-                            </Col>
-                            <Col>
-                                <p className="m-0">{q.description}</p>
-                            </Col>
-                            <div>
-                                <Button
-                                    variant="primary"
-                                    onClick={() => router.push(`/studies/questionnaire/answer/${q.id}`)}>
-                                    View
-                                </Button>
+        <ListGroup.Item>
+            <div className={styles.questionnaireItem}>
+                <Col>
+                    <p className="m-0">{q.title}</p>
+                </Col>
+                <Col>
+                    <p className="m-0">{q.description}</p>
+                </Col>
+                <div>
+                    <Button
+                        variant="primary"
+                        onClick={() => router.push(`/studies/questionnaire/answer/${q.id}`)}>
+                        View
+                    </Button>
 
-                                <Button
-                                    className="ml-4"
-                                    variant="secondary"
-                                    onClick={() => router.push(`/studies/questionnaire/${q.id}`)}>
-                                    Edit
-                                </Button>
+                    <Button
+                        className="ml-4"
+                        variant="secondary"
+                        onClick={() => router.push(`/studies/questionnaire/${q.id}`)}>
+                        Edit
+                    </Button>
 
-                                <Button
-                                    className="ml-4"
-                                    variant="danger"
-                                    onClick={() => deleteQuestionnaire(q)}>
-                                    Delete
-                                </Button>
-                            </div>
-                        </div>
-                    </ListGroup.Item>
-                );
-            })}
-        </ListGroup>
+                    <Button
+                        className="ml-4"
+                        variant="danger"
+                        onClick={() => deleteQuestionnaire(q)}>
+                        Delete
+                    </Button>
+                </div>
+            </div>
+        </ListGroup.Item>
     );
 };
 
