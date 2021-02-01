@@ -7,7 +7,7 @@ import Head from 'next/head';
 import Navigation from '../Navigation';
 
 const UserList = ({ users }) => {
-    console.log(users);
+    // console.log(users);
     return users.map((user) => <UserListSingle key={user.id} user={user} />);
 };
 

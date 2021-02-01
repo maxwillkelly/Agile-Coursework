@@ -25,7 +25,7 @@ const AnswerPage = () => {
     if (error || !data) {
         return <pre>{JSON.stringify(error, null, 2) || 'AHHhhhh!'}</pre>;
     } else {
-        console.log(data);
+        // console.log(data);
     }
 
     const handleSendResponse = () => {
@@ -38,7 +38,7 @@ const AnswerPage = () => {
             });
         }
 
-        console.log(submittableAnswers);
+        // console.log(submittableAnswers);
         sendQuestionnaireResponse({
             variables: {
                 questionnaireID: data.getQuestionnaire.id,

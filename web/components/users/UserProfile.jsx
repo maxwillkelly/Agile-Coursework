@@ -7,8 +7,8 @@ import DELETE_USER from '../../mutations/deleteUser';
 import { useMutation } from '@apollo/client';
 export const UserProfile = ({ selectedUser: user, setSuccessVal, setAlertVisibility }) => {
     const [details, setDetails] = useState({ ...user });
-    const [updateUser, { loadingUpdate, errorUpdate, dataUpdate }] = useMutation(UPDATE_USER);
-    const [deleteUser, { loadingDelete, errorDelete, dataDelete }] = useMutation(DELETE_USER);
+    const [updateUser] = useMutation(UPDATE_USER);
+    const [deleteUser] = useMutation(DELETE_USER);
 
     const handleUpdateUser = () => {
         if (!details.id) {
@@ -20,7 +20,7 @@ export const UserProfile = ({ selectedUser: user, setSuccessVal, setAlertVisibil
             .then(() => {
                 setSuccessVal([true, 'Successfully updated user']);
                 setAlertVisibility(true);
-                console.log(dataUpdate);
+                // console.log(dataUpdate);
             })
             .catch(() => {
                 setSuccessVal([false, 'Failed to update user']);
