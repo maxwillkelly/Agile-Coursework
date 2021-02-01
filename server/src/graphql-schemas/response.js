@@ -153,7 +153,6 @@ const resolvers = {
 
         /**
          * Creates a download link for a csv of responses for a certain questionnaire
-         * @todo Comment this
          * @param {Object} parent
          * @param {Object} arg
          * @param {Object} ctx
@@ -173,13 +172,15 @@ const resolvers = {
                         if (!questionnaire) {
                             throw new Error("Unable to find questionnaire")
                         }
-                        headers = []
+                        // Forms header for the CSV with the ID of each question and the title of the question 
+                        headers = []  // Stores all the header details for the CSV
                         for (let x in questionnaire.questions) {
                             headers.push({
                                 id: questionnaire.questions[x].qID.toString(),
                                 title: questionnaire.questions[x].message
                             })
                         }
+                        // Goes through each response and builds a list of responses with their ID and the value as a key:value paid
                         responseList = []
                         for (let r in responses) {
                             reply = {}
@@ -188,11 +189,14 @@ const resolvers = {
                             }
                             responseList.push(reply)
                         }
-                        const csvStringifier = createCsvStringifier({ header: headers });
-                        const csv = `${csvStringifier.getHeaderString()}${csvStringifier.stringifyRecords(responseList)}`;
+                        // Form CSV
+                        const csvStringifier = createCsvStringifier({ header: headers });  // Create the stringifyer 
+                        const csv = `${csvStringifier.getHeaderString()}${csvStringifier.stringifyRecords(responseList)}`;  // Create the CSV and returns as a string
+                        // Uploads to S3 Bucket 
                         const response = await s3Uploader.uploadToS3(
                             `${arg.questionnaireID}-${moment().format('YYYY-MM-DD-HH-mm-ssSS')}.csv`, "text/csv", csv
                         )
+                        // Return the link to the uploaded file
                         return `${process.env.LINK}/${response.Key}`
                     } catch (err) {
                         throw new Error(`Intenal Error ${err}`)
