@@ -137,7 +137,7 @@ const AddStaffCard = ({ study }) => {
 
     const addStaffMemberToStudy = async (variables) => {
         if (!variables.staffID) return;
-        console.log(variables);
+        // console.log(variables);
         await addStaff({ variables });
         refetch();
     };
@@ -214,9 +214,9 @@ const StudyInfo = ({ data: { id, title, description } }) => {
             description: studyValues.description
         };
         editStudy({ variables })
-            .then((res) => {
-                console.log('akjsdalksdjlaskdjasd' + res);
-            })
+            // .then((res) => {
+            //     console.log('akjsdalksdjlaskdjasd' + res);
+            // })
             .catch((err) => console.error(err));
         setShowTooltip(true);
         setTimeout(() => setShowTooltip(false), 2000);

@@ -9,7 +9,6 @@ export const RadioInput = ({ values, qID, setAnswers }) => {
                     return (
                         <Form.Check
                             onChange={(e) => {
-                                console.log([e.target.labels[0].innerText]);
                                 setAnswers((prev) => ({
                                     ...prev,
                                     [qID]: [e.target.labels[0].innerText]

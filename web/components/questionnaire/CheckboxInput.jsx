@@ -2,7 +2,6 @@ import Form from 'react-bootstrap/Form';
 import styles from '../styles/questionnaire.module.scss';
 
 export const CheckboxInput = ({ values, qID, setAnswers }) => {
-    console.log(values);
     return (
         <div>
             {values &&

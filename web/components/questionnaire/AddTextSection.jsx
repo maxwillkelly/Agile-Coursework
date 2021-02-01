@@ -33,7 +33,6 @@ const AddTextSection = ({ questionnaire, refetch }) => {
                         handleBlur,
                         handleSubmit
                     }) => (
-                        // {console.log(values)}
                         <Form onSubmit={handleSubmit}>
                             <Form.Group>
                                 <Form.Label>Heading</Form.Label>

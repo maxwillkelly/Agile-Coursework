@@ -19,7 +19,6 @@ const MainBreadcrumb = () => {
         <Breadcrumb>
             {segments.map((href, i) => {
                 const linkName = hrefDictionary[href];
-                console.log(href);
                 href = !href ? '/' : href;
                 return (
                     <MyBreadcrumbItem href={href} activeSegment={activeSegment} key={i}>
