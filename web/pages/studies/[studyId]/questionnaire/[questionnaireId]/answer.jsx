@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import { useRouter } from 'next/router';
 import { Container, Button } from 'react-bootstrap';
-import { GET_QUESTIONNAIRE } from '../../../../../queries/questionnaire';
 
+import { GET_QUESTIONNAIRE } from '../../../../../queries/questionnaire';
 import Navigation from '../../../../../components/Navigation';
 import MainBreadcrumb from '../../../../../components/MainBreadcrumb';
 import itemStyles from '../../../../../components/styles/questionnaire.module.scss';
@@ -15,7 +15,7 @@ import { SEND_RESPONSE } from '../../../../../mutations/questionnaire';
 const AnswerPage = () => {
     const router = useRouter();
     const { loading, error, data } = useQuery(GET_QUESTIONNAIRE, {
-        variables: { id: router.query.id }
+        variables: { id: router.query.questionnaireId }
     });
     const [sendQuestionnaireResponse] = useMutation(SEND_RESPONSE);
     const [answers, setAnswers] = useState({});

@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import { Container } from 'react-bootstrap';
-import Navigation from '../../../../components/Navigation';
+import Navigation from '../../../../../../components/Navigation';
 
 const ThanksPage = () => {
     return (

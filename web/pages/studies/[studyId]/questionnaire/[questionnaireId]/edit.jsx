@@ -3,20 +3,20 @@ import { useRouter } from 'next/router';
 import { useQuery, useMutation } from '@apollo/client';
 import { Col, Container, Row } from 'react-bootstrap';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import TitleForm from '../../../../components/questionnaire/TitleForm';
-import AddQuestionForm from '../../../../components/questionnaire/AddQuestionForm';
-import AddTextSection from '../../../../components/questionnaire/AddTextSection';
-import Question from '../../../../components/questionnaire/Question';
-import Navigation from '../../../../components/Navigation';
-import MainBreadcrumb from '../../../../components/MainBreadcrumb';
-import { GET_QUESTIONNAIRE } from '../../../../queries/questionnaire';
-import { EDIT_QUESTION } from '../../../../mutations/questionnaire';
-// import styles from '../../../../styles/questionnaire-creator.module.scss';
+import TitleForm from '../../../../../components/questionnaire/TitleForm';
+import AddQuestionForm from '../../../../../components/questionnaire/AddQuestionForm';
+import AddTextSection from '../../../../../components/questionnaire/AddTextSection';
+import Question from '../../../../../components/questionnaire/Question';
+import Navigation from '../../../../../components/Navigation';
+import MainBreadcrumb from '../../../../../components/MainBreadcrumb';
+import { GET_QUESTIONNAIRE } from '../../../../../queries/questionnaire';
+import { EDIT_QUESTION } from '../../../../../mutations/questionnaire';
+// import styles from '../../../../../styles/questionnaire-creator.module.scss';
 
 const QuestionnaireCreatorPage = () => {
     const router = useRouter();
     const { loading, error, data, refetch } = useQuery(GET_QUESTIONNAIRE, {
-        variables: { id: router.query.id }
+        variables: { id: router.query.questionnaireId }
     });
 
     return (

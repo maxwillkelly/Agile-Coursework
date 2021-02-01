@@ -25,7 +25,7 @@ const StudiesPage = () => {
             staff: []
         };
         await createNewStudy({ variables: { study } });
-        router.push(`/study/${study.id}`);
+        router.push(`/studies/${study.id}`);
     };
 
     return (
@@ -93,7 +93,7 @@ const Study = ({ study }) => {
                     <Button
                         className="ml-4"
                         variant="primary"
-                        onClick={() => router.push(`/study/${study.id}`)}>
+                        onClick={() => router.push(`/studies/${study.id}`)}>
                         Edit
                     </Button>
 
