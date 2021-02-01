@@ -16,7 +16,7 @@ const Navigation = () => {
             setUserToken(null);
             logout();
         }
-        router.push('/login');
+        router.push('/');
     };
 
     return (
