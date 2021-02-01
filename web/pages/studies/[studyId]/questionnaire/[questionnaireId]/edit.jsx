@@ -1,8 +1,8 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { Col, Container, Row } from 'react-bootstrap';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+// import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import TitleForm from '../../../../../components/questionnaire/TitleForm';
 import AddQuestionForm from '../../../../../components/questionnaire/AddQuestionForm';
 import AddTextSection from '../../../../../components/questionnaire/AddTextSection';
@@ -10,7 +10,6 @@ import Question from '../../../../../components/questionnaire/Question';
 import Navigation from '../../../../../components/Navigation';
 import MainBreadcrumb from '../../../../../components/MainBreadcrumb';
 import { GET_QUESTIONNAIRE } from '../../../../../queries/questionnaire';
-import { EDIT_QUESTION } from '../../../../../mutations/questionnaire';
 // import styles from '../../../../../styles/questionnaire-creator.module.scss';
 
 const QuestionnaireCreatorPage = () => {
@@ -73,54 +72,14 @@ const QuestionnaireOptions = ({ questionnaire, refetch }) => {
     );
 };
 
-const Questions = ({ questionnaire, refetch }) => {
-    const [editQuestion] = useMutation(EDIT_QUESTION);
-
-    const onDragEnd = async (result) => {
-        // dropped outside the list
-        if (!result.destination) return;
-
-        const question = questionnaire.questions[result.source.index];
-
-        const variables = {
-            questionnaireID: questionnaire.id,
-            questionID: question.qID,
-            qType: question.qType,
-            order: result.destination.index,
-            message: question.message,
-            description: question.description,
-            values: question.values
-        };
-
-        await editQuestion({ variables });
-
-        refetch();
-    };
-
-    return (
-        <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable droppableId="droppable">
-                {(provided) => (
-                    <div {...provided.droppableProps} ref={provided.innerRef}>
-                        {questionnaire.questions.map((question, index) => (
-                            <Draggable key={question.qID} draggableId={question.qID} index={index}>
-                                {(provided) => (
-                                    <Question
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        {...provided.dragHandleProps}
-                                        question={question}
-                                        questionnaire={questionnaire}
-                                        refetch={refetch}
-                                    />
-                                )}
-                            </Draggable>
-                        ))}
-                    </div>
-                )}
-            </Droppable>
-        </DragDropContext>
-    );
-};
+const Questions = ({ questionnaire, refetch }) =>
+    questionnaire.questions.map((question) => (
+        <Question
+            question={question}
+            questionnaire={questionnaire}
+            refetch={refetch}
+            key={question.qID}
+        />
+    ));
 
 export default QuestionnaireCreatorPage;
