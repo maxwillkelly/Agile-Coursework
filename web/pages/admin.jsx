@@ -7,6 +7,7 @@ import { Alert, Container, Row, Col, Spinner } from 'react-bootstrap';
 import Navigation from '../components/Navigation';
 import { USERS_QUERY } from '../queries/users';
 import { useQuery } from '@apollo/client';
+import MainBreadcrumb from '../components/MainBreadcrumb';
 
 export const AdminDashboard = () => {
     const { loading, error, data, refetch } = useQuery(USERS_QUERY);
@@ -29,6 +30,7 @@ export const AdminDashboard = () => {
                 <title>Admin Dashboard</title>
             </Head>
             <Navigation />
+            <MainBreadcrumb />
 
             <Container>
                 <Row>

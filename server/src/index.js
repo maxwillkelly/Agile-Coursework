@@ -34,10 +34,10 @@ app.use(cors());
 
 const context = ({ req }) => {
     /*
-  Creates the context checks for if a user if logged in or not
-  Verification is done using JWT in the header of the request.
-  Can not use async!
-  */
+    Creates the context checks for if a user if logged in or not
+    Verification is done using JWT in the header of the request.
+    Can not use async!
+    */
     const token = req.headers.authorization || '';
     try {
         var decoded = jwt.verify(token, SESSION_SECRECT);
