@@ -1,10 +1,10 @@
 import { useQuery } from '@apollo/client';
-import { USERS_QUERY } from '../../../queries/users';
-import { UserListSingle } from '../../../components/users/UserListSingle';
-import { UserForm } from '../../../components/users/UserCreate';
+import { USERS_QUERY } from '../../queries/users';
+import { UserListSingle } from './UserListSingle';
+import { UserForm } from './UserCreate';
 import styles from '../../../styles/users.module.scss';
 import Head from 'next/head';
-import Navigation from '../../../components/Navigation';
+import Navigation from '../Navigation';
 
 const UserList = ({ users }) => {
     console.log(users);
