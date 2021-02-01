@@ -27,8 +27,9 @@ import styles from '../../styles/questionnaires.module.scss';
 
 const StudyPage = () => {
     const router = useRouter();
+    const studyID = router.query.studyId;
     const { loading, error, data, refetch } = useQuery(GET_STUDY, {
-        variables: { id: router.query.id }
+        variables: { id: studyID }
     });
 
     if (loading)
@@ -58,10 +59,10 @@ const StudyPage = () => {
                         </Row>
                         <StaffList
                             staff={data.getStudy.staff}
-                            studyID={data.getStudy.id}
+                            studyID={studyID}
                             refetch={refetch}
                         />
-                        <QuestionnairesSection />
+                        <QuestionnairesSection studyID={studyID} />
                     </Container>
                 </main>
             </>
@@ -270,7 +271,7 @@ const StudyInfo = ({ data: { id, title, description } }) => {
     );
 };
 
-const QuestionnairesSection = () => {
+const QuestionnairesSection = ({ studyID }) => {
     const router = useRouter();
     const [createQuestionnaireMutation] = useMutation(CREATE_QUESTIONNAIRE);
     const getQuestionnaires = useQuery(GET_QUESTIONNAIRES);
@@ -279,13 +280,13 @@ const QuestionnairesSection = () => {
         const questionnaire = {
             title: 'New Questionnaire',
             description: 'This is a new questionnaire',
-            studyID: '60103d9bec827463c8a40e34'
+            studyID
         };
         const { data } = await createQuestionnaireMutation({
             variables: { questionnaire }
         });
         getQuestionnaires.refetch();
-        router.push(`/studies/questionnaire/${data.createQuestionnaire.id}`);
+        router.push(`/studies/${studyID}/questionnaire/${data.createQuestionnaire.id}`);
     };
 
     return (
@@ -294,6 +295,7 @@ const QuestionnairesSection = () => {
             <Questionnaires
                 getQuestionnaires={getQuestionnaires}
                 refetch={getQuestionnaires.refetch}
+                studyID={studyID}
             />
             <Button className="float-right mt-3" onClick={createQuestionnaire}>
                 Create Questionnaire
@@ -302,7 +304,7 @@ const QuestionnairesSection = () => {
     );
 };
 
-const Questionnaires = ({ getQuestionnaires, refetch }) => {
+const Questionnaires = ({ getQuestionnaires, refetch, studyID }) => {
     const { loading, error, data } = getQuestionnaires;
 
     if (loading) return <p>Loading...</p>;
@@ -311,20 +313,20 @@ const Questionnaires = ({ getQuestionnaires, refetch }) => {
     return (
         <ListGroup>
             {data.getQuestionnaires.map((q, i) => (
-                <Questionnaire q={q} refetch={refetch} key={i} />
+                <Questionnaire q={q} refetch={refetch} studyID={studyID} key={i} />
             ))}
         </ListGroup>
     );
 };
 
-const Questionnaire = ({ q, refetch }) => {
+const Questionnaire = ({ q, refetch, studyID }) => {
     const [showTooltip, setShowTooltip] = useState(false);
     const [removeQuestionnaire] = useMutation(REMOVE_QUESTIONNAIRE);
     const router = useRouter();
     const buttonRef = useRef(null);
 
-    const MAIN_PATH = '/studies/questionnaire';
-    const VIEW_PATH = `${MAIN_PATH}/answer/${q.id}`;
+    const MAIN_PATH = `/studies/${studyID}/questionnaire/${q.id}`;
+    const VIEW_PATH = `${MAIN_PATH}/answer`;
 
     const copyToClipboard = (VIEW_PATH) => {
         copy(`${window.location.hostname}:${window.location.port}${VIEW_PATH}`);
@@ -367,7 +369,7 @@ const Questionnaire = ({ q, refetch }) => {
                     <Button
                         className="ml-4"
                         variant="secondary"
-                        onClick={() => router.push(`${MAIN_PATH}/${q.id}`)}>
+                        onClick={() => router.push(`${MAIN_PATH}/edit`)}>
                         Edit
                     </Button>
 

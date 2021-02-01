@@ -11,8 +11,9 @@ const MainBreadcrumb = () => {
         admin: 'Admin',
         login: 'Login',
         studies: 'Studies',
-        'studies/[id]': 'StudyName',
-        'studies/[id]/questionnaires/[id]': 'QuestionnaireName'
+        'studies/[studyId]': 'StudyName',
+        'studies/[studyId]/questionnaire/[questionnaireId]/answer': 'Answer QuestionnaireName',
+        'studies/[studyId]/questionnaire/[questionnaireId]/edit': 'Edit QuestionnaireName'
     };
 
     return (
@@ -34,7 +35,7 @@ const MyBreadcrumbItem = ({ children, href }) => {
     const router = useRouter();
     const path = router.pathname === '/' ? `/${router.pathname}` : router.pathname;
     return (
-        <Breadcrumb.Item href={href} active={path === `/${href}`}>
+        <Breadcrumb.Item onClick={() => router.push(href)} active={path === `/${href}`}>
             {children}
         </Breadcrumb.Item>
     );
