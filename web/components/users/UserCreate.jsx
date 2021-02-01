@@ -5,7 +5,7 @@ import SET_NEW_USER from '../../mutations/setNewUser';
 
 export const UserForm = ({ setSuccessVal, setAlertVisibility, handleClose }) => {
     const [userDetails, setUserDetails] = useState({});
-    const [setNewUser, { loading, error, data }] = useMutation(SET_NEW_USER);
+    const [setNewUser] = useMutation(SET_NEW_USER);
 
     const handleUserCreate = (e) => {
         e.preventDefault();
@@ -68,12 +68,11 @@ export const UserForm = ({ setSuccessVal, setAlertVisibility, handleClose }) => 
                 <Form.Control
                     as="select"
                     value={userDetails.level || 0}
+                    defaultValue={0}
                     onChange={(e) =>
                         setUserDetails((prev) => ({ ...prev, level: e.target.value }))
                     }>
-                    <option value={0} selected>
-                        Co-Researcher
-                    </option>
+                    <option value={0}>Co-Researcher</option>
                     <option value={1}>Researcher</option>
                     <option value={2}>Lab Manager</option>
                 </Form.Control>
