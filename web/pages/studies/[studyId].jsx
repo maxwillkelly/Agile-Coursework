@@ -295,7 +295,7 @@ const QuestionnairesSection = ({ studyID }) => {
                 refetch={getQuestionnaires.refetch}
                 studyID={studyID}
             />
-            <Button className="float-right mt-3" onClick={createQuestionnaire}>
+            <Button className="float-right mt-3 mb-5" onClick={createQuestionnaire}>
                 Create Questionnaire
             </Button>
         </>
