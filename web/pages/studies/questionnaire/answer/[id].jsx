@@ -45,6 +45,8 @@ const AnswerPage = () => {
         }).then((res) => {
             console.log(res);
         });
+
+        router.push('/studies/questionnaire/answer/thanks');
     };
 
     return (
