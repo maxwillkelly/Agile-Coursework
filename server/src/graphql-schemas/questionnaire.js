@@ -97,11 +97,22 @@ const typeDefs = gql`
 // Resolvers define the technique for fetching the types defined in the Schema above
 const resolvers = {
     Query: {
+        /**
+         * Returns a questionnaire using questionnaireID
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
         getQuestionnaire: async (parent, arg, ctx, info) => {
             try {
                 const QuestionnaireCollection = database.getDb().collection('questionnaires');
+
+                // Creating a ObjectID object and using it for querying the collection to return filtered results
                 const q_id = new mongo.ObjectID(arg.id);
                 const currQuestionnaire = await QuestionnaireCollection.findOne({ _id: q_id })
+
+                // Checks if exists
                 if (currQuestionnaire) {
                     if (ctx.auth) {
                         studyDetails = await studyHelper.getStudy(currQuestionnaire.studyID.oid)
@@ -129,13 +140,25 @@ const resolvers = {
 
         },
 
+        /**
+         * Gets all questionnaires
+         * @param {Object} parent
+         * @param {Object} arg
+         * @param {Object} ctx
+         * @param {Object} info
+         */
         getQuestionnaires: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
+
+                //Checks current users access level
                 if (ctx.user.Level >= 2) {
                     try {
+
                         const QuestionnaireCollection = database.getDb().collection('questionnaires');
                         const questionnaires = await QuestionnaireCollection.find().toArray()
                         var replyList = []
+
+                        //Adds list to array for return
                         for (let x in questionnaires) {
                             replyList.push(
                                 {
@@ -166,11 +189,20 @@ const resolvers = {
             }
         },
 
+        /**
+         * Returns questionnaires relative to the study they are connected to
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
         getStudyQuestionnaires: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const QuestionnaireCollection = database.getDb().collection('questionnaires');
                 const StudyCollection = database.getDb().collection('study');
                 var s_id = new mongo.ObjectID(arg.studyID);
+
+                //Gets Information if the user has the correct clearance for that study
                 if (ctx.user.Level < 2) {
                     const staff_id = new mongo.ObjectID(ctx.user.ID);
                     const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", staff_id) })
