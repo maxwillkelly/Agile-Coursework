@@ -1,3 +1,7 @@
+/*
+Stores the list of valid question types
+*/
+
 const idToQuestion = [
     "radio",
     "checkbox",
@@ -10,6 +14,7 @@ const questionToID = {
     checkbox: 2,
     shortAnswer: 3,
     longAnswer: 4
+
 }
 
 module.exports = {

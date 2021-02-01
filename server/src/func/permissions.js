@@ -1,3 +1,6 @@
+/*
+Stores valid permission levels
+*/
 const permLevel = [
     "Co-Researcher",
     "Researcher",
