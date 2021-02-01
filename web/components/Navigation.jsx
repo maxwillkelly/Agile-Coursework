@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { UserContext } from '../contexts';
 import { Nav, Navbar } from 'react-bootstrap';
 import { logout } from '../libs/user';
+import styles from '../styles/navbar.module.scss';
 
 const Navigation = () => {
     const router = useRouter();
@@ -18,8 +19,8 @@ const Navigation = () => {
     };
 
     return (
-        <Navbar collapseOnSelect expand="md" bg="dark" variant="dark">
-            <Brand>Insert Site Name</Brand>
+        <Navbar className={styles.Nav} collapseOnSelect expand="md">
+            <Brand>Agile AC31007</Brand>
             <Navbar.Toggle aria-controls="responsive-navbar-nav" />
             <Navbar.Collapse id="responsive-navbar-nav">
                 <Nav className="mr-auto">

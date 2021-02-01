@@ -9,8 +9,10 @@ const MainBreadcrumb = () => {
     const hrefDictionary = {
         '/': 'Home',
         '/admin': 'Admin',
-        '/questionnaires': 'Questionnaires',
-        '/studies/questionnaires': 'Studies'
+        '/login': 'Login',
+        '/studies': 'Studies',
+        '/studies/[id]': 'StudyName',
+        '/studies/[id]/questionnaires/[id]': 'QuestionnaireName'
     };
 
     return (
