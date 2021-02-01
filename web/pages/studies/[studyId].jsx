@@ -170,9 +170,7 @@ const AddStaffCard = ({ study }) => {
                             onChange={handleChange}
                             onBlur={handleBlur}
                             value={values.staffID}>
-                            <option selected value="">
-                                Choose...
-                            </option>
+                            <option value="">Choose...</option>
                             {data &&
                                 data.getUsers
                                     .filter((user) => {
