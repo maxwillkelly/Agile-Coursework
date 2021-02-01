@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import Link from 'next/link';
+// import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { UserContext } from '../contexts';
 import { Nav, Navbar } from 'react-bootstrap';
@@ -20,14 +21,21 @@ const Navigation = () => {
 
     return (
         <Navbar className={styles.Nav} collapseOnSelect expand="md">
-            <Brand>Agile AC31007</Brand>
+            <Brand>
+                {/* <Image
+                    src="/logo-udundee.png"
+                    alt="University of Dundee Logo"
+                    width={30}
+                    height={30}
+                /> */}
+                Agile AC31007
+            </Brand>
             <Navbar.Toggle aria-controls="responsive-navbar-nav" />
             <Navbar.Collapse id="responsive-navbar-nav">
                 <Nav className="mr-auto">
                     <NavLink route="/">Home</NavLink>
                     <NavLink route="/admin">Admin</NavLink>
-                    <NavLink route="/questionnaires">Questionnaires</NavLink>
-                    <NavLink route="/studies/users/dashboard">Users</NavLink>
+                    <NavLink route="/studies/questionnaires">Questionnaires</NavLink>
                     <NavLink route="/studies">Studies</NavLink>
                 </Nav>
                 <Nav>

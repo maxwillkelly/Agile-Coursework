@@ -6,6 +6,7 @@ import { Button, Container, Col, ListGroup, Overlay, Tooltip } from 'react-boots
 import copy from 'copy-to-clipboard';
 
 import Navigation from '../../components/Navigation';
+import MainBreadcrumb from '../../components/MainBreadcrumb';
 import { GET_QUESTIONNAIRES } from '../../queries/questionnaire';
 import { CREATE_QUESTIONNAIRE, REMOVE_QUESTIONNAIRE } from '../../mutations/questionnaire';
 import styles from '../../styles/questionnaires.module.scss';
@@ -34,6 +35,7 @@ const QuestionnairesPage = () => {
                 <title>Questionnaires</title>
             </Head>
             <Navigation />
+            <MainBreadcrumb />
             <main>
                 <Container className="mt-3">
                     <h2 className="mx-3 mt-5 mb-3">All Questionnaires</h2>

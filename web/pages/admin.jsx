@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Alert } from 'react-bootstrap';
 import styles from '../styles/admin.module.scss';
 import Navigation from '../components/Navigation';
+import MainBreadcrumb from '../components/MainBreadcrumb';
 
 export const AdminDashboard = () => {
     const [successVal, setSuccessVal] = useState([null]);
@@ -17,6 +18,7 @@ export const AdminDashboard = () => {
                 <title>Admin Dashboard</title>
             </Head>
             <Navigation />
+            <MainBreadcrumb />
 
             <main className={styles.container}>
                 <h1>Admin Dashboard</h1>

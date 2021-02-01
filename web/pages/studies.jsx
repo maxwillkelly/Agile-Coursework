@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { useQuery, useMutation } from '@apollo/client';
 import { Button, Container, ListGroup, Spinner, Col } from 'react-bootstrap';
 import Navigation from '../components/Navigation';
+import MainBreadcrumb from '../components/MainBreadcrumb';
 import { getUserToken } from '../libs/user';
 import { GET_STAFF_STUDIES } from '../queries/study';
 import { CREATE_NEW_STUDY, DELETE_STUDY } from '../mutations/study';
@@ -33,6 +34,7 @@ const StudiesPage = () => {
                 <title>Studies</title>
             </Head>
             <Navigation />
+            <MainBreadcrumb />
             <main>
                 <Container className="mt-3">
                     <h2 className="mx-3">Studies</h2>

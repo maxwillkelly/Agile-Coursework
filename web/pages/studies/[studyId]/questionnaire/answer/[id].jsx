@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { GET_QUESTIONNAIRE } from '../../../../queries/questionnaire';
 import { Container, Button } from 'react-bootstrap';
 import Navigation from '../../../../components/Navigation';
+import MainBreadcrumb from '../components/MainBreadcrumb';
 import itemStyles from '../../../../components/styles/questionnaire.module.scss';
 import styles from '../../../../styles/questionnaires.module.scss';
 import Answer from '../../../../components/questionnaire/Answer';
@@ -53,6 +54,7 @@ const AnswerPage = () => {
                 <title>{data.getQuestionnaire.title || 'Loading...'} </title>
             </Head>
             <Navigation />
+            <MainBreadcrumb />
             <main>
                 <Container className={styles.questionnaireContainer}>
                     <h1 className={itemStyles.questionnaireTitle}>{data.getQuestionnaire.title}</h1>

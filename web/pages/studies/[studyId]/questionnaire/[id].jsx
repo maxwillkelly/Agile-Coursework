@@ -8,6 +8,7 @@ import AddQuestionForm from '../../../components/questionnaire/AddQuestionForm';
 import AddTextSection from '../../../components/questionnaire/AddTextSection';
 import Question from '../../../components/questionnaire/Question';
 import Navigation from '../../../components/Navigation';
+import MainBreadcrumb from '../components/MainBreadcrumb';
 import { GET_QUESTIONNAIRE } from '../../../queries/questionnaire';
 import { EDIT_QUESTION } from '../../../mutations/questionnaire';
 // import styles from '../../../styles/questionnaire-creator.module.scss';
@@ -25,6 +26,7 @@ const QuestionnaireCreatorPage = () => {
                 <link rel="icon" href="favicon.ico" />
             </Head>
             <Navigation />
+            <MainBreadcrumb />
             <main>
                 <Container>
                     <Row>
