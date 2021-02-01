@@ -2,7 +2,6 @@ import Head from 'next/head';
 import { Container } from 'react-bootstrap';
 import Login from '../components/Login';
 import Navigation from '../components/Navigation';
-import MainBreadcrumb from '../components/MainBreadcrumb';
 import styles from '../styles/index.module.scss';
 
 export default function IndexPage() {
@@ -13,7 +12,6 @@ export default function IndexPage() {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <Navigation />
-            <MainBreadcrumb />
             <main className={styles.main}>
                 <Container>
                     <div className={styles.login}>

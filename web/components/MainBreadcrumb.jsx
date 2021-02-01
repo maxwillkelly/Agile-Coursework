@@ -34,6 +34,8 @@ const MainBreadcrumb = () => {
 const MyBreadcrumbItem = ({ children, href }) => {
     const router = useRouter();
     const path = router.pathname === '/' ? `/${router.pathname}` : router.pathname;
+    if (href === '/' || href === 'questionnaire') return null;
+
     return (
         <Breadcrumb.Item onClick={() => router.push(href)} active={path === `/${href}`}>
             {children}
