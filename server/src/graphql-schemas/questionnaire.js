@@ -150,7 +150,7 @@ const resolvers = {
         getQuestionnaires: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
 
-                //Checks current users access level
+                // Checks current users access level
                 if (ctx.user.Level >= 2) {
                     try {
 
@@ -158,7 +158,7 @@ const resolvers = {
                         const questionnaires = await QuestionnaireCollection.find().toArray()
                         var replyList = []
 
-                        //Adds list to array for return
+                        // Adds list to array for return
                         for (let x in questionnaires) {
                             replyList.push(
                                 {
