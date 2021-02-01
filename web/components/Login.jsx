@@ -9,7 +9,7 @@ import loginAsync from '../pages/api/login';
 import styles from './styles/login.module.scss';
 
 const Login = () => {
-    const { setUserToken } = useContext(UserContext);
+    const { userToken, setUserToken } = useContext(UserContext);
     const [error, setError] = useState(false);
     const router = useRouter();
 
@@ -27,7 +27,8 @@ const Login = () => {
             login(res);
             // if (typeof window !== 'undefined') router.push(routes.shift);
             setError(false);
-            router.push('/studies');
+            if (userToken.level === 1) router.push('/admin');
+            else router.push('/studies');
         } catch (err) {
             setError(true);
         }

@@ -27,12 +27,7 @@ const Navigation = () => {
             </Brand>
             <Navbar.Toggle aria-controls="responsive-navbar-nav" />
             <Navbar.Collapse id="responsive-navbar-nav">
-                {/* <Nav className="mr-auto">
-                    <NavLink route="/">Home</NavLink>
-                    <NavLink route="/admin">Admin</NavLink>
-                    <NavLink route="/studies/questionnaires">Questionnaires</NavLink>
-                    <NavLink route="/studies">Studies</NavLink>
-                </Nav> */}
+                {userToken && userToken.level === 1 && <AdminLinks />}
                 <Nav className="ml-auto">
                     <Nav.Link className="text-white" onClick={clickLogInOutButton}>
                         {!userToken ? 'Login' : 'Logout'}
@@ -49,10 +44,17 @@ const Brand = ({ children }) => (
     </Link>
 );
 
-// const NavLink = ({ children, route }) => (
-//     <Link href={route} passHref>
-//         <Nav.Link>{children}</Nav.Link>
-//     </Link>
-// );
+const AdminLinks = () => (
+    <>
+        <NavLink route="/admin">Admin</NavLink>
+        <NavLink route="/studies">Studies</NavLink>
+    </>
+);
+
+const NavLink = ({ children, route }) => (
+    <Link href={route} passHref>
+        <Nav.Link>{children}</Nav.Link>
+    </Link>
+);
 
 export default Navigation;
