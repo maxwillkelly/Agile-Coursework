@@ -3,23 +3,24 @@ import { Breadcrumb } from 'react-bootstrap';
 
 const MainBreadcrumb = () => {
     const router = useRouter();
-    const segments = router.pathname === '/' ? ['/'] : router.pathname.split('/');
+    const segments = router.pathname === '/' ? [''] : router.pathname.split('/');
     const activeSegment = segments[segments.length - 1];
 
     const hrefDictionary = {
-        '/': 'Home',
-        '/admin': 'Admin',
-        '/login': 'Login',
-        '/studies': 'Studies',
-        '/studies/[id]': 'StudyName',
-        '/studies/[id]/questionnaires/[id]': 'QuestionnaireName'
+        '': 'Home',
+        admin: 'Admin',
+        login: 'Login',
+        studies: 'Studies',
+        'studies/[id]': 'StudyName',
+        'studies/[id]/questionnaires/[id]': 'QuestionnaireName'
     };
 
     return (
         <Breadcrumb>
             {segments.map((href, i) => {
                 const linkName = hrefDictionary[href];
-
+                console.log(href);
+                href = !href ? '/' : href;
                 return (
                     <MyBreadcrumbItem href={href} activeSegment={activeSegment} key={i}>
                         {linkName ? linkName : href}
@@ -32,6 +33,7 @@ const MainBreadcrumb = () => {
 
 const MyBreadcrumbItem = ({ children, href }) => {
     const router = useRouter();
+    console.log(router);
     return (
         <Breadcrumb.Item href={href} active={router.pathname === href}>
             {children}
