@@ -89,14 +89,22 @@ const typeDefs = gql`
 // Resolvers define the technique for fetching the types defined in the Schema above
 const resolvers = {
     Query: {
+        /**
+         * Gets a study using a studyID
+         * @param {Object} parent
+         * @param {Object} ctx
+         * @param {Object} arg
+         * @param {Object} info
+         */
         getStudy: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 try {
                     const StudyCollection = database.getDb().collection('study');
                     var o_id = new mongo.ObjectID(ctx.user.ID);
                     var s_id = new mongo.ObjectID(arg.id);
-
                     const currStudy = await StudyCollection.findOne({ "_id": s_id })
+
+                    // Returns study including staff connected yto said study
                     if (currStudy) {
                         staffReply = []
                         for (let y in currStudy.staff) {
@@ -128,13 +136,20 @@ const resolvers = {
                         `error ${err}`
                     )
                 }
-            }else {
+            } else {
                 throw new AuthenticationError(
                     'Authentication token is invalid, please log in'
                 )
             }
         },
 
+        /**
+         * Returns all studies
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
         getStudies: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const StudyCollection = database.getDb().collection('study');
@@ -177,13 +192,24 @@ const resolvers = {
                 )
             }
         },
+
+        /**
+         * Returns all studies that a staff is on using staffID
+         * @param {Object} parent
+         * @param {Object} arg
+         * @param {Object} ctx
+         * @param {Object} info
+         */
         getStaffStudies: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
-                if(ctx.user.ID != arg){
-                    if(!(ctx.user.Level >= 2)){
+                //Checks if current user is that being searched or a lab admin and throws error if not
+                if (ctx.user.ID != arg) {
+                    if (!(ctx.user.Level >= 2)) {
                         throw new ForbiddenError("Invalid Permissions")
                     }
                 }
+
+
                 const StudyCollection = database.getDb().collection('study');
                 try {
                     var o_id = new mongo.ObjectID(arg.staffID);
@@ -228,11 +254,24 @@ const resolvers = {
     },
 
     Mutation: {
+
+        /**
+         * Creates a new study
+         * @todo work with study perms rather than global
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
         createNewStudy: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
+
+                // Checks if current user is a Primary researcher or higher
                 if (ctx.user.Level >= 1) {
                     try {
                         const StudyCollection = database.getDb().collection('study');
+
+                        //Creates a "document" to be sent to the DB
                         const newStudy = {
                             title: arg.study.title,
                             description: arg.study.description,
@@ -289,14 +328,26 @@ const resolvers = {
                 )
             }
         },
-        //ToDo work with study perms rather than global
+
+        /**
+         * Deletes a certain study using studyID
+         * @todo work with study perms rather than global
+         * @param {Object} parent
+         * @param {Object} arg
+         * @param {Object} ctx
+         * @param {Object} info
+         */
         deleteStudy: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
+
+                // Checks for appropriate 
                 if (ctx.user.level >= 2) {
                     try {
                         const StudyCollection = database.getDb().collection('study');
                         var s_id = new mong.ObjectID(arg.id);
                         const currStudy = await StudyCollection.findOne({ "_id": s_id });
+
+                        //Checks all questionnaires connected with the study and deletes them
                         if (currStudy) {
                             const QuestionnaireCollection = database.getDb().collection('questionnaires');
                             const questionnaires = await QuestionnaireCollection.find({ studyID: DBRef("questionnaires", s_id) }).toArray()
@@ -327,11 +378,20 @@ const resolvers = {
             }
         },
 
+        /**
+         * Edits a study given by studyID
+         * @param {Object} parent
+         * @param {Object} arg
+         * @param {Object} ctx
+         * @param {Object} info
+         */
         editStudy: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const StudyCollection = database.getDb().collection('study');
                 var s_id = new mongo.ObjectID(arg.studyID);
                 var currStudy = await StudyCollection.findOne({ "_id": s_id });
+
+                // Checks if delete is possible (exists, perm level)
                 if (!currStudy) {
                     throw new IdError(
                         "Invalid studyID"
@@ -342,6 +402,8 @@ const resolvers = {
                         "Insufficient Permissions"
                     )
                 }
+
+                // Building of update
                 var updateField = {}
                 if ('title' in arg) {
                     updateField.title = arg.title
@@ -387,13 +449,25 @@ const resolvers = {
                 )
             }
         },
+
+        /**
+         * Adds a staff member to a study
+         * @todo work with study perms rather than global
+         * @param {Object} parent
+         * @param {Object} arg
+         * @param {Object} ctx
+         * @param {Object} info
+         */
         addStaffToStudy: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
+
+                // Checks if high enough clearance
                 if (ctx.user.Level < 2) {
                     throw new ForbiddenError(
                         "Invalid permissions"
                     )
                 }
+
                 const StudyCollection = database.getDb().collection('study');
                 const s_id = new mongo.ObjectID(arg.studyID);
                 var currStudy = await StudyCollection.findOne({ "_id": s_id });
@@ -456,6 +530,15 @@ const resolvers = {
                 )
             }
         },
+
+        /**
+         * Removes staff from the study
+         * @todo work with study perms rather than global
+         * @param {Object} parent
+         * @param {Object} arg
+         * @param {Object} ctx
+         * @param {Object} info
+         */
         removeStaffFromStudy: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 if (ctx.user.Level < 2) {
@@ -463,6 +546,8 @@ const resolvers = {
                         "Invalid permissions"
                     )
                 }
+
+                // Checking both user and study to make sure they exist
                 const StudyCollection = database.getDb().collection('study');
                 const s_id = new mongo.ObjectID(arg.studyID);
                 var currStudy = await StudyCollection.findOne({ "_id": s_id });

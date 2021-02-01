@@ -41,6 +41,7 @@ type Response{
 extend type Query {
     "Get a response using ID of a response"
     getResponse(id:ID!): Response
+    "Get responses relative to a questionnaire"
     getResponses(questionnaireID: ID!): [Response]
     "Get a CSV download link for a questionnaire"
     getCSVOfResponses(
@@ -61,15 +62,23 @@ extend type Mutation{
 const resolvers = {
 
     Query: {
+        /**
+         * Returns a specific response using a responseID as a parameter
+         * @param {Object} parent
+         * @param {Object} arg
+         * @param {Object} ctx
+         * @param {Object} info
+         */
         getResponse: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 try {
                     const ResponseCollection = database.getDb().collection('responses');
                     try {
+                        // Creating a ObjectID object and using it for querying the collection to return filtered results
                         var r_id = new mongo.ObjectID(arg.id);
-
                         const currResponse = await ResponseCollection.findOne({ "_id": r_id })
 
+                        // If query is non-null then returns data below
                         if (currResponse) {
                             return {
                                 id: currResponse._id,
@@ -101,13 +110,24 @@ const resolvers = {
             }
         },
 
+        /**
+         * Gets all responses meeting the criteria (linked to a questionnaire through questionnaireID)
+         * @param {Object} parent
+         * @param {Object} arg
+         * @param {Object} ctx
+         * @param {Object} info
+         */
         getResponses: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 try {
                     const ResponseCollection = database.getDb().collection('responses');
+
+                    // Creating a ObjectID object and using it for querying the collection to return filtered results
                     var q_id = new mongo.ObjectID(arg.questionnaireID)
                     const responses = await ResponseCollection.find({ questionnaireID: mongo.DBRef("questionnaires", q_id) }).toArray();
+
                     var responseList = []
+                    // Iterates through list of responses and adds them to an array to be returned
                     if (responses) {
                         for (let y in responses) {
                             responseList.push({
@@ -131,39 +151,54 @@ const resolvers = {
             }
         },
 
+        /**
+         * Creates a download link for a csv of responses for a certain questionnaire
+         * @param {Object} parent
+         * @param {Object} arg
+         * @param {Object} ctx
+         * @param {Object} info
+         */
         getCSVOfResponses: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const ResponseCollection = database.getDb().collection('responses');
+
+                // Creating a ObjectID object and using it for querying the collection to return filtered results 
                 var q_id = new mongo.ObjectID(arg.questionnaireID)
                 const responses = await ResponseCollection.find({ questionnaireID: mongo.DBRef("questionnaires", q_id) }).toArray();
+
                 if (responses) {
-                    try{
+                    try {
                         const questionnaire = await questionnaireHelper.getQuestionnaire(q_id)
-                    if (!questionnaire) {
-                        throw new Error("Unable to find questionnaire")
-                    }
-                    headers = []
-                    for (let x in questionnaire.questions) {
-                        headers.push({
-                            id: questionnaire.questions[x].qID.toString(),
-                            title: questionnaire.questions[x].message
-                        })
-                    }
-                    responseList = []
-                    for (let r in responses) {
-                        reply = {}
-                        for (let a in responses[r].answers) {
-                            reply[responses[r].answers[a].qID] = responses[r].answers[a].values
+                        if (!questionnaire) {
+                            throw new Error("Unable to find questionnaire")
                         }
-                        responseList.push(reply)
-                    }
-                    const csvStringifier = createCsvStringifier({ header: headers });
-                    const csv = `${csvStringifier.getHeaderString()}${csvStringifier.stringifyRecords(responseList)}`;
-                    const response = await s3Uploader.uploadToS3(
-                        `${arg.questionnaireID}-${moment().format('YYYY-MM-DD-HH-mm-ssSS')}.csv`, "text/csv", csv
-                    )
-                    return `${process.env.LINK}/${response.Key}`
-                    }catch(err){
+                        // Forms header for the CSV with the ID of each question and the title of the question 
+                        headers = []  // Stores all the header details for the CSV
+                        for (let x in questionnaire.questions) {
+                            headers.push({
+                                id: questionnaire.questions[x].qID.toString(),
+                                title: questionnaire.questions[x].message
+                            })
+                        }
+                        // Goes through each response and builds a list of responses with their ID and the value as a key:value paid
+                        responseList = []
+                        for (let r in responses) {
+                            reply = {}
+                            for (let a in responses[r].answers) {
+                                reply[responses[r].answers[a].qID] = responses[r].answers[a].values
+                            }
+                            responseList.push(reply)
+                        }
+                        // Form CSV
+                        const csvStringifier = createCsvStringifier({ header: headers });  // Create the stringifyer 
+                        const csv = `${csvStringifier.getHeaderString()}${csvStringifier.stringifyRecords(responseList)}`;  // Create the CSV and returns as a string
+                        // Uploads to S3 Bucket 
+                        const response = await s3Uploader.uploadToS3(
+                            `${arg.questionnaireID}-${moment().format('YYYY-MM-DD-HH-mm-ssSS')}.csv`, "text/csv", csv
+                        )
+                        // Return the link to the uploaded file
+                        return `${process.env.LINK}/${response.Key}`
+                    } catch (err) {
                         throw new Error(`Intenal Error ${err}`)
                     }
                 } else {
@@ -178,12 +213,23 @@ const resolvers = {
     },
 
     Mutation: {
+        /**
+         * Deletes the response using a responseID as a parameter
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
         deleteResponse: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 try {
                     const ResponseCollection = database.getDb().collection('responses');
+
+                    // Creating a ObjectID object and using it for querying the collection to return filtered results 
                     var r_id = new mongo.ObjectID(arg.id);
                     const currResponse = await ResponseCollection.findOne({ _id: r_id });
+
+                    // If exists, the deletes response, else returns null
                     if (currResponse) {
                         await ResponseCollection.deleteOne({ _id: r_id });
 
@@ -203,11 +249,19 @@ const resolvers = {
             }
         },
 
+        /**
+         * Creates a new response and adds it to the collection
+         * @param {Object} parent
+         * @param {*Object} arg
+         * @param {Object} ctx
+         * @param {Object} info
+         */
         createResponse: async (parent, arg, ctx, info) => {
-            console.log(arg);
             const ResponseCollection = database.getDb().collection('responses');
             const QuestionnaireCollection = database.getDb().collection('questionnaires');
             const q_id = new mongo.ObjectID(arg.response.questionnaireID);
+
+            //Checks if questionnaire exists
             const currQuestionnaire = await QuestionnaireCollection.findOne({ _id: q_id })
             if (!currQuestionnaire) {
                 throw new IdError("Invalid QuestionnaireID")
@@ -216,7 +270,7 @@ const resolvers = {
             for (let x in arg.response.answers) {
                 answerID.push(new mongo.ObjectID(arg.response.answers[x].qID))
             }
-            // Goes through the questions in the questionnaire and removes 
+            // Goes through the questions in the questionnaire and removes
             for (let y in currQuestionnaire.questions) {
                 answerID = answerID.filter(
                     answerID => {
