@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-// import { useRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import { Card, Form, Button } from 'react-bootstrap';
 import { Formik, useField } from 'formik';
 import * as yup from 'yup';
@@ -11,7 +11,7 @@ import styles from './styles/login.module.scss';
 const Login = () => {
     const { setUserToken } = useContext(UserContext);
     const [error, setError] = useState(false);
-    // const router = useRouter();
+    const router = useRouter();
 
     const validationSchema = yup.object({
         email: yup.string().required().max(128),
@@ -27,6 +27,7 @@ const Login = () => {
             login(res);
             // if (typeof window !== 'undefined') router.push(routes.shift);
             setError(false);
+            router.push('/studies');
         } catch (err) {
             setError(true);
         }
