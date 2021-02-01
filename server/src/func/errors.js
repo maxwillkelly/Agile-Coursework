@@ -2,7 +2,7 @@
 This class holds custom errors
 */
 
-//Thrown for errorous IDs
+// Thrown for errorous IDs
 class IdError extends Error {
     constructor(message) {
         super(message);
