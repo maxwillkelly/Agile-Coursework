@@ -6,8 +6,7 @@
 ### Checklist
 
 - [ ] Have you lint your code locally prior to submission?
-- [ ] You code does not break exisitng features?
-- [ ] You've tested your code to work as intened?
+- [ ] You code does not break existing features?
+- [ ] You've tested your code to work as intend?
 - [ ] Issues/Story is linked to this pull request?
 - [ ] People working on this pull request have been assigned?
-- [ ] 
