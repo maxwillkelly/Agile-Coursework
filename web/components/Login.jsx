@@ -25,10 +25,9 @@ const Login = () => {
             resetForm();
             setUserToken(res);
             login(res);
-            // if (typeof window !== 'undefined') router.push(routes.shift);
-            setError(false);
-            if (userToken.level === 1) router.push('/admin');
+            if (userToken.level === 2) router.push('/admin');
             else router.push('/studies');
+            setError(false);
         } catch (err) {
             setError(true);
         }

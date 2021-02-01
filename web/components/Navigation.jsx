@@ -27,7 +27,7 @@ const Navigation = () => {
             </Brand>
             <Navbar.Toggle aria-controls="responsive-navbar-nav" />
             <Navbar.Collapse id="responsive-navbar-nav">
-                {userToken && userToken.level === 1 && <AdminLinks />}
+                {userToken && userToken.level === 2 && <AdminLinks />}
                 <Nav className="ml-auto">
                     <Nav.Link className="text-white" onClick={clickLogInOutButton}>
                         {!userToken ? 'Login' : 'Logout'}
@@ -53,7 +53,7 @@ const AdminLinks = () => (
 
 const NavLink = ({ children, route }) => (
     <Link href={route} passHref>
-        <Nav.Link>{children}</Nav.Link>
+        <Nav.Link className="text-white">{children}</Nav.Link>
     </Link>
 );
 
