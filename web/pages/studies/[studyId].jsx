@@ -23,7 +23,7 @@ import Navigation from '../../components/Navigation';
 import MainBreadcrumb from '../../components/MainBreadcrumb';
 import { Formik } from 'formik';
 import copy from 'copy-to-clipboard';
-import styles from '../../styles/questionnaires.module.scss';
+import styles from '../../styles/studies.module.scss';
 
 const StudyPage = () => {
     const router = useRouter();
@@ -48,8 +48,8 @@ const StudyPage = () => {
                 <Navigation />
                 <MainBreadcrumb />
                 <main>
-                    <Container className="mt-3">
-                        <Row className="mb-3">
+                    <Container className={styles.studyContainer}>
+                        <Row className={styles.studyRow}>
                             <Col>
                                 <StudyInfo data={data.getStudy} />
                             </Col>
@@ -73,18 +73,18 @@ const StaffList = ({ staff, studyID, refetch }) => {
     return (
         <ListGroup>
             <ListGroup.Item>
-                <div className="d-flex">
+                <div className={styles.staffTableRow}>
                     <Col>
-                        <p className="m-0">Name</p>
+                        <p className={styles.staffTableColumn}>Name</p>
                     </Col>
                     <Col>
-                        <p className="m-0">Permission</p>
+                        <p className={styles.staffTableColumn}>Permission</p>
                     </Col>
                     <Col>
-                        <p className="m-0">Email</p>
+                        <p className={styles.staffTableColumn}>Email</p>
                     </Col>
                     <Col>
-                        <p className="m-0">Remove</p>
+                        <p className={styles.staffTableColumn}>Remove</p>
                     </Col>
                 </div>
             </ListGroup.Item>
@@ -110,17 +110,17 @@ const StaffMember = ({ staffMember, studyID, refetch }) => {
 
     return (
         <ListGroup.Item>
-            <div className="d-flex">
+            <div className={styles.staffTableRow}>
                 <Col>
-                    <p className="m-0">
+                    <p className={styles.staffTableColumn}>
                         {staffMember.firstName} {staffMember.lastName}
                     </p>
                 </Col>
                 <Col>
-                    <p className="m-0">{staffMember.permission}</p>
+                    <p className={styles.staffTableColumn}>{staffMember.permission}</p>
                 </Col>
                 <Col>
-                    <p className="m-0">{staffMember.email}</p>
+                    <p className={styles.staffTableColumn}>{staffMember.email}</p>
                 </Col>
                 <Col>
                     <Button variant="danger" onClick={removeStaffMember}>
@@ -152,7 +152,7 @@ const AddStaffCard = ({ study }) => {
     if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
 
     return (
-        <Card className="p-0 m-0">
+        <Card className={styles.studyCard}>
             <Card.Header>Add a staff member</Card.Header>
 
             <Formik
@@ -189,7 +189,7 @@ const AddStaffCard = ({ study }) => {
                         </Form.Control>
                         <Button
                             type="submit"
-                            className="mt-3 float-right"
+                            className={styles.submitButton}
                             variant="success"
                             disabled={!values.staffID}>
                             Add
@@ -223,7 +223,7 @@ const StudyInfo = ({ data: { id, title, description } }) => {
 
     return (
         <>
-            <Card className="p-0 m-0">
+            <Card className={styles.studyCard}>
                 <Card.Header>Study Information</Card.Header>
                 <Formik
                     initialValues={{
@@ -233,7 +233,7 @@ const StudyInfo = ({ data: { id, title, description } }) => {
                     }}
                     onSubmit={updateStudy}>
                     {({ values, handleChange, handleBlur, handleSubmit }) => (
-                        <Form onSubmit={handleSubmit} className="m-4">
+                        <Form onSubmit={handleSubmit} className={styles.studyInfoForm}>
                             <Form.Label>Study Title</Form.Label>
                             <Form.Control
                                 type="text"
@@ -243,7 +243,9 @@ const StudyInfo = ({ data: { id, title, description } }) => {
                                 onBlur={handleBlur}
                                 value={values.title}
                             />
-                            <Form.Label className="mt-3">Study Description</Form.Label>
+                            <Form.Label className={styles.studyDescriptionLabel}>
+                                Study Description
+                            </Form.Label>
                             <Form.Control
                                 type="text"
                                 name="description"
@@ -252,7 +254,7 @@ const StudyInfo = ({ data: { id, title, description } }) => {
                                 onBlur={handleBlur}
                                 value={values.description}
                             />
-                            <Button ref={buttonRef} type="submit" className="mt-3 float-right">
+                            <Button ref={buttonRef} type="submit" className={styles.submitButton}>
                                 Save
                             </Button>
                             <Overlay
@@ -291,13 +293,13 @@ const QuestionnairesSection = ({ studyID }) => {
 
     return (
         <>
-            <h5 className="mx-3 mt-5 mb-3">Questionnaires</h5>
+            <h5 className={styles.questionnairesTableHeader}>Questionnaires</h5>
             <Questionnaires
                 getStudyQuestionnaires={getStudyQuestionnaires}
                 refetch={getStudyQuestionnaires.refetch}
                 studyID={studyID}
             />
-            <Button className="float-right mt-3 mb-5" onClick={createQuestionnaire}>
+            <Button className={styles.createQuestionnaireButton} onClick={createQuestionnaire}>
                 Create Questionnaire
             </Button>
         </>
@@ -359,10 +361,10 @@ const Questionnaire = ({ q, refetch, studyID }) => {
             <ListGroup.Item>
                 <div className={styles.questionnaireItem}>
                     <Col>
-                        <p className="m-0">{q.title}</p>
+                        <p className={styles.studyInfo}>{q.title}</p>
                     </Col>
                     <Col>
-                        <p className="m-0">{q.description}</p>
+                        <p className={styles.studyInfo}>{q.description}</p>
                     </Col>
                     <div>
                         <Button
@@ -377,7 +379,7 @@ const Questionnaire = ({ q, refetch, studyID }) => {
                         </Overlay>
 
                         <Button
-                            className="ml-4"
+                            className={styles.questionnaireButton}
                             variant="primary"
                             size="sm"
                             onClick={() => router.push(VIEW_PATH)}>
@@ -385,7 +387,7 @@ const Questionnaire = ({ q, refetch, studyID }) => {
                         </Button>
 
                         <Button
-                            className="ml-4"
+                            className={styles.questionnaireButton}
                             variant="secondary"
                             size="sm"
                             onClick={() => router.push(`${MAIN_PATH}/edit`)}>
@@ -397,13 +399,13 @@ const Questionnaire = ({ q, refetch, studyID }) => {
                             target="_blank"
                             rel="noopener noreferrer"
                             download>
-                            <Button className="ml-4" variant="info" size="sm">
+                            <Button className={styles.questionnaireButton} variant="info" size="sm">
                                 Export
                             </Button>
                         </a>
 
                         <Button
-                            className="ml-4"
+                            className={styles.questionnaireButton}
                             variant="danger"
                             size="sm"
                             onClick={() => deleteQuestionnaire(q)}>
