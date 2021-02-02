@@ -7,7 +7,7 @@ const database = require('../database');
 const { DBRef } = require('mongodb');
 const mongo = require('mongodb');
 const studyHelper = require('../func/study');
-const { getStudy } = require('../func/study');
+const videoHelper = require('../func/videoNote')
 
 const typeDefs = gql`
     type Note {
@@ -26,6 +26,7 @@ const typeDefs = gql`
 
     type VideoNotes {
         _id: ID
+        study: ID
         title: String
         "Link to the videos used for this study"
         videos: [Video]
@@ -93,13 +94,7 @@ const resolvers = {
 
                     // Returns item if it exists or throws error
                     if (currNotes) {
-                        return {
-                            _id: currNotes._id,
-                            title: currNotes.title,
-                            study: currNotes.study,
-                            videos: currNotes.videos,
-                            notes: currNotes.notes
-                        }
+                        return videoHelper.formVideoNote(currNotes)
                     }
                     else {
                         throw new Error(
@@ -138,7 +133,7 @@ const resolvers = {
                         var noteList = []
                         for (let x in currNotes) {
                             noteList.push(
-                                currNotes[x]
+                                videoHelper.formVideoNote(currNotes[x])
                             )
                         }
                         console.log("-----------------------------")
@@ -214,7 +209,7 @@ const resolvers = {
                         notes: notes
                     }
                     const response = await NotesCollection.insertOne(newVideoNote)
-                    return response.ops[0]
+                    return videoHelper.formVideoNote(response.ops[0])
                 }
                 catch (err) {
                     throw new Error(
