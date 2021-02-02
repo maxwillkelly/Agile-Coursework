@@ -68,9 +68,16 @@ const typeDefs = gql`
             videoNotes: VideoNotesInput
         ): VideoNotes
         "Add a note to a videoNote"
-        addNoteToVideo(
+        addNoteToVideoNotes(
+            "ID of the VideoNotes to add note to"
             notesID: ID!
             note: NoteInput!
+        ): VideoNotes
+        "Add a video tha VideoNote"
+        addVideoToVideoNotes(
+            "ID of the VideoNotes to add video to"
+            notesID: ID!
+            video: VideoInput!
         ): VideoNotes
     }
 
@@ -224,7 +231,14 @@ const resolvers = {
             }
         },
 
-        addNoteToVideo: async (parent, arg, ctx, info) => {
+        /**
+         * Add Note to a videoNote
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
+        addNoteToVideoNotes: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const NotesCollection = database.getDb().collection('notes');
                 const n_id = new mongo.ObjectID(arg.notesID);
@@ -241,6 +255,42 @@ const resolvers = {
                                     _id: new mongo.ObjectID(),
                                     timeStamp: arg.note.timeStamp,
                                     description: arg.note.description
+                                }
+                            }
+                        }
+                    )
+                    currNotes = await NotesCollection.findOne({ "_id": n_id })
+                    return await videoHelper.formVideoNote(currNotes)
+                }
+                catch (err) {
+                    throw new Error(
+                        `Error: ${err}`
+                    )
+                }
+            } else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        },
+
+        addVideoToVideoNotes: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                const NotesCollection = database.getDb().collection('notes');
+                const n_id = new mongo.ObjectID(arg.notesID);
+                var currNotes = await NotesCollection.findOne({ "_id": n_id })
+                if(!currNotes){
+                    throw new IdError("Invalid noteID")
+                }
+                try {
+                    const response = await NotesCollection.updateOne(
+                        { "_id": n_id },
+                        {
+                            $addToSet: {
+                                videos: {
+                                    _id: new mongo.ObjectID(),
+                                    link: arg.video.link,
+                                    type: arg.video.type
                                 }
                             }
                         }
