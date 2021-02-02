@@ -6,8 +6,6 @@ const { IdError, PermissionsError } = require('../func/errors');
 const database = require('../database');
 const mongo = require('mongodb');
 const studyHelper = require('../func/study');
-const study = require('../func/study');
-const questionnaire = require('../func/questionnaire');
 
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against

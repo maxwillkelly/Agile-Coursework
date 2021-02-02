@@ -35,6 +35,39 @@ const typeDefs = gql`
     
     }
 
+    input VideoInput {
+        "Link to video file"
+        link: String!
+        "type of link"
+        type: String!
+    }
+
+    input NoteInput {
+        "Timestamp to place the note at"
+        timeStamp: String!
+        "text to store with the video note"
+        description: String!
+    }
+
+    input VideoNotesInput{
+        "ID of the study this video note is to link to"
+        studyID: ID!
+        "Title of this video note"
+        title: String!
+        "link to videos"
+        videos: [VideoInput]
+        "Notes for this videoNote"
+        notes: [NoteInput]
+
+    }
+
+    extend type Mutation{
+        "Create VideoNotes"
+        createVideoNotes(
+            videoNotes: VideoNotesInput
+        ): VideoNotes
+    }
+
     extend type Query{
         "Returns a set of notes"
         getVideoNotes(notesID:ID): VideoNotes,
@@ -132,7 +165,69 @@ const resolvers = {
         }
 
     },
-    Mutation: {}
+    Mutation: {
+        /**
+         * Add a video note to collection
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
+        createVideoNotes: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                const NotesCollection = database.getDb().collection('notes');
+                const study_oid = new mongo.ObjectID(arg.videoNotes.studyID)
+                const study = await studyHelper.getStudy(study_oid)
+                if (!study) {
+                    throw new IdError("Invalid studyID")
+                }
+                try {
+                    // Build the arrays for any possible videos and notes
+                    var videos = []
+                    var notes = []
+                    if ('videos' in arg.videoNotes) {
+                        for (let x in arg.videoNotes.videos) {
+                            videos.push({
+                                _id: new mongo.ObjectID(),
+                                link: arg.videoNotes.videos[x].link,
+                                type: arg.videoNotes.videos[x].type
+                            })
+                        }
+                    }
+                    if ('notes' in arg.videoNotes) {
+                        for (let y in arg.videoNotes.notes) {
+                            notes.push({
+                                _id: new mongo.ObjectID(),
+                                timeStamp: arg.videoNotes.notes[y].timeStamp,
+                                description: arg.videoNotes.notes[y].description
+                            })
+                        }
+                    }
+                    // form new document for collection
+                    const newVideoNote = {
+                        title: arg.videoNotes.title,
+                        study: {
+                            $ref: "study",
+                            $id: study_oid
+                        },
+                        videos: videos,
+                        notes: notes
+                    }
+                    const response = await NotesCollection.insertOne(newVideoNote)
+                    return response.ops[0]
+                }
+                catch (err) {
+                    throw new Error(
+                        `Error: ${err}`
+                    )
+                }
+            } else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        }
+    }
 }
 
 module.exports = {
