@@ -19,20 +19,22 @@ const Login = () => {
     });
 
     const loginFunc = async (values, { setSubmitting, resetForm }) => {
-        setSubmitting(true);
+        await setSubmitting(true);
+
         try {
             const res = await loginAsync(values);
-            resetForm();
-            setUserToken(res);
+            await resetForm();
+            await setUserToken(res);
             login(res);
-            // if (typeof window !== 'undefined') router.push(routes.shift);
             setError(false);
-            router.push('/studies');
+            if (res.level === 2) await router.push('/admin');
+            else await router.push('/studies');
         } catch (err) {
+            console.log(err);
             setError(true);
         }
 
-        setSubmitting(false);
+        await setSubmitting(false);
     };
 
     return (
