@@ -72,26 +72,26 @@ const typeDefs = gql`
         "Add a note to a videoNote"
         addNoteToVideoNotes(
             "ID of the VideoNotes to add note to"
-            notesID: ID!
+            videoNotesID: ID!
             note: NoteInput!
         ): VideoNotes
         "Add a video tha VideoNote"
         addVideoToVideoNotes(
             "ID of the VideoNotes to add video to"
-            notesID: ID!
+            videoNotesID: ID!
             video: VideoInput!
         ): VideoNotes
         "Edit details on VideoNote"
         editVideoNotes(
             "ID of the VideoNotes to edit"
-            notesID: ID!
+            videoNotesID: ID!
             "new title to use"
             title: String!
         ): VideoNotes
         "Edit the notes in a VideoNotes"
         editNoteInVideoNotes(
             "ID of the VideoNotes to edit"
-            notesID: ID!
+            videoNotesID: ID!
             "ID of the note to edit"
             noteID: ID!
             timeStamp: String!
@@ -101,7 +101,7 @@ const typeDefs = gql`
 
     extend type Query{
         "Returns a set of notes"
-        getVideoNotes(notesID:ID): VideoNotes,
+        getVideoNotes(videoNotesID:ID): VideoNotes,
         getStudyNotes(studyID:ID): [VideoNotes]
     }
 `;
@@ -119,7 +119,7 @@ const resolvers = {
             if (ctx.auth) {
                 try {
                     const NotesCollection = database.getDb().collection('notes');
-                    var n_id = new mongo.ObjectID(arg.notesID);
+                    var n_id = new mongo.ObjectID(arg.videoNotesID);
                     const currNotes = await NotesCollection.findOne({ "_id": n_id })
 
                     // Returns item if it exists or throws error
@@ -127,9 +127,7 @@ const resolvers = {
                         return await videoHelper.formVideoNote(currNotes)
                     }
                     else {
-                        throw new Error(
-                            "Notes don't exist"
-                        )
+                        throw new IdError("Invalid videoNotesID")
                     }
                 }
                 catch (err) {
@@ -260,10 +258,10 @@ const resolvers = {
         addNoteToVideoNotes: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const NotesCollection = database.getDb().collection('notes');
-                const n_id = new mongo.ObjectID(arg.notesID);
+                const n_id = new mongo.ObjectID(arg.videoNotesID);
                 var currNotes = await NotesCollection.findOne({ "_id": n_id })
                 if (!currNotes) {
-                    throw new IdError("Invalid noteID")
+                    throw new IdError("Invalid videoNotesID")
                 }
                 try {
                     const response = await NotesCollection.updateOne(
@@ -303,10 +301,10 @@ const resolvers = {
         addVideoToVideoNotes: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const NotesCollection = database.getDb().collection('notes');
-                const n_id = new mongo.ObjectID(arg.notesID);
+                const n_id = new mongo.ObjectID(arg.videoNotesID);
                 var currNotes = await NotesCollection.findOne({ "_id": n_id })
                 if (!currNotes) {
-                    throw new IdError("Invalid noteID")
+                    throw new IdError("Invalid videoNotesID")
                 }
                 try {
                     const response = await NotesCollection.updateOne(
@@ -347,10 +345,10 @@ const resolvers = {
         editVideoNotes: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const NotesCollection = database.getDb().collection('notes');
-                const n_id = new mongo.ObjectID(arg.notesID);
+                const n_id = new mongo.ObjectID(arg.videoNotesID);
                 var currNotes = await NotesCollection.findOne({ "_id": n_id })
                 if (!currNotes) {
-                    throw new IdError("Invalid noteID")
+                    throw new IdError("Invalid videoNotesID")
                 }
                 try {
                     updateField = {}
@@ -383,10 +381,10 @@ const resolvers = {
         editNoteInVideoNotes: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const NotesCollection = database.getDb().collection('notes');
-                const n_id = new mongo.ObjectID(arg.notesID);
+                const n_id = new mongo.ObjectID(arg.videoNotesID);
                 var currNotes = await NotesCollection.findOne({ "_id": n_id })
                 if (!currNotes) {
-                    throw new IdError("Invalid notesID")
+                    throw new IdError("Invalid videoNotesID")
                 }
                 var existCheck = false
                 const note_id = new mongo.ObjectID(arg.noteID);
