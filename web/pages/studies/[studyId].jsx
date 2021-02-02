@@ -55,6 +55,7 @@ const StudyPage = () => {
                             </Col>
                             <Col>
                                 <AddStaffCard study={data.getStudy} />
+                                <PermissionsCard study={data.getStudy} />
                             </Col>
                         </Row>
                         <StaffList
@@ -129,6 +130,85 @@ const StaffMember = ({ staffMember, studyID, refetch }) => {
                 </Col>
             </div>
         </ListGroup.Item>
+    );
+};
+
+const PermissionsCard = ({ study }) => {
+    const [editStudy] = useMutation(EDIT_STUDY);
+    // const permLevel = {
+    //     0:"Co-Researcher",
+    //     1:"Researcher",
+    //     2:"Admin"
+    // }
+
+    const updateStudy = (studyValues) => {
+        const variables = {
+            studyID: study.id,
+            permissions: studyValues.permissions
+        };
+
+        editStudy({ variables });
+    };
+
+    return (
+        <Card>
+            <Card.Header>Study Permissions</Card.Header>
+            <Formik
+                initialValues={{
+                    studyID: study.id,
+                    studyPermissions: study.permissions
+                }}
+                onSubmit={updateStudy}>
+                {({ values, handleChange, handleBlur, handleSubmit }) => (
+                    <Form onSubmit={handleSubmit} className={styles.studyInfoForm}>
+                        <Container>
+                            <Row>
+                                <Col>
+                                    <Form.Label>Minimum level for create:</Form.Label>
+                                    <Form.Control
+                                        as="select"
+                                        name="studyPermissions"
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        value={values.staffID}>
+                                        <option value="">Choose...</option>
+                                        {/* <option value={study.permissions.create}>{permLevel.study.permissions.create}</option> */}
+                                    </Form.Control>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col>
+                                    <Form.Label>Minimum level for edit:</Form.Label>
+                                    <Form.Control
+                                        as="select"
+                                        name="studyPermissions"
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        value={values.staffID}>
+                                        <option value="">Choose...</option>
+                                        {/* <option value={study.permissions.create}>{permLevel.study.permissions.create}</option> */}
+                                    </Form.Control>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col>
+                                    <Form.Label>Minimum level for delete:</Form.Label>
+                                    <Form.Control
+                                        as="select"
+                                        name="studyPermissions"
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        value={values.staffID}>
+                                        <option value="">Choose...</option>
+                                        {/* <option value={study.permissions.create}>{permLevel.study.permissions.create}</option> */}
+                                    </Form.Control>
+                                </Col>
+                            </Row>
+                        </Container>
+                    </Form>
+                )}
+            </Formik>
+        </Card>
     );
 };
 
