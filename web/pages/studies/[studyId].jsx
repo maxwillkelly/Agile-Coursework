@@ -135,6 +135,8 @@ const StaffMember = ({ staffMember, studyID, refetch }) => {
 
 const PermissionsCard = ({ study }) => {
     const [editStudy] = useMutation(EDIT_STUDY);
+    const [showTooltip, setShowTooltip] = useState(false);
+    const buttonRef = useRef(null);
     // const permLevel = {
     //     0:"Co-Researcher",
     //     1:"Researcher",
@@ -148,6 +150,8 @@ const PermissionsCard = ({ study }) => {
         };
 
         editStudy({ variables });
+        setShowTooltip(true);
+        setTimeout(() => setShowTooltip(false), 2000);
     };
 
     return (
@@ -161,50 +165,45 @@ const PermissionsCard = ({ study }) => {
                 onSubmit={updateStudy}>
                 {({ values, handleChange, handleBlur, handleSubmit }) => (
                     <Form onSubmit={handleSubmit} className={styles.studyInfoForm}>
-                        <Container>
-                            <Row>
-                                <Col>
-                                    <Form.Label>Minimum level for create:</Form.Label>
-                                    <Form.Control
-                                        as="select"
-                                        name="studyPermissions"
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        value={values.staffID}>
-                                        <option value="">Choose...</option>
-                                        {/* <option value={study.permissions.create}>{permLevel.study.permissions.create}</option> */}
-                                    </Form.Control>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col>
-                                    <Form.Label>Minimum level for edit:</Form.Label>
-                                    <Form.Control
-                                        as="select"
-                                        name="studyPermissions"
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        value={values.staffID}>
-                                        <option value="">Choose...</option>
-                                        {/* <option value={study.permissions.create}>{permLevel.study.permissions.create}</option> */}
-                                    </Form.Control>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col>
-                                    <Form.Label>Minimum level for delete:</Form.Label>
-                                    <Form.Control
-                                        as="select"
-                                        name="studyPermissions"
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        value={values.staffID}>
-                                        <option value="">Choose...</option>
-                                        {/* <option value={study.permissions.create}>{permLevel.study.permissions.create}</option> */}
-                                    </Form.Control>
-                                </Col>
-                            </Row>
-                        </Container>
+                        <Form.Label>Minimum level for create:</Form.Label>
+                        <Form.Control
+                            as="select"
+                            name="studyPermissions"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            value={values.studyPermissions.create}>
+                            <option value="0">Co-researcher</option>
+                            <option value="1">Researcher</option>
+                            <option value="2">Lab manager/Admin</option>
+                        </Form.Control>
+                        <Form.Label>Minimum level for edit:</Form.Label>
+                        <Form.Control
+                            as="select"
+                            name="studyPermissions"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            value={values.studyPermissions.edit}>
+                            <option value="0">Co-researcher</option>
+                            <option value="1">Researcher</option>
+                            <option value="2">Lab manager/Admin</option>
+                        </Form.Control>
+                        <Form.Label>Minimum level for delete:</Form.Label>
+                        <Form.Control
+                            as="select"
+                            name="studyPermissions"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            value={values.studyPermissions.delete}>
+                            <option value="0">Co-researcher</option>
+                            <option value="1">Researcher</option>
+                            <option value="2">Lab manager/Admin</option>
+                        </Form.Control>
+                        <Button ref={buttonRef} type="submit" className={styles.submitButton}>
+                            Save
+                        </Button>
+                        <Overlay target={buttonRef.current} show={showTooltip} placement="bottom">
+                            {(props) => <Tooltip {...props}>Permissions saved!</Tooltip>}
+                        </Overlay>
                     </Form>
                 )}
             </Formik>
