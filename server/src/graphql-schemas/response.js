@@ -9,7 +9,6 @@ const questionnaireHelper = require('../func/questionnaire')
 const s3Uploader = require('../func/bucketUpload')
 const createCsvStringifier = require('csv-writer').createObjectCsvStringifier;
 const moment = require('moment');
-const { response } = require('express');
 
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
