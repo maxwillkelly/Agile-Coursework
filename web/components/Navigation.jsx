@@ -1,15 +1,15 @@
 import { useContext } from 'react';
 import Link from 'next/link';
-// import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { UserContext } from '../contexts';
 import { Nav, Navbar, Image } from 'react-bootstrap';
-import { logout } from '../libs/user';
+import { getUserToken, logout } from '../libs/user';
 import styles from './styles/navbar.module.scss';
 
 const Navigation = () => {
     const router = useRouter();
-    const { userToken, setUserToken } = useContext(UserContext);
+    const { setUserToken } = useContext(UserContext);
+    const userToken = getUserToken();
 
     const clickLogInOutButton = () => {
         if (userToken) {
@@ -26,15 +26,15 @@ const Navigation = () => {
                     src="/uod_shield_white.png"
                     alt="University of Dundee Logo"
                     width="35"
-                    className="mb-2"
+                    className={styles.uodLogo}
                 />
-                <h1 className={`${styles.brandText} ml-2 text-white`}>Agile AC31007</h1>
+                <h1 className={styles.brandText}>Agile AC31007</h1>
             </Brand>
             <Navbar.Toggle aria-controls="responsive-navbar-nav" />
             <Navbar.Collapse id="responsive-navbar-nav">
                 {userToken && userToken.level === 2 && <AdminLinks />}
-                <Nav className="ml-auto">
-                    <Nav.Link className="text-white" onClick={clickLogInOutButton}>
+                <Nav className={styles.nav}>
+                    <Nav.Link className={styles.navLink} onClick={clickLogInOutButton}>
                         {!userToken ? 'Login' : 'Logout'}
                     </Nav.Link>
                 </Nav>
@@ -58,7 +58,7 @@ const AdminLinks = () => (
 
 const NavLink = ({ children, route }) => (
     <Link href={route} passHref>
-        <Nav.Link className="text-white">{children}</Nav.Link>
+        <Nav.Link className={styles.navLink}>{children}</Nav.Link>
     </Link>
 );
 

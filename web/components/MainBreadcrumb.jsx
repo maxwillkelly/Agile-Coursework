@@ -19,6 +19,14 @@ const GET_QUESTIONNAIRE_TITLE = gql`
     }
 `;
 
+export const GET_VIDEO_NOTES_TITLE = gql`
+    query GetVideoNotes($videoNotesID: ID!) {
+        getVideoNotes(videoNotesID: $videoNotesID) {
+            title
+        }
+    }
+`;
+
 const MainBreadcrumb = () => {
     const router = useRouter();
     let segments = !router.asPath ? [''] : router.asPath.split('/');
@@ -34,6 +42,10 @@ const MainBreadcrumb = () => {
 
     const getQuestionnaireTitleQuery = useQuery(GET_QUESTIONNAIRE_TITLE, {
         variables: { id: router.query.questionnaireId }
+    });
+
+    const getVideoNotesTitleQuery = useQuery(GET_VIDEO_NOTES_TITLE, {
+        variables: { videoNotesID: router.query.videoNotesId }
     });
 
     const hrefDictionary = {
@@ -70,10 +82,18 @@ const MainBreadcrumb = () => {
         hrefDictionary[
             `/studies/${router.query.studyId}/questionnaire/${router.query.questionnaireId}/edit`
         ] = `Edit ${questionnaireTitle}`;
-
         hrefDictionary[
             `/studies/${router.query.studyId}/questionnaire/${router.query.questionnaireId}/responses`
         ] = 'Responses';
+    } else if (router.query.videoNotesId) {
+        const { loading, error, data } = getVideoNotesTitleQuery;
+
+        if (loading) return <p>Loading...</p>;
+        if (error) return <pre>{JSON.stringify(error)}</pre>;
+        if (!data) return null;
+
+        hrefDictionary[`/studies/${router.query.studyId}/videos/${router.query.videoNotesId}`] =
+            data.getVideoNotes.title;
     }
 
     return (
@@ -101,7 +121,8 @@ const MyBreadcrumbItem = ({ children, href }) => {
     if (
         href === '' ||
         href.endsWith('questionnaire') ||
-        href.endsWith(router.query.questionnaireId)
+        href.endsWith(router.query.questionnaireId) ||
+        href.endsWith('videos')
     )
         return null;
 

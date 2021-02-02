@@ -1,0 +1,39 @@
+.list {
+    overflow-y: auto;
+    max-height: 400px;
+    padding-left: 0;
+}
+
+.search {
+    width: auto;
+    border-radius: none;
+    margin: 1rem 1rem 0;
+    font-size: 1.2rem;
+}
+
+.listItem {
+    padding: 0.5rem;
+    background-color: #ccc;
+
+    &:nth-child(odd) {
+        background-color: #eee;
+    }
+
+    &:hover {
+        background-color: orangered;
+        color: #eee;
+        cursor: pointer;
+    }
+}
+
+.listContent {
+    justify-content: space-between;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.profileButtons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(50px, 100px));
+    gap: 1rem;
+}

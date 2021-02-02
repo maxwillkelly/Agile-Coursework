@@ -14,8 +14,8 @@ const AddTextSection = ({ questionnaire, refetch }) => {
         refetch();
     };
     return (
-        <Container className={`${styles.questionnaireContainer}`}>
-            <Card className={`${styles.questionnaireCard} p-4`}>
+        <Container className={styles.questionnaireContainer}>
+            <Card className={styles.questionnaireCard}>
                 <Formik
                     initialValues={{
                         message: '',
@@ -58,7 +58,7 @@ const AddTextSection = ({ questionnaire, refetch }) => {
                                 />
                             </Form.Group>
 
-                            <Button className="float-right" variant="primary" type="submit">
+                            <Button className={styles.submitButton} variant="primary" type="submit">
                                 Add
                             </Button>
                         </Form>
