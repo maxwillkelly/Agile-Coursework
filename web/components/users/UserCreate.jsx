@@ -3,19 +3,23 @@ import { Button, Form, Modal } from 'react-bootstrap';
 import { useMutation } from '@apollo/client';
 import SET_NEW_USER from '../../mutations/setNewUser';
 
-export const UserForm = ({ setSuccessVal, setAlertVisibility, handleClose }) => {
+export const UserForm = ({ setSuccessVal, setAlertVisibility, handleClose, refetch }) => {
     const [userDetails, setUserDetails] = useState({});
     const [setNewUser] = useMutation(SET_NEW_USER);
 
+    // function for creating user request
     const handleUserCreate = (e) => {
         e.preventDefault();
 
         setNewUser({ variables: { ...userDetails, level: parseInt(userDetails.level) || 0 } })
             .then(() => {
+                // sets success value for new user request
                 setSuccessVal([true, 'Successfully created new user']);
                 setAlertVisibility(true);
+                refetch();
             })
-            .catch(() => {
+            .catch((err) => {
+                // sets error value for new user request
                 setSuccessVal([false, 'Failed to create new user']);
                 setAlertVisibility(true);
             });
@@ -84,11 +88,10 @@ export const UserForm = ({ setSuccessVal, setAlertVisibility, handleClose }) => 
     );
 };
 
-export const CreateModal = ({ setSuccessVal, setAlertVisibility }) => {
+export const CreateModal = ({ setSuccessVal, setAlertVisibility, refetch }) => {
     const [visible, setVisible] = useState(false);
     const handleClose = () => setVisible(false);
     const handleShow = () => setVisible(true);
-
     return (
         <div>
             <Button onClick={handleShow}>Create User</Button>
@@ -98,6 +101,7 @@ export const CreateModal = ({ setSuccessVal, setAlertVisibility }) => {
                 </Modal.Header>
                 <Modal.Body>
                     <UserForm
+                        refetch={refetch}
                         setSuccessVal={setSuccessVal}
                         setAlertVisibility={setAlertVisibility}
                         handleClose={handleClose}
