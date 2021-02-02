@@ -18,6 +18,7 @@ const typeDefs = gql`
 
     type Video {
         _id: ID
+        title: String
         "Link to video"
         link: String
         "type of link it is (can be ignored atm)"
@@ -37,6 +38,7 @@ const typeDefs = gql`
     }
 
     input VideoInput {
+        title: String!
         "Link to video file"
         link: String!
         "type of link"
@@ -192,6 +194,7 @@ const resolvers = {
                         for (let x in arg.videoNotes.videos) {
                             videos.push({
                                 _id: new mongo.ObjectID(),
+                                title: arg.videoNotes.videos[x].title,
                                 link: arg.videoNotes.videos[x].link,
                                 type: arg.videoNotes.videos[x].type
                             })
@@ -232,7 +235,7 @@ const resolvers = {
         },
 
         /**
-         * Add Note to a videoNote
+         * Add Note to a videoNotes
          * @param {Object} parent 
          * @param {Object} arg 
          * @param {Object} ctx 
@@ -274,6 +277,13 @@ const resolvers = {
             }
         },
 
+        /**
+         * Add Video to videoNotes
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} inf
+         */
         addVideoToVideoNotes: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const NotesCollection = database.getDb().collection('notes');
@@ -289,6 +299,7 @@ const resolvers = {
                             $addToSet: {
                                 videos: {
                                     _id: new mongo.ObjectID(),
+                                    title: arg.video.title,
                                     link: arg.video.link,
                                     type: arg.video.type
                                 }
