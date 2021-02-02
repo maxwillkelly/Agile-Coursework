@@ -1,15 +1,15 @@
 import { useContext } from 'react';
 import Link from 'next/link';
-// import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { UserContext } from '../contexts';
 import { Nav, Navbar, Image } from 'react-bootstrap';
-import { logout } from '../libs/user';
+import { getUserToken, logout } from '../libs/user';
 import styles from './styles/navbar.module.scss';
 
 const Navigation = () => {
     const router = useRouter();
-    const { userToken, setUserToken } = useContext(UserContext);
+    const { setUserToken } = useContext(UserContext);
+    const userToken = getUserToken();
 
     const clickLogInOutButton = () => {
         if (userToken) {
