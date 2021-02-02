@@ -8,6 +8,7 @@ import Navigation from '../components/Navigation';
 import { USERS_QUERY } from '../queries/users';
 import { useQuery } from '@apollo/client';
 import MainBreadcrumb from '../components/MainBreadcrumb';
+import styles from '../styles/admin.module.scss';
 
 export const AdminDashboard = () => {
     const { loading, error, data, refetch } = useQuery(USERS_QUERY);
@@ -38,7 +39,7 @@ export const AdminDashboard = () => {
                         <h1>Admin Dashboard</h1>
                     </Col>
                 </Row>
-                <Row className="mt-1 mb-3">
+                <Row className={styles.userCreateRow}>
                     <Col>
                         <UserCreate
                             refetch={refetch}
@@ -59,7 +60,7 @@ export const AdminDashboard = () => {
                             }
                             dismissible
                             show={alertVisibility}
-                            className="mt-3"
+                            className={styles.userCreationAlert}
                             onClose={() => setAlertVisibility(false)}>
                             {successVal[1]}
                         </Alert>
