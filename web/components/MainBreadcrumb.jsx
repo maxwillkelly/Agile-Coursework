@@ -82,6 +82,9 @@ const MainBreadcrumb = () => {
         hrefDictionary[
             `/studies/${router.query.studyId}/questionnaire/${router.query.questionnaireId}/edit`
         ] = `Edit ${questionnaireTitle}`;
+        hrefDictionary[
+            `/studies/${router.query.studyId}/questionnaire/${router.query.questionnaireId}/responses`
+        ] = 'Responses';
     } else if (router.query.videoNotesId) {
         const { loading, error, data } = getVideoNotesTitleQuery;
 

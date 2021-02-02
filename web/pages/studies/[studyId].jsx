@@ -504,5 +504,4 @@ const Questionnaire = ({ q, refetch, studyID }) => {
             </ListGroup.Item>
         );
 };
-
 export default StudyPage;

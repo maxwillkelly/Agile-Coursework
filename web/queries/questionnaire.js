@@ -69,3 +69,18 @@ export const GET_CSV_OF_RESPONSES = gql`
         getCSVOfResponses(questionnaireID: $questionnaireID)
     }
 `;
+
+
+export const GET_QUESTION_RESPONSES = gql`
+    query GetQuestionResponses($questionnaireID: ID!) {
+        getQuestionResponses(questionnaireID: $questionnaireID) {
+            qID
+            qType
+            message
+            description
+            values
+            order
+            responses
+        }
+    }
+`
