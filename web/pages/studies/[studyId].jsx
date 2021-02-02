@@ -294,7 +294,7 @@ const QuestionnairesSection = ({ studyID }) => {
     };
 
     return (
-        <>
+        <div>
             <h5 className={styles.questionnairesTableHeader}>Questionnaires</h5>
             <Questionnaires
                 getStudyQuestionnaires={getStudyQuestionnaires}
