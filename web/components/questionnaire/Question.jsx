@@ -3,7 +3,7 @@ import { Button, Form, Container, Card, InputGroup, Overlay, Tooltip } from 'rea
 import { useMutation } from '@apollo/client';
 import { EDIT_QUESTION, REMOVE_QUESTION_FROM_QUESTIONNAIRE } from '../../mutations/questionnaire';
 import { Formik, FieldArray } from 'formik';
-// import styles from '../styles/questionnaire.module.scss';
+import styles from '../styles/questionnaire.module.scss';
 
 const Question = ({ question, questionnaire, refetch }) => {
     const [editQuestion] = useMutation(EDIT_QUESTION);
@@ -35,14 +35,17 @@ const Question = ({ question, questionnaire, refetch }) => {
 
     return (
         <Container>
-            <Card className="p-0 m-5">
+            <Card className={styles.questionCard}>
                 <Card.Header>
                     {question.qType === 'paragraph' ? 'Text Section' : 'Question'}
-                    <Button variant="danger" className="float-right" onClick={deleteQuestion}>
+                    <Button
+                        variant="danger"
+                        className={styles.submitButton}
+                        onClick={deleteQuestion}>
                         Delete
                     </Button>
                 </Card.Header>
-                <div className="m-4">
+                <div className={styles.questionCardForm}>
                     <Formik
                         initialValues={{
                             title: question.message,
@@ -72,7 +75,7 @@ const Question = ({ question, questionnaire, refetch }) => {
                                     onBlur={handleBlur}
                                     value={values.title}
                                 />
-                                <Form.Label className="mt-3">
+                                <Form.Label className={styles.questionLabel}>
                                     {question.qType === 'paragraph'
                                         ? 'Paragraph'
                                         : 'Question Description'}
@@ -89,7 +92,7 @@ const Question = ({ question, questionnaire, refetch }) => {
                                 {(question.qType === 'radio' || question.qType === 'checkbox') &&
                                     values.questionOptions && (
                                         <>
-                                            <Form.Label className="mt-3">
+                                            <Form.Label className={styles.questionLabel}>
                                                 Question Options
                                             </Form.Label>
                                             <FieldArray name="questionOptions">
@@ -100,7 +103,9 @@ const Question = ({ question, questionnaire, refetch }) => {
                                                                 (option, index) => (
                                                                     // <div className={styles.checkboxContainer}>
                                                                     <InputGroup
-                                                                        className="my-3"
+                                                                        className={
+                                                                            styles.questionOption
+                                                                        }
                                                                         key={index}>
                                                                         <InputGroup.Prepend>
                                                                             <QuestionPrepend
@@ -130,9 +135,14 @@ const Question = ({ question, questionnaire, refetch }) => {
                                                                     // </div>
                                                                 )
                                                             )}
-                                                            <div className="mt-3 float-right">
+                                                            <div
+                                                                className={
+                                                                    styles.questionCardButtons
+                                                                }>
                                                                 <Button
-                                                                    className="mr-2"
+                                                                    className={
+                                                                        styles.addOptionButton
+                                                                    }
                                                                     variant="success"
                                                                     onClick={() =>
                                                                         arrayHelpers.push('')
@@ -154,7 +164,7 @@ const Question = ({ question, questionnaire, refetch }) => {
                                     )}
                                 {(question.qType === 'short' || question.qType === 'long') && (
                                     <>
-                                        <Form.Label className="mt-3">
+                                        <Form.Label className={styles.questionLabel}>
                                             Question Type:
                                             {question.qType === 'short'
                                                 ? ' Short answer'
@@ -163,7 +173,7 @@ const Question = ({ question, questionnaire, refetch }) => {
                                         <Button
                                             ref={buttonRef}
                                             type="submit"
-                                            className="mt-2 float-right">
+                                            className={styles.submitButton}>
                                             Save
                                         </Button>
                                     </>

@@ -4,6 +4,15 @@
     padding: 1.5rem;
 }
 
+.questionCard {
+    padding: 0;
+    margin: 3rem;
+}
+
+.questionCardForm {
+    margin: 1.5rem;
+}
+
 .questionnaireCardItem {
     margin: 1rem;
 }
@@ -45,4 +54,21 @@
     display: flex;
     align-items: baseline;
     justify-content: space-around;
+}
+
+.questionLabel {
+    margin-top: 1rem;
+}
+
+.questionOption {
+    margin-bottom: 1rem;
+}
+
+.questionCardButtons {
+    margin-top: 1rem;
+    float: right;
+}
+
+.addOptionButton {
+    margin-right: 0.5rem;
 }
