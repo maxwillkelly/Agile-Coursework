@@ -97,6 +97,18 @@ const typeDefs = gql`
             timeStamp: String!
             description: String!
         ): VideoNotes
+        "Edit a video in a VideoNotes"
+        editVideoInVideoNotes(
+            "ID of the VideoNotes to edit"
+            videoNotesID: ID!
+            "ID of the video to edit"
+            videoID: ID!
+            title: String
+            "Link to video file"
+            link: String
+            "type of link"
+            type: String
+        ): VideoNotes
     }
 
     extend type Query{
@@ -408,6 +420,59 @@ const resolvers = {
                         await NotesCollection.updateOne(
                             findQuery,
                             { $set: { "notes.$.description": arg.description } }
+                        )
+                    }
+                    currNotes = await NotesCollection.findOne({ "_id": n_id })
+                    return await videoHelper.formVideoNote(currNotes)
+                }
+                catch (err) {
+                    throw new Error(
+                        `Error: ${err}`
+                    )
+                }
+            } else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        },
+
+        editVideoInVideoNotes: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                const NotesCollection = database.getDb().collection('notes');
+                const n_id = new mongo.ObjectID(arg.videoNotesID);
+                var currNotes = await NotesCollection.findOne({ "_id": n_id })
+                if (!currNotes) {
+                    throw new IdError("Invalid videoNotesID")
+                }
+                var existCheck = false
+                const video_id = new mongo.ObjectID(arg.videoID);
+                for (let x in currNotes.videos) {
+                    if (currNotes.videos[x]._id.equals(video_id)) {
+                        existCheck = true
+                    }
+                }
+                if (!existCheck) {
+                    throw new IdError("Invalid videoID")
+                }
+                try {
+                    const findQuery = { "_id": n_id, "videos._id": video_id }
+                    if ("link" in arg) {
+                        await NotesCollection.updateOne(
+                            findQuery,
+                            { $set: { "videos.$.link": arg.link } }
+                        )
+                    }
+                    if ("title" in arg) {
+                        await NotesCollection.updateOne(
+                            findQuery,
+                            { $set: { "videos.$.title": arg.title } }
+                        )
+                    }
+                    if ("type" in arg) {
+                        await NotesCollection.updateOne(
+                            findQuery,
+                            { $set: { "videos.$.type": arg.type } }
                         )
                     }
                     currNotes = await NotesCollection.findOne({ "_id": n_id })
