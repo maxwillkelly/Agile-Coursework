@@ -17,7 +17,7 @@ import {
 import { GET_STUDY } from '../../queries/study';
 import { CREATE_QUESTIONNAIRE, REMOVE_QUESTIONNAIRE } from '../../mutations/questionnaire';
 import { EDIT_STUDY, ADD_STAFF_TO_STUDY, REMOVE_STAFF_FROM_STUDY } from '../../mutations/study';
-import { GET_QUESTIONNAIRES } from '../../queries/questionnaire';
+import { GET_STUDY_QUESTIONNAIRES } from '../../queries/questionnaire';
 import { USERS_QUERY } from '../../queries/users';
 import Navigation from '../../components/Navigation';
 import MainBreadcrumb from '../../components/MainBreadcrumb';
@@ -272,7 +272,9 @@ const StudyInfo = ({ data: { id, title, description } }) => {
 const QuestionnairesSection = ({ studyID }) => {
     const router = useRouter();
     const [createQuestionnaireMutation] = useMutation(CREATE_QUESTIONNAIRE);
-    const getQuestionnaires = useQuery(GET_QUESTIONNAIRES);
+    const getStudyQuestionnaires = useQuery(GET_STUDY_QUESTIONNAIRES, {
+        variables: { studyID }
+    });
 
     const createQuestionnaire = async () => {
         const questionnaire = {
@@ -283,7 +285,7 @@ const QuestionnairesSection = ({ studyID }) => {
         const { data } = await createQuestionnaireMutation({
             variables: { questionnaire }
         });
-        getQuestionnaires.refetch();
+        getStudyQuestionnaires.refetch();
         router.push(`/studies/${studyID}/questionnaire/${data.createQuestionnaire.id}`);
     };
 
@@ -291,8 +293,8 @@ const QuestionnairesSection = ({ studyID }) => {
         <>
             <h5 className="mx-3 mt-5 mb-3">Questionnaires</h5>
             <Questionnaires
-                getQuestionnaires={getQuestionnaires}
-                refetch={getQuestionnaires.refetch}
+                getStudyQuestionnaires={getStudyQuestionnaires}
+                refetch={getStudyQuestionnaires.refetch}
                 studyID={studyID}
             />
             <Button className="float-right mt-3 mb-5" onClick={createQuestionnaire}>
@@ -302,15 +304,15 @@ const QuestionnairesSection = ({ studyID }) => {
     );
 };
 
-const Questionnaires = ({ getQuestionnaires, refetch, studyID }) => {
-    const { loading, error, data } = getQuestionnaires;
+const Questionnaires = ({ getStudyQuestionnaires, refetch, studyID }) => {
+    const { loading, error, data } = getStudyQuestionnaires;
 
     if (loading) return <p>Loading...</p>;
     if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
 
     return (
         <ListGroup>
-            {data.getQuestionnaires.map((q, i) => (
+            {data.getStudyQuestionnaires.map((q, i) => (
                 <Questionnaire q={q} refetch={refetch} studyID={studyID} key={i} />
             ))}
         </ListGroup>
