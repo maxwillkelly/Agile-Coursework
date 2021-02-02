@@ -17,7 +17,7 @@ import {
 import { GET_STUDY } from '../../queries/study';
 import { CREATE_QUESTIONNAIRE, REMOVE_QUESTIONNAIRE } from '../../mutations/questionnaire';
 import { EDIT_STUDY, ADD_STAFF_TO_STUDY, REMOVE_STAFF_FROM_STUDY } from '../../mutations/study';
-import { GET_QUESTIONNAIRES } from '../../queries/questionnaire';
+import { GET_STUDY_QUESTIONNAIRES, GET_CSV_OF_RESPONSES } from '../../queries/questionnaire';
 import { USERS_QUERY } from '../../queries/users';
 import Navigation from '../../components/Navigation';
 import MainBreadcrumb from '../../components/MainBreadcrumb';
@@ -274,7 +274,9 @@ const StudyInfo = ({ data: { id, title, description } }) => {
 const QuestionnairesSection = ({ studyID }) => {
     const router = useRouter();
     const [createQuestionnaireMutation] = useMutation(CREATE_QUESTIONNAIRE);
-    const getQuestionnaires = useQuery(GET_QUESTIONNAIRES);
+    const getStudyQuestionnaires = useQuery(GET_STUDY_QUESTIONNAIRES, {
+        variables: { studyID }
+    });
 
     const createQuestionnaire = async () => {
         const questionnaire = {
@@ -285,7 +287,7 @@ const QuestionnairesSection = ({ studyID }) => {
         const { data } = await createQuestionnaireMutation({
             variables: { questionnaire }
         });
-        getQuestionnaires.refetch();
+        getStudyQuestionnaires.refetch();
         router.push(`/studies/${studyID}/questionnaire/${data.createQuestionnaire.id}`);
     };
 
@@ -293,8 +295,8 @@ const QuestionnairesSection = ({ studyID }) => {
         <>
             <h5 className={styles.questionnairesTableHeader}>Questionnaires</h5>
             <Questionnaires
-                getQuestionnaires={getQuestionnaires}
-                refetch={getQuestionnaires.refetch}
+                getStudyQuestionnaires={getStudyQuestionnaires}
+                refetch={getStudyQuestionnaires.refetch}
                 studyID={studyID}
             />
             <Button className={styles.createQuestionnaireButton} onClick={createQuestionnaire}>
@@ -304,15 +306,15 @@ const QuestionnairesSection = ({ studyID }) => {
     );
 };
 
-const Questionnaires = ({ getQuestionnaires, refetch, studyID }) => {
-    const { loading, error, data } = getQuestionnaires;
+const Questionnaires = ({ getStudyQuestionnaires, refetch, studyID }) => {
+    const { loading, error, data } = getStudyQuestionnaires;
 
     if (loading) return <p>Loading...</p>;
     if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
 
     return (
         <ListGroup>
-            {data.getQuestionnaires.map((q, i) => (
+            {data.getStudyQuestionnaires.map((q, i) => (
                 <Questionnaire q={q} refetch={refetch} studyID={studyID} key={i} />
             ))}
         </ListGroup>
@@ -322,6 +324,9 @@ const Questionnaires = ({ getQuestionnaires, refetch, studyID }) => {
 const Questionnaire = ({ q, refetch, studyID }) => {
     const [showTooltip, setShowTooltip] = useState(false);
     const [removeQuestionnaire] = useMutation(REMOVE_QUESTIONNAIRE);
+    const getCsvOfResponsesQuery = useQuery(GET_CSV_OF_RESPONSES, {
+        variables: { questionnaireID: q.id }
+    });
     const router = useRouter();
     const buttonRef = useRef(null);
 
@@ -339,50 +344,77 @@ const Questionnaire = ({ q, refetch, studyID }) => {
         refetch();
     };
 
-    return (
-        <ListGroup.Item>
-            <div className={styles.questionnaireItem}>
-                <Col>
-                    <p className={styles.studyInfo}>{q.title}</p>
-                </Col>
-                <Col>
-                    <p className={styles.studyInfo}>{q.description}</p>
-                </Col>
-                <div>
-                    <Button
-                        variant="success"
-                        ref={buttonRef}
-                        onClick={() => copyToClipboard(VIEW_PATH)}>
-                        Copy
-                    </Button>
-                    <Overlay target={buttonRef.current} show={showTooltip} placement="bottom">
-                        {(props) => <Tooltip {...props}>Link copied!</Tooltip>}
-                    </Overlay>
+    const { loading, error, data } = getCsvOfResponsesQuery;
+    if (loading) return <p>Loading...</p>;
+    if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
+    // if (data) return <pre>{JSON.stringify(data, null, 2)}</pre>;
 
-                    <Button
-                        className={styles.questionnaireButton}
-                        variant="primary"
-                        onClick={() => router.push(VIEW_PATH)}>
-                        View
-                    </Button>
+    // const downloadCSV = async () => {
+    //     const { loading, error, data } = getCsvOfResponsesQuery;
+    //     if (loading) return <p>Loading...</p>;
+    //     if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
+    //     if (data) return;
+    // };
 
-                    <Button
-                        className={styles.questionnaireButton}
-                        variant="secondary"
-                        onClick={() => router.push(`${MAIN_PATH}/edit`)}>
-                        Edit
-                    </Button>
+    if (data)
+        return (
+            <ListGroup.Item>
+                <div className={styles.questionnaireItem}>
+                    <Col>
+                        <p className={styles.studyInfo}>{q.title}</p>
+                    </Col>
+                    <Col>
+                        <p className={styles.studyInfo}>{q.description}</p>
+                    </Col>
+                    <div>
+                        <Button
+                            variant="success"
+                            ref={buttonRef}
+                            size="sm"
+                            onClick={() => copyToClipboard(VIEW_PATH)}>
+                            Copy
+                        </Button>
+                        <Overlay target={buttonRef.current} show={showTooltip} placement="bottom">
+                            {(props) => <Tooltip {...props}>Link copied!</Tooltip>}
+                        </Overlay>
 
-                    <Button
-                        className={styles.questionnaireButton}
-                        variant="danger"
-                        onClick={() => deleteQuestionnaire(q)}>
-                        Delete
-                    </Button>
+                        <Button
+                            className={styles.questionnaireButton}
+                            variant="primary"
+                            size="sm"
+                            onClick={() => router.push(VIEW_PATH)}>
+                            View
+                        </Button>
+
+                        <Button
+                            className={styles.questionnaireButton}
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => router.push(`${MAIN_PATH}/edit`)}>
+                            Edit
+                        </Button>
+
+                        <a
+                            href={getCsvOfResponsesQuery.data.getCSVOfResponses}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            download>
+                            <Button className={styles.questionnaireButton} variant="info" size="sm">
+                                Export
+                            </Button>
+                        </a>
+
+                        <Button
+                            className={styles.questionnaireButton}
+                            variant="danger"
+                            size="sm"
+                            onClick={() => deleteQuestionnaire(q)}>
+                            Delete
+                        </Button>
+                    </div>
                 </div>
-            </div>
-        </ListGroup.Item>
-    );
+            </ListGroup.Item>
+        );
 };
 
 export default StudyPage;
