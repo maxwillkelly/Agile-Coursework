@@ -72,6 +72,7 @@ const typeDefs = gql`
             studyID: ID!
             title: String
             description: String
+            permissions: StudyPermissionsInput
         ): Study
         "Add staff to a study"
         addStaffToStudy(
@@ -411,6 +412,9 @@ const resolvers = {
                 if ('description' in arg) {
                     updateField.description = arg.description
                 }
+                if ('permissions' in arg) {
+                    updateField.permissions = arg.permissions
+                } 
                 try {
                     const r = await StudyCollection.updateOne({ "_id": s_id }, { $set: updateField })
                     currStudy = await StudyCollection.findOne({ "_id": s_id });

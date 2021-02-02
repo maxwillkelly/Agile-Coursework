@@ -9,8 +9,18 @@ export const CREATE_NEW_STUDY = gql`
 `;
 
 export const EDIT_STUDY = gql`
-    mutation EditStudy($studyID: ID!, $title: String, $description: String) {
-        editStudy(studyID: $studyID, title: $title, description: $description) {
+    mutation EditStudy(
+        $studyID: ID!
+        $title: String
+        $description: String
+        $permissions: StudyPermissionsInput
+    ) {
+        editStudy(
+            studyID: $studyID
+            title: $title
+            description: $description
+            permissions: $permissions
+        ) {
             id
         }
     }

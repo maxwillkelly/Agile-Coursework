@@ -143,10 +143,10 @@ const PermissionsCard = ({ study }) => {
     //     2:"Admin"
     // }
 
-    const updateStudy = (studyValues) => {
+    const updateStudy = ({ create, edit, del }) => {
         const variables = {
             studyID: study.id,
-            permissions: studyValues.permissions
+            permissions: { create: parseInt(create), edit: parseInt(edit), delete: parseInt(del) }
         };
 
         editStudy({ variables });
@@ -155,49 +155,56 @@ const PermissionsCard = ({ study }) => {
     };
 
     return (
-        <Card>
+        <Card className={styles.permissionsCard}>
             <Card.Header>Study Permissions</Card.Header>
             <Formik
                 initialValues={{
-                    studyID: study.id,
-                    studyPermissions: study.permissions
+                    create: study.permissions.create,
+                    edit: study.permissions.edit,
+                    del: study.permissions.delete
                 }}
                 onSubmit={updateStudy}>
                 {({ values, handleChange, handleBlur, handleSubmit }) => (
                     <Form onSubmit={handleSubmit} className={styles.studyInfoForm}>
-                        <Form.Label>Minimum level for create:</Form.Label>
-                        <Form.Control
-                            as="select"
-                            name="studyPermissions"
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            value={values.studyPermissions.create}>
-                            <option value="0">Co-researcher</option>
-                            <option value="1">Researcher</option>
-                            <option value="2">Lab manager/Admin</option>
-                        </Form.Control>
-                        <Form.Label>Minimum level for edit:</Form.Label>
-                        <Form.Control
-                            as="select"
-                            name="studyPermissions"
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            value={values.studyPermissions.edit}>
-                            <option value="0">Co-researcher</option>
-                            <option value="1">Researcher</option>
-                            <option value="2">Lab manager/Admin</option>
-                        </Form.Control>
-                        <Form.Label>Minimum level for delete:</Form.Label>
-                        <Form.Control
-                            as="select"
-                            name="studyPermissions"
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            value={values.studyPermissions.delete}>
-                            <option value="0">Co-researcher</option>
-                            <option value="1">Researcher</option>
-                            <option value="2">Lab manager/Admin</option>
-                        </Form.Control>
+                        <Form.Group>
+                            <Form.Label>Minimum level for create:</Form.Label>
+                            <Form.Control
+                                as="select"
+                                name="create"
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                value={values.create}>
+                                <option value="0">Co-researcher</option>
+                                <option value="1">Researcher</option>
+                                <option value="2">Lab manager/Admin</option>
+                            </Form.Control>
+                        </Form.Group>
+                        <Form.Group>
+                            <Form.Label>Minimum level for edit:</Form.Label>
+                            <Form.Control
+                                as="select"
+                                name="edit"
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                value={values.edit}>
+                                <option value="0">Co-researcher</option>
+                                <option value="1">Researcher</option>
+                                <option value="2">Lab manager/Admin</option>
+                            </Form.Control>
+                        </Form.Group>
+                        <Form.Group>
+                            <Form.Label>Minimum level for delete:</Form.Label>
+                            <Form.Control
+                                as="select"
+                                name="del"
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                value={values.del}>
+                                <option value="0">Co-researcher</option>
+                                <option value="1">Researcher</option>
+                                <option value="2">Lab manager/Admin</option>
+                            </Form.Control>
+                        </Form.Group>
                         <Button ref={buttonRef} type="submit" className={styles.submitButton}>
                             Save
                         </Button>
