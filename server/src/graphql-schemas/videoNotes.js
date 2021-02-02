@@ -109,6 +109,10 @@ const typeDefs = gql`
             "type of link"
             type: String
         ): VideoNotes
+        "Delete a video note"
+        deleteVideoNote(
+            videoNotesID: ID!
+        ): VideoNotes
     }
 
     extend type Query{
@@ -495,7 +499,33 @@ const resolvers = {
                     'Authentication token is invalid, please log in'
                 )
             }
+        },
+
+        /**
+         * Delete VideoNote
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
+        deleteVideoNote: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                const NotesCollection = database.getDb().collection('notes');
+                const n_id = new mongo.ObjectID(arg.videoNotesID);
+                var currNotes = await NotesCollection.findOne({ "_id": n_id })
+                if (!currNotes) {
+                    throw new IdError("Invalid videoNotesID")
+                }
+                await NotesCollection.deleteOne({ "_id": n_id })
+                return await videoHelper.formVideoNote(currNotes)
+            } else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
         }
+
+
     }
 }
 
