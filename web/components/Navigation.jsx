@@ -22,8 +22,13 @@ const Navigation = () => {
     return (
         <Navbar className={styles.Nav} collapseOnSelect expand="md">
             <Brand>
-                <Image src="/uod_shield_white.png" alt="University of Dundee Logo" width="24" />
-                <p className={`${styles.brandText} ml-2 text-white`}>Agile AC31007</p>
+                <Image
+                    src="/uod_shield_white.png"
+                    alt="University of Dundee Logo"
+                    width="35"
+                    className="mb-2"
+                />
+                <h1 className={`${styles.brandText} ml-2 text-white`}>Agile AC31007</h1>
             </Brand>
             <Navbar.Toggle aria-controls="responsive-navbar-nav" />
             <Navbar.Collapse id="responsive-navbar-nav">
