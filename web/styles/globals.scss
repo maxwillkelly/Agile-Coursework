@@ -3,3 +3,17 @@
 // a {
   // color: #2649CA;
 // }
+
+@font-face {
+  font-family: 'Baxter Sans Bold';
+  src: url('Baxter_Sans_Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Baxter Sans Regular';
+  src: url('Baxter_Sans_Regular.ttf');
+}
+
+body {
+  font-family: 'Baxter Sans Regular';
+}
