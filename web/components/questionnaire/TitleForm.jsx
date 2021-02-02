@@ -18,7 +18,7 @@ const TitleForm = ({ questionnaire }) => {
 
     return (
         <Container className={`${styles.questionnaireContainer}`}>
-            <Card className={`${styles.questionnaireCard} p-4`}>
+            <Card className={`${styles.questionnaireCard}`}>
                 <Formik
                     initialValues={{
                         questionnaireID: questionnaire.id,
@@ -61,7 +61,7 @@ const TitleForm = ({ questionnaire }) => {
                             </Form.Group>
                             <Button
                                 ref={buttonRef}
-                                className="float-right"
+                                className={styles.submitButton}
                                 variant="primary"
                                 type="submit">
                                 Save

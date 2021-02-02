@@ -36,10 +36,10 @@ const StudiesPage = () => {
             <Navigation />
             <MainBreadcrumb />
             <main>
-                <Container className="mt-3">
-                    <h2 className="mx-3">Studies</h2>
+                <Container className={styles.studyContainer}>
+                    <h2 className={styles.pageTitle}>Studies</h2>
                     <Studies />
-                    <Button className="float-right mt-3" onClick={createStudy}>
+                    <Button className={styles.createStudyButton} onClick={createStudy}>
                         Create Study
                     </Button>
                 </Container>
@@ -84,20 +84,23 @@ const Study = ({ study }) => {
         <ListGroup.Item>
             <div className={styles.study}>
                 <Col>
-                    <p className="m-0">{study.title}</p>
+                    <p className={styles.studyInfo}>{study.title}</p>
                 </Col>
                 <Col>
-                    <p className="m-0">{study.description}</p>
+                    <p className={styles.studyInfo}>{study.description}</p>
                 </Col>
                 <div>
                     <Button
-                        className="ml-4"
+                        className={styles.studyButton}
                         variant="primary"
                         onClick={() => router.push(`/studies/${study.id}`)}>
                         Edit
                     </Button>
 
-                    <Button className="ml-4" variant="danger" onClick={() => delete_Study()}>
+                    <Button
+                        className={styles.studyButton}
+                        variant="danger"
+                        onClick={() => delete_Study()}>
                         Delete
                     </Button>
                 </div>

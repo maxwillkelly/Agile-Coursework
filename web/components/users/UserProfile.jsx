@@ -1,4 +1,4 @@
-import styles from '../../styles/admin.module.scss';
+import styles from '../styles/admin.module.scss';
 import { useState, useEffect } from 'react';
 import Form from 'react-bootstrap/Form';
 import { Button, Card, Spinner } from 'react-bootstrap';

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FormControl, Card } from 'react-bootstrap';
 import UserListSingle from './UserListSingle';
-import styles from '../../styles/admin.module.scss';
+import styles from '../styles/admin.module.scss';
 export const UserList = ({ setSelectedUser, users }) => {
     const [searchVal, setSearchVal] = useState('');
 
