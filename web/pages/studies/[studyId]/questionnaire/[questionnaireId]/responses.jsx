@@ -1,16 +1,17 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useQuery } from '@apollo/client';
-import { GET_RESPONSES } from '../../../../../queries/questionnaire';
+import { GET_QUESTION_RESPONSES } from '../../../../../queries/questionnaire';
 import Navigation from '../../../../../components/Navigation';
 import Response from '../../../../../components/questionnaire/Response'
 import MainBreadcrumb from '../../../../../components/MainBreadcrumb';
-import { Spinner } from 'react-bootstrap';
+import { Spinner, Container, Row, Col } from 'react-bootstrap';
+import styles from '../../../../../styles/questionnaires.module.scss';
 
 export const ResponsePage = () => {
   const router = useRouter();
   const questionnaireID = router.query.questionnaireId;
-  const { loading, error, data, refetch } = useQuery(GET_RESPONSES, {
+  const { loading, error, data, refetch } = useQuery(GET_QUESTION_RESPONSES, {
     variables: { questionnaireID }
   });
 
@@ -21,7 +22,7 @@ export const ResponsePage = () => {
   )
 
   if (error) return <pre>{JSON.stringify(error)}</pre>
-  console.log(data.getResponses)
+  console.log('from the responses page', data.getQuestionResponses)
   return (
     <>
       <Head>
@@ -29,15 +30,11 @@ export const ResponsePage = () => {
       </Head>
       <Navigation />
       <MainBreadcrumb />
-      <main>
-        {data && data.getResponses[0].questionnaire.questions.map(question => (
-          <Response answers={data.getResponses.answers.filter(answer => {
-            return answer.qID === question.qID
-          })} question={question} />
-        ))}
-      </main>
+      <Container >
+        {data && data.getQuestionResponses.map(question => <Row key={question.qID} className={styles.responseCard}><Col><Response question={question} /></Col></Row>)}
+      </Container>
     </>
   )
-}
+};
 
 export default ResponsePage;

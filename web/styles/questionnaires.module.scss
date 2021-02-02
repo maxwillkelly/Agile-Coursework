@@ -3,3 +3,12 @@
     align-items: center;
     justify-content: space-between;
 }
+
+.responseCard {
+    margin: 2rem 0;
+}
+
+.responseList {
+    overflow-y: auto;
+    max-height: 300px;
+}
