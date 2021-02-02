@@ -62,3 +62,14 @@ export const GET_STUDY_QUESTIONNAIRES = gql`
         }
     }
 `;
+
+
+export const GET_RESPONSES = gql`
+    query GetResponses($questionnaireID: ID!) {
+        getResponses(questionnaireID: $questionnaireID) {
+            answers {
+                values
+            }
+        }
+    }
+`

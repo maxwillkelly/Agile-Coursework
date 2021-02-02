@@ -2,6 +2,7 @@ import Head from 'next/head';
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, useMutation } from '@apollo/client';
+
 import {
     Button,
     Card,
@@ -325,6 +326,7 @@ const Questionnaire = ({ q, refetch, studyID }) => {
 
     const MAIN_PATH = `/studies/${studyID}/questionnaire/${q.id}`;
     const VIEW_PATH = `${MAIN_PATH}/answer`;
+    const RESPONSES_PATH = `${MAIN_PATH}/responses`;
 
     const copyToClipboard = (VIEW_PATH) => {
         copy(`${window.location.hostname}:${window.location.port}${VIEW_PATH}`);
@@ -369,6 +371,13 @@ const Questionnaire = ({ q, refetch, studyID }) => {
                         variant="secondary"
                         onClick={() => router.push(`${MAIN_PATH}/edit`)}>
                         Edit
+                    </Button>
+
+                    <Button
+                        className="ml-4"
+                        variant="info"
+                        onClick={() => router.push(RESPONSES_PATH)}>
+                        View Responses
                     </Button>
 
                     <Button

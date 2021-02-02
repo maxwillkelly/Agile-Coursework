@@ -17,7 +17,8 @@ const MainBreadcrumb = () => {
         '/studies': 'Studies',
         [`/studies/${router.query.studyId}`]: 'StudyName',
         [`/studies/${router.query.studyId}/questionnaire/${router.query.questionnaireId}/answer`]: 'Answer QuestionnaireName',
-        [`/studies/${router.query.studyId}/questionnaire/${router.query.questionnaireId}/edit`]: 'Edit QuestionnaireName'
+        [`/studies/${router.query.studyId}/questionnaire/${router.query.questionnaireId}/responses`]: 'Responses',
+        [`/studies/${router.query.studyId}/questionnaire/${router.query.questionnaireId}/edit`]: 'Edit QuestionnaireName',
     };
 
     return (
