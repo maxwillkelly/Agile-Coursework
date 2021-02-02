@@ -368,6 +368,7 @@ const Questionnaire = ({ q, refetch, studyID }) => {
                         <Button
                             variant="success"
                             ref={buttonRef}
+                            size="sm"
                             onClick={() => copyToClipboard(VIEW_PATH)}>
                             Copy
                         </Button>
@@ -378,6 +379,7 @@ const Questionnaire = ({ q, refetch, studyID }) => {
                         <Button
                             className="ml-4"
                             variant="primary"
+                            size="sm"
                             onClick={() => router.push(VIEW_PATH)}>
                             View
                         </Button>
@@ -385,6 +387,7 @@ const Questionnaire = ({ q, refetch, studyID }) => {
                         <Button
                             className="ml-4"
                             variant="secondary"
+                            size="sm"
                             onClick={() => router.push(`${MAIN_PATH}/edit`)}>
                             Edit
                         </Button>
@@ -394,7 +397,7 @@ const Questionnaire = ({ q, refetch, studyID }) => {
                             target="_blank"
                             rel="noopener noreferrer"
                             download>
-                            <Button className="ml-4" variant="info">
+                            <Button className="ml-4" variant="info" size="sm">
                                 Export
                             </Button>
                         </a>
@@ -402,6 +405,7 @@ const Questionnaire = ({ q, refetch, studyID }) => {
                         <Button
                             className="ml-4"
                             variant="danger"
+                            size="sm"
                             onClick={() => deleteQuestionnaire(q)}>
                             Delete
                         </Button>
