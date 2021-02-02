@@ -46,6 +46,7 @@ export const GET_QUESTIONNAIRES = gql`
 export const GET_STUDY_QUESTIONNAIRES = gql`
     query GetStudyQuestionnaires($studyID: ID!) {
         getStudyQuestionnaires(studyID: $studyID) {
+            id
             title
             description
             study {
@@ -60,6 +61,12 @@ export const GET_STUDY_QUESTIONNAIRES = gql`
                 values
             }
         }
+    }
+`;
+
+export const GET_CSV_OF_RESPONSES = gql`
+    query GetCSVOfResponses($questionnaireID: ID!) {
+        getCSVOfResponses(questionnaireID: $questionnaireID)
     }
 `;
 
