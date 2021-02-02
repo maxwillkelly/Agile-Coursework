@@ -88,6 +88,15 @@ const typeDefs = gql`
             "new title to use"
             title: String!
         ): VideoNotes
+        "Edit the notes in a VideoNotes"
+        editNoteInVideoNotes(
+            "ID of the VideoNotes to edit"
+            notesID: ID!
+            "ID of the note to edit"
+            noteID: ID!
+            timeStamp: String!
+            description: String!
+        ): VideoNotes
     }
 
     extend type Query{
@@ -363,6 +372,60 @@ const resolvers = {
                 )
             }
         },
+
+        /**
+         * Edit notes in videoNotes
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info
+         */
+        editNoteInVideoNotes: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                const NotesCollection = database.getDb().collection('notes');
+                const n_id = new mongo.ObjectID(arg.notesID);
+                var currNotes = await NotesCollection.findOne({ "_id": n_id })
+                if (!currNotes) {
+                    throw new IdError("Invalid notesID")
+                }
+                var existCheck = false
+                const note_id = new mongo.ObjectID(arg.noteID);
+                for (let x in currNotes.notes) {
+                    if (currNotes.notes[x]._id.equals(note_id)) {
+                        existCheck = true
+                    }
+                }
+                if (!existCheck) {
+                    throw new IdError("Invalid noteID")
+                }
+                try {
+                    const findQuery = { "_id": n_id, "notes._id": note_id }
+                    if ("timeStamp" in arg) {
+                        await NotesCollection.updateOne(
+                            findQuery,
+                            { $set: { "notes.$.timeStamp": arg.timeStamp } }
+                        )
+                    }
+                    if ('description' in arg) {
+                        await NotesCollection.updateOne(
+                            findQuery,
+                            { $set: { "notes.$.description": arg.description } }
+                        )
+                    }
+                    currNotes = await NotesCollection.findOne({ "_id": n_id })
+                    return await videoHelper.formVideoNote(currNotes)
+                }
+                catch (err) {
+                    throw new Error(
+                        `Error: ${err}`
+                    )
+                }
+            } else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        }
     }
 }
 
