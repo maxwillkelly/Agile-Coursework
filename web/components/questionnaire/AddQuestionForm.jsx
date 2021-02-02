@@ -15,8 +15,8 @@ const AddQuestionForm = ({ questionnaire, refetch }) => {
     };
 
     return (
-        <Container className={`${styles.questionnaireContainer}`}>
-            <Card className={`${styles.questionnaireCard} p-4`}>
+        <Container className={styles.questionnaireContainer}>
+            <Card className={styles.questionnaireCard}>
                 <Formik
                     initialValues={{
                         message: '',
@@ -99,7 +99,7 @@ const AddQuestionForm = ({ questionnaire, refetch }) => {
                                 />
                             </Form.Group>
 
-                            <Button className="float-right" variant="primary" type="submit">
+                            <Button className={styles.submitButton} variant="primary" type="submit">
                                 Add
                             </Button>
                             {/* <pre>{JSON.stringify(values, null, 2)}</pre> */}

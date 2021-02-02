@@ -1,6 +1,7 @@
 .questionnaireCard {
     margin: 1rem 0;
     overflow: hidden;
+    padding: 1.5rem;
 }
 
 .questionnaireCardItem {
@@ -34,6 +35,10 @@
 
 .questionnaireAnswerContainer{
     margin: 1rem;
+}
+
+.submitButton{
+    float: right;
 }
 
 .checkboxContainer {
