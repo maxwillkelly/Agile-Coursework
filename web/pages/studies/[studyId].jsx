@@ -17,7 +17,7 @@ import {
 import { GET_STUDY } from '../../queries/study';
 import { CREATE_QUESTIONNAIRE, REMOVE_QUESTIONNAIRE } from '../../mutations/questionnaire';
 import { EDIT_STUDY, ADD_STAFF_TO_STUDY, REMOVE_STAFF_FROM_STUDY } from '../../mutations/study';
-import { GET_STUDY_QUESTIONNAIRES } from '../../queries/questionnaire';
+import { GET_STUDY_QUESTIONNAIRES, GET_CSV_OF_RESPONSES } from '../../queries/questionnaire';
 import { USERS_QUERY } from '../../queries/users';
 import Navigation from '../../components/Navigation';
 import MainBreadcrumb from '../../components/MainBreadcrumb';
@@ -322,6 +322,9 @@ const Questionnaires = ({ getStudyQuestionnaires, refetch, studyID }) => {
 const Questionnaire = ({ q, refetch, studyID }) => {
     const [showTooltip, setShowTooltip] = useState(false);
     const [removeQuestionnaire] = useMutation(REMOVE_QUESTIONNAIRE);
+    const getCsvOfResponsesQuery = useQuery(GET_CSV_OF_RESPONSES, {
+        variables: { questionnaireID: q.id }
+    });
     const router = useRouter();
     const buttonRef = useRef(null);
 
@@ -339,50 +342,73 @@ const Questionnaire = ({ q, refetch, studyID }) => {
         refetch();
     };
 
-    return (
-        <ListGroup.Item>
-            <div className={styles.questionnaireItem}>
-                <Col>
-                    <p className="m-0">{q.title}</p>
-                </Col>
-                <Col>
-                    <p className="m-0">{q.description}</p>
-                </Col>
-                <div>
-                    <Button
-                        variant="success"
-                        ref={buttonRef}
-                        onClick={() => copyToClipboard(VIEW_PATH)}>
-                        Copy
-                    </Button>
-                    <Overlay target={buttonRef.current} show={showTooltip} placement="bottom">
-                        {(props) => <Tooltip {...props}>Link copied!</Tooltip>}
-                    </Overlay>
+    const { loading, error, data } = getCsvOfResponsesQuery;
+    if (loading) return <p>Loading...</p>;
+    if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
+    // if (data) return <pre>{JSON.stringify(data, null, 2)}</pre>;
 
-                    <Button
-                        className="ml-4"
-                        variant="primary"
-                        onClick={() => router.push(VIEW_PATH)}>
-                        View
-                    </Button>
+    // const downloadCSV = async () => {
+    //     const { loading, error, data } = getCsvOfResponsesQuery;
+    //     if (loading) return <p>Loading...</p>;
+    //     if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
+    //     if (data) return;
+    // };
 
-                    <Button
-                        className="ml-4"
-                        variant="secondary"
-                        onClick={() => router.push(`${MAIN_PATH}/edit`)}>
-                        Edit
-                    </Button>
+    if (data)
+        return (
+            <ListGroup.Item>
+                <div className={styles.questionnaireItem}>
+                    <Col>
+                        <p className="m-0">{q.title}</p>
+                    </Col>
+                    <Col>
+                        <p className="m-0">{q.description}</p>
+                    </Col>
+                    <div>
+                        <Button
+                            variant="success"
+                            ref={buttonRef}
+                            onClick={() => copyToClipboard(VIEW_PATH)}>
+                            Copy
+                        </Button>
+                        <Overlay target={buttonRef.current} show={showTooltip} placement="bottom">
+                            {(props) => <Tooltip {...props}>Link copied!</Tooltip>}
+                        </Overlay>
 
-                    <Button
-                        className="ml-4"
-                        variant="danger"
-                        onClick={() => deleteQuestionnaire(q)}>
-                        Delete
-                    </Button>
+                        <Button
+                            className="ml-4"
+                            variant="primary"
+                            onClick={() => router.push(VIEW_PATH)}>
+                            View
+                        </Button>
+
+                        <Button
+                            className="ml-4"
+                            variant="secondary"
+                            onClick={() => router.push(`${MAIN_PATH}/edit`)}>
+                            Edit
+                        </Button>
+
+                        <a
+                            href={getCsvOfResponsesQuery.data.getCSVOfResponses}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            download>
+                            <Button className="ml-4" variant="info">
+                                Export
+                            </Button>
+                        </a>
+
+                        <Button
+                            className="ml-4"
+                            variant="danger"
+                            onClick={() => deleteQuestionnaire(q)}>
+                            Delete
+                        </Button>
+                    </div>
                 </div>
-            </div>
-        </ListGroup.Item>
-    );
+            </ListGroup.Item>
+        );
 };
 
 export default StudyPage;
