@@ -11,6 +11,8 @@ const { Users, UserResolvers } = require('./graphql-schemas/users')
 const { Study, StudyResolvers } = require('./graphql-schemas/study')
 const { Questionnaire, QuestionnaireResolvers } = require('./graphql-schemas/questionnaire')
 const { Response, ResponseResolvers } = require('./graphql-schemas/response')
+const { VideoNotes, VideoNoteResolvers } = require('./graphql-schemas/videoNotes')
+
 // These empty Query an Mutations give a base to build off of for extending
 const Query = gql`
     type Query {
@@ -28,8 +30,8 @@ const resolvers = {};
 
 // Build Scheme with each file
 const schema = makeExecutableSchema({
-    typeDefs: [Query, Mutation, Examples, Users, Study, Questionnaire, Response],
-    resolvers: merge(resolvers, ExampleResolvers, UserResolvers, StudyResolvers, QuestionnaireResolvers, ResponseResolvers)
+    typeDefs: [Query, Mutation, Examples, Users, Study, Questionnaire, Response, VideoNotes],
+    resolvers: merge(resolvers, ExampleResolvers, UserResolvers, StudyResolvers, QuestionnaireResolvers, ResponseResolvers, VideoNoteResolvers)
 });
 
 // Export as module
