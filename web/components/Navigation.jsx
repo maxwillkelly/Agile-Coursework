@@ -12,7 +12,7 @@ const Navigation = () => {
     const { userToken, setUserToken } = useContext(UserContext);
 
     const clickLogInOutButton = () => {
-        if (userToken !== '') {
+        if (userToken) {
             setUserToken(null);
             logout();
         }
