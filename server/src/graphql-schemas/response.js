@@ -9,6 +9,7 @@ const questionnaireHelper = require('../func/questionnaire')
 const s3Uploader = require('../func/bucketUpload')
 const createCsvStringifier = require('csv-writer').createObjectCsvStringifier;
 const moment = require('moment');
+const { response } = require('express');
 
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
@@ -38,6 +39,16 @@ type Response{
     answers: [rValues]
 }
 
+type QuestionResponse{
+    qID: ID
+    qType: String
+    message: String
+    description: String
+    order: Int
+    values: [String]
+    responses: [[String]]
+}
+
 extend type Query {
     "Get a response using ID of a response"
     getResponse(id:ID!): Response
@@ -47,6 +58,7 @@ extend type Query {
     getCSVOfResponses(
         questionnaireID: ID!
     ): String
+    getQuestionResponses(questionnaireID: ID!): [QuestionResponse]
 }
 
 extend type Mutation{
@@ -62,6 +74,66 @@ extend type Mutation{
 const resolvers = {
 
     Query: {
+        /**
+         * Returns the responses tied/sorted by the questions
+         * @param {Object} parent
+         * @param {Object} arg
+         * @param {Object} ctx
+         * @param {Object} info
+         */
+        getQuestionResponses: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                const questionnaire = await questionnaireHelper.getQuestionnaire(new mongo.ObjectID(arg.questionnaireID))
+                if(!questionnaire){
+                    throw new IdError("Invalid QuestionnaireID")
+                }
+                const ResponseCollection = database.getDb().collection('responses');
+                // Creating a ObjectID object and using it for querying the collection to return filtered results
+                var q_id = new mongo.ObjectID(arg.questionnaireID)
+                const responses = await ResponseCollection.find({ questionnaireID: mongo.DBRef("questionnaires", q_id) }).toArray();
+                if(!responses){
+                    throw new Error("No responses for Questionnaire")
+                }
+                try {
+                    replyList = []
+                    for (let x in questionnaire.questions){  // For each question
+                        const quest = questionnaire.questions[x]
+                        const questionID = questionnaire.questions[x].qID
+                        var responseList = []
+                        for (let y in responses){  // For each reponse
+                            // Find the question in the reponse and add it to the working responseList array
+                            for (let z in responses[y].answers){
+                                if (responses[y].answers[z].qID.equals(questionID)){
+                                    responseList.push(responses[y].answers[z].values)
+                                    break  // break out of loop early if possible
+                                }
+                            }
+                        }
+                        // Post the question with the responses to the reply list
+                        replyList.push({
+                            qID: questionID,
+                            qType: questionnaire.questions[x].qType,
+                            message: questionnaire.questions[x].message,
+                            description: questionnaire.questions[x].description,
+                            values: questionnaire.questions[x].values,
+                            order: questionnaire.questions[x].order,
+                            responses: responseList
+                        })
+                    }
+                    return(replyList)  // return the questions & reponses
+                }
+                catch (err) {
+                    throw new Error(
+                        `Error: ${err}`
+                    )
+                }
+            } else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        },
+
         /**
          * Returns a specific response using a responseID as a parameter
          * @param {Object} parent
