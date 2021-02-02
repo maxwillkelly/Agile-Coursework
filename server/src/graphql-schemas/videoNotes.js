@@ -26,7 +26,7 @@ const typeDefs = gql`
 
     type VideoNotes {
         _id: ID
-        study: ID
+        study: Study
         title: String
         "Link to the videos used for this study"
         videos: [Video]
@@ -94,7 +94,7 @@ const resolvers = {
 
                     // Returns item if it exists or throws error
                     if (currNotes) {
-                        return videoHelper.formVideoNote(currNotes)
+                        return await videoHelper.formVideoNote(currNotes)
                     }
                     else {
                         throw new Error(
@@ -127,17 +127,13 @@ const resolvers = {
                     const NotesCollection = database.getDb().collection('notes');
                     var s_id = new mongo.ObjectID(arg.studyID);
                     const currNotes = await NotesCollection.find({ study: DBRef("study", s_id) }).toArray()
-                    console.log("============================")
-                    console.log(currNotes)
                     if (currNotes) {
                         var noteList = []
                         for (let x in currNotes) {
                             noteList.push(
-                                videoHelper.formVideoNote(currNotes[x])
+                                await videoHelper.formVideoNote(currNotes[x])
                             )
                         }
-                        console.log("-----------------------------")
-                        console.log(noteList)
                         return noteList
                     }
                     else {
@@ -209,7 +205,7 @@ const resolvers = {
                         notes: notes
                     }
                     const response = await NotesCollection.insertOne(newVideoNote)
-                    return videoHelper.formVideoNote(response.ops[0])
+                    return await videoHelper.formVideoNote(response.ops[0])
                 }
                 catch (err) {
                     throw new Error(
