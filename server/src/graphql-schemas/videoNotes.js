@@ -437,6 +437,13 @@ const resolvers = {
             }
         },
 
+        /**
+         * edit Video in a videoNote
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
         editVideoInVideoNotes: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const NotesCollection = database.getDb().collection('notes');
