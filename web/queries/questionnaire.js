@@ -76,6 +76,18 @@ export const GET_RESPONSES = gql`
         getResponses(questionnaireID: $questionnaireID) {
             answers {
                 values
+                qID
+            }
+            questionnaire {
+                title
+                description
+                questions {
+                    qID
+                    values
+                    message
+                    description
+                    qType
+                }
             }
         }
     }

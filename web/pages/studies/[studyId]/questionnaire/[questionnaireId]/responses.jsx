@@ -21,7 +21,7 @@ export const ResponsePage = () => {
   )
 
   if (error) return <pre>{JSON.stringify(error)}</pre>
-
+  console.log(data.getResponses)
   return (
     <>
       <Head>
@@ -30,9 +30,10 @@ export const ResponsePage = () => {
       <Navigation />
       <MainBreadcrumb />
       <main>
-        <h1>Hey, Vsauce, response here...</h1>
-        {data && data.getResponses.map(response => (
-          <Response answers={response.answers} />
+        {data && data.getResponses[0].questionnaire.questions.map(question => (
+          <Response answers={data.getResponses.answers.filter(answer => {
+            return answer.qID === question.qID
+          })} question={question} />
         ))}
       </main>
     </>

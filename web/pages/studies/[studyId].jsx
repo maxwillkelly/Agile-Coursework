@@ -411,15 +411,17 @@ const Questionnaire = ({ q, refetch, studyID }) => {
                             onClick={() => deleteQuestionnaire(q)}>
                             Delete
                         </Button>
+
+                        <Button
+                            className="ml-4"
+                            variant="info"
+                            size="sm"
+                            onClick={() => router.push(RESPONSES_PATH)}>
+                            View Responses
+                        </Button>
                     </div>
-                    <Button
-                        className="ml-4"
-                        variant="info"
-                        onClick={() => router.push(RESPONSES_PATH)}>
-                        View Responses
-                    </Button>
-                </div>
-            </ListGroup.Item>
+                </div >
+            </ListGroup.Item >
         );
 };
 
