@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import { UserContext } from '../contexts';
 import { Nav, Navbar, Image } from 'react-bootstrap';
 import { logout } from '../libs/user';
-import styles from '../styles/navbar.module.scss';
+import styles from './styles/navbar.module.scss';
 
 const Navigation = () => {
     const router = useRouter();
