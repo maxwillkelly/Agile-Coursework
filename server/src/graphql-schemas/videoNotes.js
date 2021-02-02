@@ -113,6 +113,20 @@ const typeDefs = gql`
         deleteVideoNote(
             videoNotesID: ID!
         ): VideoNotes
+        "delete a video from VideoNote"
+        deleteVideofromVideoNote(
+            "ID of the VideoNotes to delete"
+            videoNotesID: ID!
+            "ID of the video to delete"
+            videoID: ID!
+        ): VideoNotes
+        "Delete a note from VideoNote"
+        deleteNotefromVideoNote(
+            "ID of the VideoNotes to delete"
+            videoNotesID: ID!
+            "ID of the video to delete"
+            noteID: ID!
+        ): VideoNotes
     }
 
     extend type Query{
@@ -523,8 +537,81 @@ const resolvers = {
                     'Authentication token is invalid, please log in'
                 )
             }
-        }
+        },
 
+        deleteVideofromVideoNote: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                const NotesCollection = database.getDb().collection('notes');
+                const n_id = new mongo.ObjectID(arg.videoNotesID);
+                var currNotes = await NotesCollection.findOne({ "_id": n_id })
+                var existCheck = false
+                const video_id = new mongo.ObjectID(arg.videoID);
+                for (let x in currNotes.videos) {
+                    if (currNotes.videos[x]._id.equals(video_id)) {
+                        existCheck = true
+                    }
+                }
+                if (!existCheck) {
+                    throw new IdError("Invalid videoID")
+                }
+                if (!currNotes) {
+                    throw new IdError("Invalid videoNotesID")
+                }
+                await NotesCollection.updateOne(
+                    { "_id": n_id },
+                    {
+                        $pull: {
+                            "videos": {
+                                _id: video_id
+                            }
+                        }
+                    }
+                )
+                currNotes = await NotesCollection.findOne({ "_id": n_id })
+                return await videoHelper.formVideoNote(currNotes)
+            } else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        },
+        
+        deleteNotefromVideoNote: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                const NotesCollection = database.getDb().collection('notes');
+                const n_id = new mongo.ObjectID(arg.videoNotesID);
+                var currNotes = await NotesCollection.findOne({ "_id": n_id })
+                var existCheck = false
+                const note_id = new mongo.ObjectID(arg.noteID);
+                for (let x in currNotes.notes) {
+                    if (currNotes.notes[x]._id.equals(note_id)) {
+                        existCheck = true
+                    }
+                }
+                if (!existCheck) {
+                    throw new IdError("Invalid noteID")
+                }
+                if (!currNotes) {
+                    throw new IdError("Invalid videoNotesID")
+                }
+                await NotesCollection.updateOne(
+                    { "_id": n_id },
+                    {
+                        $pull: {
+                            "notes": {
+                                _id: note_id
+                            }
+                        }
+                    }
+                )
+                currNotes = await NotesCollection.findOne({ "_id": n_id })
+                return await videoHelper.formVideoNote(currNotes)
+            } else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        },
 
     }
 }
