@@ -67,6 +67,11 @@ const typeDefs = gql`
         createVideoNotes(
             videoNotes: VideoNotesInput
         ): VideoNotes
+        "Add a note to a videoNote"
+        addNoteToVideo(
+            notesID: ID!
+            note: NoteInput!
+        ): VideoNotes
     }
 
     extend type Query{
@@ -206,6 +211,42 @@ const resolvers = {
                     }
                     const response = await NotesCollection.insertOne(newVideoNote)
                     return await videoHelper.formVideoNote(response.ops[0])
+                }
+                catch (err) {
+                    throw new Error(
+                        `Error: ${err}`
+                    )
+                }
+            } else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        },
+
+        addNoteToVideo: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                const NotesCollection = database.getDb().collection('notes');
+                const n_id = new mongo.ObjectID(arg.notesID);
+                var currNotes = await NotesCollection.findOne({ "_id": n_id })
+                if(!currNotes){
+                    throw new IdError("Invalid noteID")
+                }
+                try {
+                    const response = await NotesCollection.updateOne(
+                        { "_id": n_id },
+                        {
+                            $addToSet: {
+                                notes: {
+                                    _id: new mongo.ObjectID(),
+                                    timeStamp: arg.note.timeStamp,
+                                    description: arg.note.description
+                                }
+                            }
+                        }
+                    )
+                    currNotes = await NotesCollection.findOne({ "_id": n_id })
+                    return await videoHelper.formVideoNote(currNotes)
                 }
                 catch (err) {
                     throw new Error(
