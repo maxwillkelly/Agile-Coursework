@@ -10,7 +10,7 @@ import Question from '../../../../../components/questionnaire/Question';
 import Navigation from '../../../../../components/Navigation';
 import MainBreadcrumb from '../../../../../components/MainBreadcrumb';
 import { GET_QUESTIONNAIRE } from '../../../../../queries/questionnaire';
-// import styles from '../../../../../styles/questionnaire-creator.module.scss';
+import styles from '../../../../../styles/questionnaire-creator.module.scss';
 
 const QuestionnaireCreatorPage = () => {
     const router = useRouter();
@@ -30,7 +30,7 @@ const QuestionnaireCreatorPage = () => {
                 <Container>
                     <Row>
                         <Col>
-                            <h1 className="py-4">Create a Questionnaire</h1>
+                            <h1 className={styles.pageTitle}>Create a Questionnaire</h1>
                         </Col>
                     </Row>
                     <Row>
@@ -64,9 +64,9 @@ const QuestionnaireOptions = ({ questionnaire, refetch }) => {
         <>
             <h5>Your Questionnaire</h5>
             <TitleForm questionnaire={questionnaire} />
-            <h5 className="mt-5">Add a Question</h5>
+            <h5 className={styles.addStuffCardTitle}>Add a Question</h5>
             <AddQuestionForm questionnaire={questionnaire} refetch={refetch} />
-            <h5 className="mt-5">Add Text Section</h5>
+            <h5 className={styles.addStuffCardTitle}>Add Text Section</h5>
             <AddTextSection questionnaire={questionnaire} refetch={refetch} />
         </>
     );
