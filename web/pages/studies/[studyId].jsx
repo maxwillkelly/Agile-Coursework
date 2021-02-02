@@ -21,6 +21,7 @@ import { GET_STUDY_QUESTIONNAIRES, GET_CSV_OF_RESPONSES } from '../../queries/qu
 import { USERS_QUERY } from '../../queries/users';
 import Navigation from '../../components/Navigation';
 import MainBreadcrumb from '../../components/MainBreadcrumb';
+import VideoNotes from '../../components/study/VideoNotes';
 import { Formik } from 'formik';
 import copy from 'copy-to-clipboard';
 import styles from '../../styles/questionnaires.module.scss';
@@ -63,6 +64,7 @@ const StudyPage = () => {
                             refetch={refetch}
                         />
                         <QuestionnairesSection studyID={studyID} />
+                        <VideoNotes studyID={studyID} />
                     </Container>
                 </main>
             </>
@@ -290,7 +292,7 @@ const QuestionnairesSection = ({ studyID }) => {
     };
 
     return (
-        <>
+        <div className="py-5">
             <h5 className="mx-3 mt-5 mb-3">Questionnaires</h5>
             <Questionnaires
                 getStudyQuestionnaires={getStudyQuestionnaires}
@@ -300,7 +302,7 @@ const QuestionnairesSection = ({ studyID }) => {
             <Button className="float-right mt-3 mb-5" onClick={createQuestionnaire}>
                 Create Questionnaire
             </Button>
-        </>
+        </div>
     );
 };
 
