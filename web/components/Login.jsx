@@ -38,7 +38,7 @@ const Login = () => {
     };
 
     return (
-        <Card className={`${styles.loginCard}`}>
+        <Card className={styles.loginCard}>
             <h3 className={styles.loginHeading}>Login</h3>
             <Formik
                 initialValues={{ email: '', password: '' }}
