@@ -58,6 +58,7 @@ extend type Query {
         questionnaireID: ID!
     ): String
     getQuestionResponses(questionnaireID: ID!): [QuestionResponse]
+    getNumberOfResponses(questionnaireID: ID!): Int
 }
 
 extend type Mutation{
@@ -126,6 +127,27 @@ const resolvers = {
                         `Error: ${err}`
                     )
                 }
+            } else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        },
+
+        getNumberOfResponses: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                const questionnaire = await questionnaireHelper.getQuestionnaire(new mongo.ObjectID(arg.questionnaireID))
+                if(!questionnaire){
+                    throw new IdError("Invalid QuestionnaireID")
+                }
+                const ResponseCollection = database.getDb().collection('responses');
+                // Creating a ObjectID object and using it for querying the collection to return filtered results
+                var q_id = new mongo.ObjectID(arg.questionnaireID)
+                const responses = await ResponseCollection.find({ questionnaireID: mongo.DBRef("questionnaires", q_id) }).toArray();
+                if(!responses){
+                    throw new Error("No responses for Questionnaire")
+                }
+                return responses.length
             } else {
                 throw new AuthenticationError(
                     'Authentication token is invalid, please log in'
