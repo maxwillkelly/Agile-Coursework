@@ -171,7 +171,8 @@ const resolvers = {
                         csv
                     )
                     // Return the link to the uploaded file
-                    return `${process.env.LINK}/${response.Key}`
+                    // return `${process.env.LINK}/${response.Key}`
+                    return await s3Uploader.getSignedURL(30, response.Key)
                 } catch (err) {
                     throw new Error(`Internal Error ${err}`)
                 }
