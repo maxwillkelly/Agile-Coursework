@@ -24,7 +24,7 @@ const QuestionnairesSection = ({ studyID }) => {
             variables: { questionnaire }
         });
         getStudyQuestionnaires.refetch();
-        router.push(`/studies/${studyID}/questionnaire/${data.createQuestionnaire.id}`);
+        router.push(`/studies/${studyID}/questionnaire/${data.createQuestionnaire.id}/edit`);
     };
 
     return (
