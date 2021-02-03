@@ -16,7 +16,7 @@ import {
 } from 'react-bootstrap';
 import { GET_STUDY } from '../../queries/study';
 import { CREATE_QUESTIONNAIRE, REMOVE_QUESTIONNAIRE } from '../../mutations/questionnaire';
-import { EDIT_STUDY, ADD_STAFF_TO_STUDY, REMOVE_STAFF_FROM_STUDY } from '../../mutations/study';
+import { EDIT_STUDY, ADD_STAFF_TO_STUDY } from '../../mutations/study';
 import { GET_STUDY_QUESTIONNAIRES, GET_CSV_OF_RESPONSES } from '../../queries/questionnaire';
 import { USERS_QUERY } from '../../queries/users';
 import Navigation from '../../components/Navigation';
@@ -25,6 +25,7 @@ import VideoNotes from '../../components/study/VideoNotes';
 import { Formik } from 'formik';
 import copy from 'copy-to-clipboard';
 import styles from '../../styles/studies.module.scss';
+import StaffList from '../../components/study/StaffList.jsx';
 
 const StudyPage = () => {
     const router = useRouter();
@@ -70,69 +71,6 @@ const StudyPage = () => {
                 </main>
             </>
         );
-};
-
-const StaffList = ({ staff, studyID, refetch }) => {
-    return (
-        <ListGroup>
-            <ListGroup.Item>
-                <div className={styles.staffTableRow}>
-                    <Col>
-                        <p className={styles.staffTableColumn}>Name</p>
-                    </Col>
-                    <Col>
-                        <p className={styles.staffTableColumn}>Permission</p>
-                    </Col>
-                    <Col>
-                        <p className={styles.staffTableColumn}>Email</p>
-                    </Col>
-                    <Col>
-                        <p className={styles.staffTableColumn}>Remove</p>
-                    </Col>
-                </div>
-            </ListGroup.Item>
-            {staff.map((staffMember, index) => (
-                <StaffMember
-                    staffMember={staffMember}
-                    key={index}
-                    studyID={studyID}
-                    refetch={refetch}
-                />
-            ))}
-        </ListGroup>
-    );
-};
-
-const StaffMember = ({ staffMember, studyID, refetch }) => {
-    const [removeStaffFromStudy] = useMutation(REMOVE_STAFF_FROM_STUDY);
-
-    const removeStaffMember = async () => {
-        await removeStaffFromStudy({ variables: { staffID: staffMember.id, studyID } });
-        refetch();
-    };
-
-    return (
-        <ListGroup.Item>
-            <div className={styles.staffTableRow}>
-                <Col>
-                    <p className={styles.staffTableColumn}>
-                        {staffMember.firstName} {staffMember.lastName}
-                    </p>
-                </Col>
-                <Col>
-                    <p className={styles.staffTableColumn}>{staffMember.permission}</p>
-                </Col>
-                <Col>
-                    <p className={styles.staffTableColumn}>{staffMember.email}</p>
-                </Col>
-                <Col>
-                    <Button variant="danger" onClick={removeStaffMember}>
-                        Remove
-                    </Button>
-                </Col>
-            </div>
-        </ListGroup.Item>
-    );
 };
 
 const PermissionsCard = ({ study }) => {
