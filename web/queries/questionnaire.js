@@ -84,3 +84,9 @@ export const GET_QUESTION_RESPONSES = gql`
         }
     }
 `
+
+export const GET_NUMBER_OF_QUESTIONNAIRE_RESPONSES = gql`
+    query GetNumberOfResponses($questionnaireID: ID!) {
+        getNumberOfResponses(questionnaireID: $questionnaireID)
+    }   
+`;
