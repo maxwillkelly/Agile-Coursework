@@ -5,15 +5,6 @@ export const GET_STUDY_NOTES = gql`
         getStudyNotes(studyID: $studyID) {
             _id
             title
-            videos {
-                _id
-                link
-                type
-            }
-            notes {
-                timeStamp
-                description
-            }
         }
     }
 `;
@@ -27,8 +18,10 @@ export const GET_VIDEO_NOTES = gql`
                 _id
                 link
                 type
+                title
             }
             notes {
+                _id
                 timeStamp
                 description
             }
