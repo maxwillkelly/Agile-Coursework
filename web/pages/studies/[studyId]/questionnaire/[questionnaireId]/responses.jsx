@@ -14,7 +14,7 @@ export const ResponsePage = () => {
   const { loading, error, data, refetch } = useQuery(GET_QUESTION_RESPONSES, {
     variables: { questionnaireID }
   });
-  const { loadingTitle, errorTitle, data: newData } = useQuery(GET_QUESTIONNAIRE, { variables: { id: questionnaireID } })
+  const { loading:loadingTitle, error:errorTitle, data: newData } = useQuery(GET_QUESTIONNAIRE, { variables: { id: questionnaireID } })
 
   if (loading || loadingTitle) return (
     <Spinner animation="border" role="status">
@@ -23,8 +23,7 @@ export const ResponsePage = () => {
   )
 
   if (error || errorTitle) return <pre>{JSON.stringify(error)}</pre>
-  console.log('from the responses page', data.getQuestionResponses)
-  console.log('from the responses page', newData.getQuestionnaire)
+
   return (
     <>
       <Head>

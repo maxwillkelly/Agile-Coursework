@@ -4,7 +4,7 @@ import { useQuery, useMutation } from '@apollo/client';
 import copy from 'copy-to-clipboard';
 import { Button, ListGroup, Overlay, Spinner, Col, Tooltip } from 'react-bootstrap';
 import { CREATE_QUESTIONNAIRE, REMOVE_QUESTIONNAIRE } from '../../mutations/questionnaire';
-import { GET_STUDY_QUESTIONNAIRES, GET_CSV_OF_RESPONSES } from '../../queries/questionnaire';
+import { GET_STUDY_QUESTIONNAIRES, GET_CSV_OF_RESPONSES, GET_NUMBER_OF_QUESTIONNAIRE_RESPONSES } from '../../queries/questionnaire';
 import styles from '../../styles/studies.module.scss';
 
 const QuestionnairesSection = ({ studyID }) => {
@@ -55,6 +55,35 @@ const Questionnaires = ({ getStudyQuestionnaires, refetch, studyID }) => {
 
     return (
         <ListGroup>
+            <ListGroup.Item>
+                <Col>
+                    <p className={styles.studyInfo}>Title</p>
+                </Col>
+                <Col>
+                    <p className={styles.studyInfo}>Description</p>
+                </Col>
+                <Col>
+                    <p className={styles.studyInfo}>Copy link</p>
+                </Col>
+                <Col>
+                    <p className={styles.studyInfo}>View</p>
+                </Col>
+                <Col>
+                    <p className={styles.studyInfo}>Edit</p>
+                </Col>
+                <Col>
+                    <p className={styles.studyInfo}>Export as CSV</p>
+                </Col>
+                <Col>
+                    <p className={styles.studyInfo}>Delete</p>
+                </Col>
+                <Col>
+                    <p className={styles.studyInfo}>View responses</p>
+                </Col>
+                <Col>
+                    <p className={styles.studyInfo}>Total responses</p>
+                </Col>
+            </ListGroup.Item>
             {data.getStudyQuestionnaires.map((q, i) => (
                 <Questionnaire q={q} refetch={refetch} studyID={studyID} key={i} />
             ))}
@@ -68,11 +97,16 @@ const Questionnaire = ({ q, refetch, studyID }) => {
     const getCsvOfResponsesQuery = useQuery(GET_CSV_OF_RESPONSES, {
         variables: { questionnaireID: q.id }
     });
+    const { loading:loadData, error:errData, data: resData} = useQuery(GET_NUMBER_OF_QUESTIONNAIRE_RESPONSES, {
+        variables: { questionnaireID: q.id }
+    });
+
     const router = useRouter();
     const buttonRef = useRef(null);
 
     const MAIN_PATH = `/studies/${studyID}/questionnaire/${q.id}`;
     const VIEW_PATH = `${MAIN_PATH}/answer`;
+    const RESPONSE_PATH = `${MAIN_PATH}/responses`;
 
     const copyToClipboard = (VIEW_PATH) => {
         copy(`${window.location.hostname}:${window.location.port}${VIEW_PATH}`);
@@ -152,7 +186,19 @@ const Questionnaire = ({ q, refetch, studyID }) => {
                             onClick={() => deleteQuestionnaire(q)}>
                             Delete
                         </Button>
+                        
+                        <Button
+                            className={styles.questionnaireButton}
+                            variant="warning"
+                            size="sm"
+                            onClick={() => router.push(RESPONSE_PATH)}>
+                            Responses
+                        </Button>
+                        
                     </div>
+                    <Col className="text-center font-weight-bold">
+                    {resData && resData.getNumberOfResponses}
+                    </Col>
                 </div>
             </ListGroup.Item>
         );

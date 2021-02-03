@@ -14,7 +14,7 @@ export const GET_QUESTIONNAIRE = gql`
             questions {
                 qID
                 qType
-                message:s
+                message
                 description
                 values
             }

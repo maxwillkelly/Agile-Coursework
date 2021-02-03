@@ -20,7 +20,6 @@ export const Response = ({ question }) => {
       colourArr.push(`rgba(${Math.floor(Math.random() * 200
         + 50)}, ${Math.floor(Math.random() * 200 + 50)}, ${Math.floor(Math.random() * 200 + 50)}, ${opacity} )`);
     }
-    console.log(colourArr);
     return colourArr;
   }
 
