@@ -41,7 +41,16 @@ export const ResponsePage = () => {
             </Card>
           </Col>
         </Row>
-        {data && data.getQuestionResponses.map(question => <Row key={question.qID} className={styles.responseCard}><Col><Response question={question} /></Col></Row>)}
+        {data && data.getQuestionResponses.map(question => {
+          if (question.qType !== "paragraph") {
+            return (
+            <Row key={question.qID} className={styles.responseCard}>
+              <Col>
+              <Response question={question} />
+              </Col>
+            </Row>
+          )}
+        })}
       </Container>
     </>
   )

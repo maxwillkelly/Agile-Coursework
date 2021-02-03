@@ -50,6 +50,25 @@ export const Response = ({ question }) => {
       ],
     },
   }
+
+  const renderGraph = () => {
+    if (responses.length === 0) {
+      return (
+        <h3>N/A</h3>
+      )
+    } else if (question.qType === "short" || question.qType === "long") {
+      return (
+        <ListGroup className={styles.responseList}>
+          {responses.length > 0 && responses.map(res => {
+            return <ListGroup.Item key={res}>{res}</ListGroup.Item>
+          })}
+        </ListGroup>
+      )
+    } else {
+      return <Bar data={data} options={options}/>
+    }
+  }
+
   return (
     <Card>
       <Card.Header>
@@ -57,12 +76,7 @@ export const Response = ({ question }) => {
         <h5>{question.description}</h5>
       </Card.Header>
       <Card.Body>
-        {question.qType === "short" || question.qType === "long" ? <ListGroup className={styles.responseList}>
-          {responses && responses.map(res => {
-            return <ListGroup.Item key={res}>{res}</ListGroup.Item>
-          })}
-        </ListGroup> : <Bar data={data} options={options} />
-        }
+        {renderGraph()}
       </Card.Body>
     </Card>
   )

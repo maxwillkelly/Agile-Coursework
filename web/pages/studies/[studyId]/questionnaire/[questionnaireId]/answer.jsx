@@ -48,7 +48,7 @@ const AnswerPage = () => {
             console.log(res);
         });
 
-        router.push('/studies/questionnaire/answer/thanks');
+        router.push(`/studies/${data.getQuestionnaire.study.id}/questionnaire/${data.getQuestionnaire.id}/answer/thanks`);
     };
 
     return (
@@ -57,7 +57,6 @@ const AnswerPage = () => {
                 <title>{data.getQuestionnaire.title || 'Loading...'} </title>
             </Head>
             <Navigation />
-            <MainBreadcrumb />
             <main>
                 <Container>
                     <Row className={styles.responseCard}>
