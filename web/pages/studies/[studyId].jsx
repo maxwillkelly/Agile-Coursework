@@ -53,9 +53,9 @@ const StudyPage = () => {
                         <Row className={styles.studyRow}>
                             <Col>
                                 <StudyInfo data={data.getStudy} />
+                                <AddStaffCard study={data.getStudy} />
                             </Col>
                             <Col>
-                                <AddStaffCard study={data.getStudy} />
                                 <PermissionsCard study={data.getStudy} />
                             </Col>
                         </Row>
