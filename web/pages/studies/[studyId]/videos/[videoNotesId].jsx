@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useQuery, useMutation } from '@apollo/client';
 import { Container, Col, ListGroup, Form, Button } from 'react-bootstrap';
 import { Player } from 'video-react';
-import { Formik } from 'Formik';
+import { Formik } from 'formik';
 
 import Navigation from '../../../../components/Navigation';
 import MainBreadcrumb from '../../../../components/MainBreadcrumb';
