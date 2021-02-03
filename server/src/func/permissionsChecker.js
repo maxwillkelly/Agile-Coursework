@@ -13,17 +13,17 @@ async function permissionChecker(ctx, studyObjectID, permission) {
     const study = await studyHelper.getStudy(studyObjectID)
     console.log(study.permissions)
     const staff_id = new mongo.ObjectID(ctx.user.ID);
-    for (let x in study.staff){
-        if(study.staff[x].id.equals(staff_id)){
-            if(permission === "read"){
+    for (let x in study.staff) {
+        if (study.staff[x].id.equals(staff_id)) {
+            if (permission === "read") {
                 return true
-            }else{
-                if(!(permission in study.permissions)){
+            } else{
+                if (!(permission in study.permissions)) {
                     throw new Error("Invalid Permission Key")
                 }
-                if(ctx.user.Level >= study.permissions[permission] ){
+                if (ctx.user.Level >= study.permissions[permission] ) {
                     return true
-                }else{
+                } else{
                     return false
                 }
             }
