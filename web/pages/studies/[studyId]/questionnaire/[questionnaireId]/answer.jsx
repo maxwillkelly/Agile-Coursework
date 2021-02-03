@@ -48,7 +48,9 @@ const AnswerPage = () => {
             console.log(res);
         });
 
-        router.push('/studies/questionnaire/answer/thanks');
+        router.push(
+            `/studies/${router.query.studyId}/questionnaire/${data.getQuestionnaire.id}/answer/thanks`
+        );
     };
 
     return (
