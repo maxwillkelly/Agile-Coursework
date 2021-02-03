@@ -9,6 +9,9 @@ const mongo = require('mongodb');
 const studyHelper = require('../func/study');
 const videoHelper = require('../func/videoNote')
 const permissions = require('../func/permissionsChecker')
+const s3Uploader = require('../func/bucketUpload')
+const createCsvStringifier = require('csv-writer').createObjectCsvStringifier;
+const moment = require('moment');
 
 const typeDefs = gql`
     type Note {
@@ -134,11 +137,52 @@ const typeDefs = gql`
         "Returns a set of notes"
         getVideoNotes(videoNotesID:ID): VideoNotes,
         getStudyNotes(studyID:ID): [VideoNotes]
+        "Export timestamp as CSV"
+        exportNotesAsCSV(videoNotesID:ID): String
     }
 `;
 
 const resolvers = {
     Query: {
+        exportNotesAsCSV: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                const NotesCollection = database.getDb().collection('notes');
+                var n_id = new mongo.ObjectID(arg.videoNotesID);
+                const currNotes = await NotesCollection.findOne({ "_id": n_id })
+                if (!await permissions.permissionChecker(ctx, currNotes.study.oid, "read")) {
+                    throw ForbiddenError("Invalid Permissions")
+                }
+                // Returns item if it exists or throws error
+                if (!currNotes) {
+                    throw new IdError("Invalid videoNotesID")
+                }
+                try {
+                    const headers = [
+                        { id: "_id", title: "id" },
+                        { id: "timeStamp", title: "timeStamp" },
+                        { id: "description", title: "note" }
+                    ]
+                    const csvStringifier = createCsvStringifier({ header: headers })
+                    const csv = `${csvStringifier.getHeaderString()}${csvStringifier.stringifyRecords(currNotes.notes)}`;
+                    // Uploads to S3 Bucket 
+                    const response = await s3Uploader.uploadToS3(
+                        `${arg.videoNotesID}-${moment().format('YYYY-MM-DD-HH-mm-ssSS')}.csv`,
+                        "text/csv",
+                        csv
+                    )
+                    // Return the link to the uploaded file
+                    // return `${process.env.LINK}/${response.Key}`
+                    return await s3Uploader.getSignedURL(30, response.Key)
+                } catch (err) {
+                    throw new Error(`Internal Error ${err}`)
+                }
+            } else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        },
+
         /**
          * Returns a VideoNotes object using an ID
          * @param {Object} parent

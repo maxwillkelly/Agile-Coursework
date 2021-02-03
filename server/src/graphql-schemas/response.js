@@ -289,8 +289,8 @@ const resolvers = {
                         const response = await s3Uploader.uploadToS3(
                             `${arg.questionnaireID}-${moment().format('YYYY-MM-DD-HH-mm-ssSS')}.csv`, "text/csv", csv
                         )
-                        // Return the link to the uploaded file
-                        return `${process.env.LINK}/${response.Key}`
+                        // Return the link to the uploaded file with a signed URL
+                        return await s3Uploader.getSignedURL(30, response.Key)
                     } catch (err) {
                         throw new Error(`Intenal Error ${err}`)
                     }

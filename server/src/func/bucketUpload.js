@@ -23,13 +23,32 @@ async function uploadToS3(filename, contentType, contents) {
         Bucket: process.env.BUCKET_NAME,
         Key: `agile/${filename}`,
         Body: contents,
-        ACL: 'public-read',
+        ACL: 'private',
         ContentType: contentType
     };
     const response = await s3.upload(params).promise()
     return response
 }
 
+/**
+ * Get a signedURL for a file 
+ * @param {number} validTime - time URL should be valid for in Minutes
+ * @param {String} fileKey 
+ * @returns {String} - URL 
+ */
+async function getSignedURL(validTime, fileKey){
+    const signedUrlExpireSeconds = 60 * validTime
+
+    const url = await s3.getSignedUrl('getObject', {
+        Bucket: process.env.BUCKET_NAME,
+        Key: fileKey,
+        Expires: signedUrlExpireSeconds
+    });
+
+    return url
+}
+
 module.exports = {
-    uploadToS3:uploadToS3
+    uploadToS3:uploadToS3,
+    getSignedURL:getSignedURL
 }
