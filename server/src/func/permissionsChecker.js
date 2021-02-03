@@ -11,7 +11,6 @@ const mongo = require('mongodb');
  */
 async function permissionChecker(ctx, studyObjectID, permission) {
     const study = await studyHelper.getStudy(studyObjectID)
-    console.log(study.permissions)
     const staff_id = new mongo.ObjectID(ctx.user.ID);
     for (let x in study.staff) {
         if (study.staff[x].id.equals(staff_id)) {
