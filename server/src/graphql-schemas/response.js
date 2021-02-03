@@ -96,14 +96,14 @@ const resolvers = {
                 }
                 try {
                     replyList = []
-                    for (let x in questionnaire.questions){  // For each question
+                    for (let x in questionnaire.questions) {  // For each question
                         const quest = questionnaire.questions[x]
                         const questionID = questionnaire.questions[x].qID
                         var responseList = []
                         for (let y in responses){  // For each reponse
                             // Find the question in the reponse and add it to the working responseList array
-                            for (let z in responses[y].answers){
-                                if (responses[y].answers[z].qID.equals(questionID)){
+                            for (let z in responses[y].answers) {
+                                if (responses[y].answers[z].qID.equals(questionID)) {
                                     responseList.push(responses[y].answers[z].values)
                                     break  // break out of loop early if possible
                                 }
@@ -137,14 +137,14 @@ const resolvers = {
         getNumberOfResponses: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const questionnaire = await questionnaireHelper.getQuestionnaire(new mongo.ObjectID(arg.questionnaireID))
-                if(!questionnaire){
+                if (!questionnaire) {
                     throw new IdError("Invalid QuestionnaireID")
                 }
                 const ResponseCollection = database.getDb().collection('responses');
                 // Creating a ObjectID object and using it for querying the collection to return filtered results
                 var q_id = new mongo.ObjectID(arg.questionnaireID)
                 const responses = await ResponseCollection.find({ questionnaireID: mongo.DBRef("questionnaires", q_id) }).toArray();
-                if(!responses){
+                if (!responses) {
                     throw new Error("No responses for Questionnaire")
                 }
                 return responses.length
