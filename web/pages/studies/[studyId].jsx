@@ -2,31 +2,19 @@ import Head from 'next/head';
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, useMutation } from '@apollo/client';
-import {
-    Button,
-    Card,
-    Container,
-    ListGroup,
-    Overlay,
-    Row,
-    Col,
-    Spinner,
-    Form,
-    Tooltip
-} from 'react-bootstrap';
+import { Button, Container, ListGroup, Overlay, Row, Col, Spinner, Tooltip } from 'react-bootstrap';
 import { GET_STUDY } from '../../queries/study';
 import { CREATE_QUESTIONNAIRE, REMOVE_QUESTIONNAIRE } from '../../mutations/questionnaire';
-import { EDIT_STUDY } from '../../mutations/study';
 import { GET_STUDY_QUESTIONNAIRES, GET_CSV_OF_RESPONSES } from '../../queries/questionnaire';
 import Navigation from '../../components/Navigation';
 import MainBreadcrumb from '../../components/MainBreadcrumb';
 import VideoNotes from '../../components/study/VideoNotes';
-import { Formik } from 'formik';
 import copy from 'copy-to-clipboard';
 import styles from '../../styles/studies.module.scss';
 import StaffList from '../../components/study/StaffList';
 import PermissionsCard from '../../components/study/Permissions';
 import AddStaffCard from '../../components/study/AddStaff';
+import StudyInfo from '../../components/study/StudyInfo';
 
 const StudyPage = () => {
     const router = useRouter();
@@ -72,76 +60,6 @@ const StudyPage = () => {
                 </main>
             </>
         );
-};
-
-const StudyInfo = ({ data: { id, title, description } }) => {
-    const [showTooltip, setShowTooltip] = useState(false);
-    const buttonRef = useRef(null);
-    const [editStudy] = useMutation(EDIT_STUDY);
-
-    const updateStudy = (studyValues) => {
-        const variables = {
-            studyID: studyValues.id,
-            title: studyValues.title,
-            description: studyValues.description
-        };
-        editStudy({ variables })
-            // .then((res) => {
-            //     console.log('akjsdalksdjlaskdjasd' + res);
-            // })
-            .catch((err) => console.error(err));
-        setShowTooltip(true);
-        setTimeout(() => setShowTooltip(false), 2000);
-    };
-
-    return (
-        <>
-            <Card className={styles.studyCard}>
-                <Card.Header>Study Information</Card.Header>
-                <Formik
-                    initialValues={{
-                        id,
-                        title,
-                        description
-                    }}
-                    onSubmit={updateStudy}>
-                    {({ values, handleChange, handleBlur, handleSubmit }) => (
-                        <Form onSubmit={handleSubmit} className={styles.studyInfoForm}>
-                            <Form.Label>Study Title</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="title"
-                                placeholder="Enter a title"
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                value={values.title}
-                            />
-                            <Form.Label className={styles.studyDescriptionLabel}>
-                                Study Description
-                            </Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="description"
-                                placeholder="Enter a description"
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                value={values.description}
-                            />
-                            <Button ref={buttonRef} type="submit" className={styles.submitButton}>
-                                Save
-                            </Button>
-                            <Overlay
-                                target={buttonRef.current}
-                                show={showTooltip}
-                                placement="bottom">
-                                {(props) => <Tooltip {...props}>Study saved!</Tooltip>}
-                            </Overlay>
-                        </Form>
-                    )}
-                </Formik>
-            </Card>
-        </>
-    );
 };
 
 const QuestionnairesSection = ({ studyID }) => {
