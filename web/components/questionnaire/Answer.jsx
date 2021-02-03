@@ -32,12 +32,14 @@ export const Answer = ({ message, values, qType, qID, description, setAnswers, a
     };
 
     return (
-        <Card className={styles.questionnaireCard}>
-            <div className={styles.questionnaireQuestion}>
-                <h3 className={styles.questionnaireQuestionTitle}>{message}</h3>
-                <h6 className={styles.questionnaireQuestionDescription}>{description}</h6>
-            </div>
-            <div className={styles.questionnaireAnswerContainer}>{renderType()}</div>
+        <Card>
+            <Card.Header>
+                <h3>{message}</h3>
+                <h5>{description}</h5>
+            </Card.Header>
+            <Card.Body>
+                {renderType()}
+            </Card.Body>
         </Card>
     );
 };

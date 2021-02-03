@@ -5,7 +5,7 @@ import { GET_QUESTION_RESPONSES, GET_QUESTIONNAIRE } from '../../../../../querie
 import Navigation from '../../../../../components/Navigation';
 import Response from '../../../../../components/questionnaire/Response'
 import MainBreadcrumb from '../../../../../components/MainBreadcrumb';
-import { Spinner, Container, Row, Col } from 'react-bootstrap';
+import { Spinner, Container, Row, Col, Card } from 'react-bootstrap';
 import styles from '../../../../../styles/questionnaires.module.scss';
 
 export const ResponsePage = () => {
@@ -14,7 +14,7 @@ export const ResponsePage = () => {
   const { loading, error, data, refetch } = useQuery(GET_QUESTION_RESPONSES, {
     variables: { questionnaireID }
   });
-  const { loading:loadingTitle, error:errorTitle, data: newData } = useQuery(GET_QUESTIONNAIRE, { variables: { id: questionnaireID } })
+  const { loading: loadingTitle, error: errorTitle, data: newData } = useQuery(GET_QUESTIONNAIRE, { variables: { id: questionnaireID } })
 
   if (loading || loadingTitle) return (
     <Spinner animation="border" role="status">
@@ -34,7 +34,11 @@ export const ResponsePage = () => {
       <Container >
         <Row className={styles.responseCard}>
           <Col>
-            <h3>Responses from {newData.getQuestionnaire && newData.getQuestionnaire.title}</h3>
+            <Card>
+              <Card.Header>
+                <h2>Responses from {newData.getQuestionnaire && newData.getQuestionnaire.title}</h2>
+              </Card.Header>
+            </Card>
           </Col>
         </Row>
         {data && data.getQuestionResponses.map(question => <Row key={question.qID} className={styles.responseCard}><Col><Response question={question} /></Col></Row>)}
