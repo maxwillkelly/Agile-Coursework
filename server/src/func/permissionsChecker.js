@@ -17,13 +17,13 @@ async function permissionChecker(ctx, studyObjectID, permission) {
         if (study.staff[x].id.equals(staff_id)) {
             if (permission === "read") {
                 return true
-            } else{
+            } else {
                 if (!(permission in study.permissions)) {
                     throw new Error("Invalid Permission Key")
                 }
                 if (ctx.user.Level >= study.permissions[permission] ) {
                     return true
-                } else{
+                } else {
                     return false
                 }
             }
