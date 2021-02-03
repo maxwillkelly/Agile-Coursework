@@ -16,9 +16,8 @@ import {
 } from 'react-bootstrap';
 import { GET_STUDY } from '../../queries/study';
 import { CREATE_QUESTIONNAIRE, REMOVE_QUESTIONNAIRE } from '../../mutations/questionnaire';
-import { EDIT_STUDY, ADD_STAFF_TO_STUDY } from '../../mutations/study';
+import { EDIT_STUDY } from '../../mutations/study';
 import { GET_STUDY_QUESTIONNAIRES, GET_CSV_OF_RESPONSES } from '../../queries/questionnaire';
-import { USERS_QUERY } from '../../queries/users';
 import Navigation from '../../components/Navigation';
 import MainBreadcrumb from '../../components/MainBreadcrumb';
 import VideoNotes from '../../components/study/VideoNotes';
@@ -27,6 +26,7 @@ import copy from 'copy-to-clipboard';
 import styles from '../../styles/studies.module.scss';
 import StaffList from '../../components/study/StaffList';
 import PermissionsCard from '../../components/study/Permissions';
+import AddStaffCard from '../../components/study/AddStaff';
 
 const StudyPage = () => {
     const router = useRouter();
@@ -72,75 +72,6 @@ const StudyPage = () => {
                 </main>
             </>
         );
-};
-
-const AddStaffCard = ({ study }) => {
-    const { loading, error, data, refetch } = useQuery(USERS_QUERY);
-    const [addStaff] = useMutation(ADD_STAFF_TO_STUDY);
-
-    const addStaffMemberToStudy = async (variables) => {
-        if (!variables.staffID) return;
-        // console.log(variables);
-        await addStaff({ variables });
-        refetch();
-    };
-
-    if (loading)
-        return (
-            <Spinner animation="border" role="status">
-                <span className="sr-only">Loading...</span>
-            </Spinner>
-        );
-    if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
-
-    return (
-        <Card className={styles.studyCard}>
-            <Card.Header>Add a staff member</Card.Header>
-
-            <Formik
-                initialValues={{
-                    studyID: study.id,
-                    staffID: ''
-                }}
-                onSubmit={addStaffMemberToStudy}>
-                {({ values, handleChange, handleBlur, handleSubmit }) => (
-                    <Form className="m-4" onSubmit={handleSubmit}>
-                        <Form.Label>Choose a staff member</Form.Label>
-                        <Form.Control
-                            as="select"
-                            name="staffID"
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            value={values.staffID}>
-                            <option value="">Choose...</option>
-                            {data &&
-                                data.getUsers
-                                    .filter((user) => {
-                                        for (const staffMember of study.staff) {
-                                            if (staffMember.id === user.id) return false;
-                                        }
-                                        return true;
-                                    })
-                                    .map((user) => (
-                                        <option
-                                            key={user.id}
-                                            value={
-                                                user.id
-                                            }>{`${user.firstName} ${user.lastName}`}</option>
-                                    ))}
-                        </Form.Control>
-                        <Button
-                            type="submit"
-                            className={styles.submitButton}
-                            variant="success"
-                            disabled={!values.staffID}>
-                            Add
-                        </Button>
-                    </Form>
-                )}
-            </Formik>
-        </Card>
-    );
 };
 
 const StudyInfo = ({ data: { id, title, description } }) => {
