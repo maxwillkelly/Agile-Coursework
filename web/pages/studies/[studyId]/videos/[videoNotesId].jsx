@@ -10,7 +10,7 @@ import Navigation from '../../../../components/Navigation';
 import MainBreadcrumb from '../../../../components/MainBreadcrumb';
 import Spinner from '../../../../components/Spinner';
 import { GET_VIDEO_NOTES } from '../../../../queries/video';
-import { ADD_NOTE_TO_VIDEO_NOTES } from '../../../../mutations/video';
+import { ADD_NOTE_TO_VIDEO_NOTES, DELETE_NOTE_FROM_VIDEO_NOTE } from '../../../../mutations/video';
 
 const VideoPage = () => {
     const router = useRouter();
@@ -34,7 +34,7 @@ const VideoPage = () => {
                         <h3 className="p-0 mt-4 mb-2">{data.getVideoNotes.title}</h3>
                         <VideoPlayback videos={data.getVideoNotes.videos} playerRef={playerRef} />
                         <NoteInput playerRef={playerRef} refetch={refetch} />
-                        <Notes notes={data.getVideoNotes.notes} />
+                        <Notes notes={data.getVideoNotes.notes} refetch={refetch} />
                     </Container>
                 </main>
             </>
@@ -69,10 +69,10 @@ class VideoPlayer extends Component {
     }
 }
 
-const Notes = ({ notes }) => (
+const Notes = ({ notes, refetch }) => (
     <ListGroup className="mb-5">
         {notes.map((note) => (
-            <Note note={note} key={note._id} />
+            <Note {...note} refetch={refetch} key={note._id} />
         ))}
     </ListGroup>
 );
@@ -124,17 +124,34 @@ const NoteInput = ({ playerRef, refetch }) => {
     );
 };
 
-const Note = ({ note }) => (
-    <ListGroup.Item>
-        <div className="d-flex">
-            <Col>
-                <p className="m-0">{note.timeStamp}</p>
-            </Col>
-            <Col>
-                <p className="m-0">{note.description}</p>
-            </Col>
-        </div>
-    </ListGroup.Item>
-);
+const Note = ({ timeStamp, description, _id, refetch }) => {
+    const [deleteNoteFromVideoNote] = useMutation(DELETE_NOTE_FROM_VIDEO_NOTE);
+    const router = useRouter();
+
+    const deleteNote = async () => {
+        await deleteNoteFromVideoNote({
+            variables: { videoNotesID: router.query.videoNotesId, noteID: _id }
+        });
+        refetch();
+    };
+
+    return (
+        <ListGroup.Item>
+            <div className="d-flex">
+                <Col>
+                    <p className="m-0">{timeStamp}</p>
+                </Col>
+                <Col>
+                    <p className="m-0">{description}</p>
+                </Col>
+                <Col>
+                    <Button variant="danger" onClick={() => deleteNote()}>
+                        Delete
+                    </Button>
+                </Col>
+            </div>
+        </ListGroup.Item>
+    );
+};
 
 export default VideoPage;
