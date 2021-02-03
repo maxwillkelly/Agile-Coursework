@@ -27,7 +27,7 @@ export const Response = ({ question }) => {
     labels: Object.keys(values),
     datasets: [
       {
-        label: '# of responses',
+        label: 'Total',
         data: Object.values(values),
         backgroundColor: calculateColours(1),
         borderColor: calculateColours(0.2),
@@ -37,16 +37,38 @@ export const Response = ({ question }) => {
   }
 
   const options = {
+    legend: false,
     scales: {
       yAxes: [
         {
           ticks: {
             beginAtZero: true,
+            stepSize: 1,
+            suggestedMax: Math.ceil((Object.values(values).sort()[0] * 1.1) + 1)
           },
         },
       ],
     },
   }
+
+  const renderGraph = () => {
+    if (responses.length === 0) {
+      return (
+        <h3>N/A</h3>
+      )
+    } else if (question.qType === "short" || question.qType === "long") {
+      return (
+        <ListGroup className={styles.responseList}>
+          {responses.length > 0 && responses.map(res => {
+            return <ListGroup.Item key={res}>{res}</ListGroup.Item>
+          })}
+        </ListGroup>
+      )
+    } else {
+      return <Bar data={data} options={options}/>
+    }
+  }
+
   return (
     <Card>
       <Card.Header>
@@ -54,12 +76,7 @@ export const Response = ({ question }) => {
         <h5>{question.description}</h5>
       </Card.Header>
       <Card.Body>
-        {question.qType === "short" || question.qType === "long" ? <ListGroup className={styles.responseList}>
-          {responses && responses.map(res => {
-            return <ListGroup.Item key={res}>{res}</ListGroup.Item>
-          })}
-        </ListGroup> : <Bar data={data} options={options} />
-        }
+        {renderGraph()}
       </Card.Body>
     </Card>
   )
