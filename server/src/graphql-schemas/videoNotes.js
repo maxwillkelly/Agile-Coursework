@@ -152,7 +152,7 @@ const resolvers = {
                     const NotesCollection = database.getDb().collection('notes');
                     var n_id = new mongo.ObjectID(arg.videoNotesID);
                     const currNotes = await NotesCollection.findOne({ "_id": n_id })
-                    if(!await permissions.permissionChecker(ctx, currNotes.study.oid, "read")){
+                    if (!await permissions.permissionChecker(ctx, currNotes.study.oid, "read")) {
                         throw ForbiddenError("Invalid Permissions")
                     }
                     // Returns item if it exists or throws error
@@ -188,7 +188,7 @@ const resolvers = {
                     const NotesCollection = database.getDb().collection('notes');
                     var s_id = new mongo.ObjectID(arg.studyID);
                     const currNotes = await NotesCollection.find({ study: DBRef("study", s_id) }).toArray()
-                    if(ctx.user.Level < 2){
+                    if (ctx.user.Level < 2) {
                         throw new ForbiddenError("Invalid Permissions")
                     }
                     if (currNotes) {
@@ -236,7 +236,7 @@ const resolvers = {
                 if (!study) {
                     throw new IdError("Invalid studyID")
                 }
-                if(!await permissions.permissionChecker(ctx, study.oid, "create")){
+                if (!await permissions.permissionChecker(ctx, study.oid, "create")) {
                     throw ForbiddenError("Invalid Permissions")
                 }
                 try {
@@ -302,7 +302,7 @@ const resolvers = {
                 if (!currNotes) {
                     throw new IdError("Invalid videoNotesID")
                 }
-                if(!await permissions.permissionChecker(ctx, currNotes.study.oid, "create")){
+                if (!await permissions.permissionChecker(ctx, currNotes.study.oid, "create")) {
                     throw ForbiddenError("Invalid Permissions")
                 }
                 try {
@@ -348,7 +348,7 @@ const resolvers = {
                 if (!currNotes) {
                     throw new IdError("Invalid videoNotesID")
                 }
-                if(!await permissions.permissionChecker(ctx, currNotes.study.oid, "create")){
+                if (!await permissions.permissionChecker(ctx, currNotes.study.oid, "create")) {
                     throw ForbiddenError("Invalid Permissions")
                 }
                 try {
@@ -395,7 +395,7 @@ const resolvers = {
                 if (!currNotes) {
                     throw new IdError("Invalid videoNotesID")
                 }
-                if(!await permissions.permissionChecker(ctx, currNotes.study.oid, "edit")){
+                if (!await permissions.permissionChecker(ctx, currNotes.study.oid, "edit")) {
                     throw ForbiddenError("Invalid Permissions")
                 }
                 try {
@@ -434,7 +434,7 @@ const resolvers = {
                 if (!currNotes) {
                     throw new IdError("Invalid videoNotesID")
                 }
-                if(!await permissions.permissionChecker(ctx, currNotes.study.oid, "edit")){
+                if (!await permissions.permissionChecker(ctx, currNotes.study.oid, "edit")) {
                     throw ForbiddenError("Invalid Permissions")
                 }
                 var existCheck = false
@@ -491,7 +491,7 @@ const resolvers = {
                 if (!currNotes) {
                     throw new IdError("Invalid videoNotesID")
                 }
-                if(!await permissions.permissionChecker(ctx, currNotes.study.oid, "edit")){
+                if (!await permissions.permissionChecker(ctx, currNotes.study.oid, "edit")) {
                     throw ForbiddenError("Invalid Permissions")
                 }
                 var existCheck = false
@@ -554,7 +554,7 @@ const resolvers = {
                 if (!currNotes) {
                     throw new IdError("Invalid videoNotesID")
                 }
-                if(!await permissions.permissionChecker(ctx, currNotes.study.oid, "delete")){
+                if (!await permissions.permissionChecker(ctx, currNotes.study.oid, "delete")) {
                     throw ForbiddenError("Invalid Permissions")
                 }
                 await NotesCollection.deleteOne({ "_id": n_id })
@@ -574,7 +574,7 @@ const resolvers = {
                 if (!currNotes) {
                     throw new IdError("Invalid videoNotesID")
                 }
-                if(!await permissions.permissionChecker(ctx, currNotes.study.oid, "delete")){
+                if (!await permissions.permissionChecker(ctx, currNotes.study.oid, "delete")) {
                     throw ForbiddenError("Invalid Permissions")
                 }
                 var existCheck = false
@@ -605,7 +605,7 @@ const resolvers = {
                 )
             }
         },
-        
+
         deleteNotefromVideoNote: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const NotesCollection = database.getDb().collection('notes');
@@ -614,7 +614,7 @@ const resolvers = {
                 if (!currNotes) {
                     throw new IdError("Invalid videoNotesID")
                 }
-                if(!await permissions.permissionChecker(ctx, currNotes.study.oid, "delete")){
+                if (!await permissions.permissionChecker(ctx, currNotes.study.oid, "delete")) {
                     throw ForbiddenError("Invalid Permissions")
                 }
                 var existCheck = false
