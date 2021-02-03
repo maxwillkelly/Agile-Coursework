@@ -420,6 +420,7 @@ const Questionnaire = ({ q, refetch, studyID }) => {
 
     const MAIN_PATH = `/studies/${studyID}/questionnaire/${q.id}`;
     const VIEW_PATH = `${MAIN_PATH}/answer`;
+    const RESPONSE_PATH = `${MAIN_PATH}/responses`;
 
     const copyToClipboard = (VIEW_PATH) => {
         copy(`${window.location.hostname}:${window.location.port}${VIEW_PATH}`);
@@ -499,6 +500,15 @@ const Questionnaire = ({ q, refetch, studyID }) => {
                             onClick={() => deleteQuestionnaire(q)}>
                             Delete
                         </Button>
+
+                        <Button
+                            className={styles.questionnaireButton}
+                            variant="warning"
+                            size="sm"
+                            onClick={() => router.push(RESPONSE_PATH)}>
+                            Responses
+                        </Button>
+
                     </div>
                 </div>
             </ListGroup.Item>
