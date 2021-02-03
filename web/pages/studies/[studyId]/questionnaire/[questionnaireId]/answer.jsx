@@ -2,7 +2,7 @@ import Head from 'next/head';
 import { useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import { useRouter } from 'next/router';
-import { Container, Button } from 'react-bootstrap';
+import { Container, Button, Row, Col, Card } from 'react-bootstrap';
 
 import { GET_QUESTIONNAIRE } from '../../../../../queries/questionnaire';
 import Navigation from '../../../../../components/Navigation';
@@ -48,9 +48,7 @@ const AnswerPage = () => {
             console.log(res);
         });
 
-        router.push(
-            `/studies/${router.query.studyId}/questionnaire/${data.getQuestionnaire.id}/answer/thanks`
-        );
+        router.push(`/studies/${data.getQuestionnaire.study.id}/questionnaire/${data.getQuestionnaire.id}/answer/thanks`);
     };
 
     return (
@@ -59,22 +57,40 @@ const AnswerPage = () => {
                 <title>{data.getQuestionnaire.title || 'Loading...'} </title>
             </Head>
             <Navigation />
-            <MainBreadcrumb />
             <main>
-                <Container className={styles.questionnaireContainer}>
-                    <h1 className={itemStyles.questionnaireTitle}>{data.getQuestionnaire.title}</h1>
+                <Container>
+                    <Row className={styles.responseCard}>
+                        <Col>
+                            <Card>
+                                <Card.Header>
+                                    <h2>{data.getQuestionnaire.title}</h2>
+                                    <h6>{data.getQuestionnaire.description}</h6>
+                                </Card.Header>
+                            </Card>
+                        </Col>
+                    </Row>
+                
+                    
                     {data &&
                         data.getQuestionnaire.questions.map((question) => (
-                            <Answer
-                                key={question.qID}
-                                {...question}
-                                setAnswers={setAnswers}
-                                answers={answers}
-                            />
+                            <Row className={styles.responseCard}>
+                                <Col><Answer
+                                    key={question.qID}
+                                    {...question}
+                                    setAnswers={setAnswers}
+                                    answers={answers}
+                                /></Col>
+                            </Row>
+
                         ))}
-                    <Button onClick={handleSendResponse} variant="success">
-                        Submit
-                    </Button>
+                    <Row className={styles.responseCard}>
+                        <Col>
+                            <Button onClick={handleSendResponse} variant="success">
+                                Submit Response
+                            </Button>
+                        </Col>
+                    </Row>
+
                 </Container>
             </main>
         </>

@@ -9,7 +9,7 @@ async function formVideoNote(videoNote){
         study: await studyHelper.getStudy(videoNote.study.oid),
         title: videoNote.title,
         videos: videoNote.videos,
-        notes: videoNote.notes
+        notes: videoNote.notes.sort((a, b) => a.timeStamp > b.timeStamp ? 1 : -1)
     }
 }
 
