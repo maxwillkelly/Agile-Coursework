@@ -17,7 +17,7 @@ import {
 import { GET_STUDY } from '../../queries/study';
 import { CREATE_QUESTIONNAIRE, REMOVE_QUESTIONNAIRE } from '../../mutations/questionnaire';
 import { EDIT_STUDY, ADD_STAFF_TO_STUDY, REMOVE_STAFF_FROM_STUDY } from '../../mutations/study';
-import { GET_STUDY_QUESTIONNAIRES, GET_CSV_OF_RESPONSES } from '../../queries/questionnaire';
+import { GET_STUDY_QUESTIONNAIRES, GET_CSV_OF_RESPONSES, GET_NUMBER_OF_QUESTIONNAIRE_RESPONSES } from '../../queries/questionnaire';
 import { USERS_QUERY } from '../../queries/users';
 import Navigation from '../../components/Navigation';
 import MainBreadcrumb from '../../components/MainBreadcrumb';
@@ -415,6 +415,7 @@ const Questionnaire = ({ q, refetch, studyID }) => {
     const getCsvOfResponsesQuery = useQuery(GET_CSV_OF_RESPONSES, {
         variables: { questionnaireID: q.id }
     });
+    const { loading: resLoading, error: resError, data: resData } = useQuery(GET_NUMBER_OF_QUESTIONNAIRE_RESPONSES, { variables: { questionnaireID: q.id } })
     const router = useRouter();
     const buttonRef = useRef(null);
 
@@ -508,8 +509,10 @@ const Questionnaire = ({ q, refetch, studyID }) => {
                             onClick={() => router.push(RESPONSE_PATH)}>
                             Responses
                         </Button>
-
                     </div>
+                    <Col className="text-right">
+                        {resData && resData.getNumberOfResponses}
+                    </Col>
                 </div>
             </ListGroup.Item>
         );
