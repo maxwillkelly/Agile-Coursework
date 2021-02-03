@@ -8,6 +8,10 @@ const { DBRef } = require('mongodb');
 const mongo = require('mongodb');
 const studyHelper = require('../func/study');
 const videoHelper = require('../func/videoNote')
+const permissions = require('../func/permissionsChecker')
+const s3Uploader = require('../func/bucketUpload')
+const createCsvStringifier = require('csv-writer').createObjectCsvStringifier;
+const moment = require('moment');
 
 const typeDefs = gql`
     type Note {
@@ -133,11 +137,52 @@ const typeDefs = gql`
         "Returns a set of notes"
         getVideoNotes(videoNotesID:ID): VideoNotes,
         getStudyNotes(studyID:ID): [VideoNotes]
+        "Export timestamp as CSV"
+        exportNotesAsCSV(videoNotesID:ID): String
     }
 `;
 
 const resolvers = {
     Query: {
+        exportNotesAsCSV: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                const NotesCollection = database.getDb().collection('notes');
+                var n_id = new mongo.ObjectID(arg.videoNotesID);
+                const currNotes = await NotesCollection.findOne({ "_id": n_id })
+                if (!await permissions.permissionChecker(ctx, currNotes.study.oid, "read")) {
+                    throw ForbiddenError("Invalid Permissions")
+                }
+                // Returns item if it exists or throws error
+                if (!currNotes) {
+                    throw new IdError("Invalid videoNotesID")
+                }
+                try {
+                    const headers = [
+                        { id: "_id", title: "id" },
+                        { id: "timeStamp", title: "timeStamp" },
+                        { id: "description", title: "note" }
+                    ]
+                    const csvStringifier = createCsvStringifier({ header: headers })
+                    const csv = `${csvStringifier.getHeaderString()}${csvStringifier.stringifyRecords(currNotes.notes)}`;
+                    // Uploads to S3 Bucket 
+                    const response = await s3Uploader.uploadToS3(
+                        `${arg.videoNotesID}-${moment().format('YYYY-MM-DD-HH-mm-ssSS')}.csv`,
+                        "text/csv",
+                        csv
+                    )
+                    // Return the link to the uploaded file
+                    // return `${process.env.LINK}/${response.Key}`
+                    return await s3Uploader.getSignedURL(30, response.Key)
+                } catch (err) {
+                    throw new Error(`Internal Error ${err}`)
+                }
+            } else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        },
+
         /**
          * Returns a VideoNotes object using an ID
          * @param {Object} parent
@@ -151,7 +196,9 @@ const resolvers = {
                     const NotesCollection = database.getDb().collection('notes');
                     var n_id = new mongo.ObjectID(arg.videoNotesID);
                     const currNotes = await NotesCollection.findOne({ "_id": n_id })
-
+                    if (!await permissions.permissionChecker(ctx, currNotes.study.oid, "read")) {
+                        throw ForbiddenError("Invalid Permissions")
+                    }
                     // Returns item if it exists or throws error
                     if (currNotes) {
                         return await videoHelper.formVideoNote(currNotes)
@@ -185,6 +232,9 @@ const resolvers = {
                     const NotesCollection = database.getDb().collection('notes');
                     var s_id = new mongo.ObjectID(arg.studyID);
                     const currNotes = await NotesCollection.find({ study: DBRef("study", s_id) }).toArray()
+                    if (ctx.user.Level < 2) {
+                        throw new ForbiddenError("Invalid Permissions")
+                    }
                     if (currNotes) {
                         var noteList = []
                         for (let x in currNotes) {
@@ -229,6 +279,9 @@ const resolvers = {
                 const study = await studyHelper.getStudy(study_oid)
                 if (!study) {
                     throw new IdError("Invalid studyID")
+                }
+                if (!await permissions.permissionChecker(ctx, study.oid, "create")) {
+                    throw ForbiddenError("Invalid Permissions")
                 }
                 try {
                     // Build the arrays for any possible videos and notes
@@ -293,6 +346,9 @@ const resolvers = {
                 if (!currNotes) {
                     throw new IdError("Invalid videoNotesID")
                 }
+                if (!await permissions.permissionChecker(ctx, currNotes.study.oid, "create")) {
+                    throw ForbiddenError("Invalid Permissions")
+                }
                 try {
                     const response = await NotesCollection.updateOne(
                         { "_id": n_id },
@@ -335,6 +391,9 @@ const resolvers = {
                 var currNotes = await NotesCollection.findOne({ "_id": n_id })
                 if (!currNotes) {
                     throw new IdError("Invalid videoNotesID")
+                }
+                if (!await permissions.permissionChecker(ctx, currNotes.study.oid, "create")) {
+                    throw ForbiddenError("Invalid Permissions")
                 }
                 try {
                     const response = await NotesCollection.updateOne(
@@ -380,6 +439,9 @@ const resolvers = {
                 if (!currNotes) {
                     throw new IdError("Invalid videoNotesID")
                 }
+                if (!await permissions.permissionChecker(ctx, currNotes.study.oid, "edit")) {
+                    throw ForbiddenError("Invalid Permissions")
+                }
                 try {
                     updateField = {}
                     if ('title' in arg) {
@@ -415,6 +477,9 @@ const resolvers = {
                 var currNotes = await NotesCollection.findOne({ "_id": n_id })
                 if (!currNotes) {
                     throw new IdError("Invalid videoNotesID")
+                }
+                if (!await permissions.permissionChecker(ctx, currNotes.study.oid, "edit")) {
+                    throw ForbiddenError("Invalid Permissions")
                 }
                 var existCheck = false
                 const note_id = new mongo.ObjectID(arg.noteID);
@@ -469,6 +534,9 @@ const resolvers = {
                 var currNotes = await NotesCollection.findOne({ "_id": n_id })
                 if (!currNotes) {
                     throw new IdError("Invalid videoNotesID")
+                }
+                if (!await permissions.permissionChecker(ctx, currNotes.study.oid, "edit")) {
+                    throw ForbiddenError("Invalid Permissions")
                 }
                 var existCheck = false
                 const video_id = new mongo.ObjectID(arg.videoID);
@@ -530,6 +598,9 @@ const resolvers = {
                 if (!currNotes) {
                     throw new IdError("Invalid videoNotesID")
                 }
+                if (!await permissions.permissionChecker(ctx, currNotes.study.oid, "delete")) {
+                    throw ForbiddenError("Invalid Permissions")
+                }
                 await NotesCollection.deleteOne({ "_id": n_id })
                 return await videoHelper.formVideoNote(currNotes)
             } else {
@@ -544,6 +615,12 @@ const resolvers = {
                 const NotesCollection = database.getDb().collection('notes');
                 const n_id = new mongo.ObjectID(arg.videoNotesID);
                 var currNotes = await NotesCollection.findOne({ "_id": n_id })
+                if (!currNotes) {
+                    throw new IdError("Invalid videoNotesID")
+                }
+                if (!await permissions.permissionChecker(ctx, currNotes.study.oid, "delete")) {
+                    throw ForbiddenError("Invalid Permissions")
+                }
                 var existCheck = false
                 const video_id = new mongo.ObjectID(arg.videoID);
                 for (let x in currNotes.videos) {
@@ -553,9 +630,6 @@ const resolvers = {
                 }
                 if (!existCheck) {
                     throw new IdError("Invalid videoID")
-                }
-                if (!currNotes) {
-                    throw new IdError("Invalid videoNotesID")
                 }
                 await NotesCollection.updateOne(
                     { "_id": n_id },
@@ -575,12 +649,18 @@ const resolvers = {
                 )
             }
         },
-        
+
         deleteNotefromVideoNote: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const NotesCollection = database.getDb().collection('notes');
                 const n_id = new mongo.ObjectID(arg.videoNotesID);
                 var currNotes = await NotesCollection.findOne({ "_id": n_id })
+                if (!currNotes) {
+                    throw new IdError("Invalid videoNotesID")
+                }
+                if (!await permissions.permissionChecker(ctx, currNotes.study.oid, "delete")) {
+                    throw ForbiddenError("Invalid Permissions")
+                }
                 var existCheck = false
                 const note_id = new mongo.ObjectID(arg.noteID);
                 for (let x in currNotes.notes) {
@@ -590,9 +670,6 @@ const resolvers = {
                 }
                 if (!existCheck) {
                     throw new IdError("Invalid noteID")
-                }
-                if (!currNotes) {
-                    throw new IdError("Invalid videoNotesID")
                 }
                 await NotesCollection.updateOne(
                     { "_id": n_id },
