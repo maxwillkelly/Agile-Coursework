@@ -55,35 +55,6 @@ const Questionnaires = ({ getStudyQuestionnaires, refetch, studyID }) => {
 
     return (
         <ListGroup>
-            <ListGroup.Item>
-                <Col>
-                    <p className={styles.studyInfo}>Title</p>
-                </Col>
-                <Col>
-                    <p className={styles.studyInfo}>Description</p>
-                </Col>
-                <Col>
-                    <p className={styles.studyInfo}>Copy link</p>
-                </Col>
-                <Col>
-                    <p className={styles.studyInfo}>View</p>
-                </Col>
-                <Col>
-                    <p className={styles.studyInfo}>Edit</p>
-                </Col>
-                <Col>
-                    <p className={styles.studyInfo}>Export as CSV</p>
-                </Col>
-                <Col>
-                    <p className={styles.studyInfo}>Delete</p>
-                </Col>
-                <Col>
-                    <p className={styles.studyInfo}>View responses</p>
-                </Col>
-                <Col>
-                    <p className={styles.studyInfo}>Total responses</p>
-                </Col>
-            </ListGroup.Item>
             {data.getStudyQuestionnaires.map((q, i) => (
                 <Questionnaire q={q} refetch={refetch} studyID={studyID} key={i} />
             ))}
@@ -142,59 +113,60 @@ const Questionnaire = ({ q, refetch, studyID }) => {
                         <p className={styles.studyInfo}>{q.description}</p>
                     </Col>
                     <div>
-                        <Button
-                            variant="success"
-                            ref={buttonRef}
-                            size="sm"
-                            onClick={() => copyToClipboard(VIEW_PATH)}>
-                            Copy
-                        </Button>
-                        <Overlay target={buttonRef.current} show={showTooltip} placement="bottom">
-                            {(props) => <Tooltip {...props}>Link copied!</Tooltip>}
-                        </Overlay>
-
-                        <Button
-                            className={styles.questionnaireButton}
-                            variant="primary"
-                            size="sm"
-                            onClick={() => router.push(VIEW_PATH)}>
-                            View
-                        </Button>
-
-                        <Button
-                            className={styles.questionnaireButton}
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => router.push(`${MAIN_PATH}/edit`)}>
-                            Edit
-                        </Button>
-
-                        <a
-                            href={getCsvOfResponsesQuery.data.getCSVOfResponses}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            download>
-                            <Button className={styles.questionnaireButton} variant="info" size="sm">
-                                Export
+                        <Col>
+                            <Button
+                                variant="success"
+                                ref={buttonRef}
+                                size="sm"
+                                onClick={() => copyToClipboard(VIEW_PATH)}>
+                                Copy
                             </Button>
-                        </a>
+                            <Overlay target={buttonRef.current} show={showTooltip} placement="bottom">
+                                {(props) => <Tooltip {...props}>Link copied!</Tooltip>}
+                            </Overlay>
 
-                        <Button
-                            className={styles.questionnaireButton}
-                            variant="danger"
-                            size="sm"
-                            onClick={() => deleteQuestionnaire(q)}>
-                            Delete
-                        </Button>
-                        
-                        <Button
-                            className={styles.questionnaireButton}
-                            variant="warning"
-                            size="sm"
-                            onClick={() => router.push(RESPONSE_PATH)}>
-                            Responses
-                        </Button>
-                        
+                            <Button
+                                className={styles.questionnaireButton}
+                                variant="primary"
+                                size="sm"
+                                onClick={() => router.push(VIEW_PATH)}>
+                                View
+                            </Button>
+
+                            <Button
+                                className={styles.questionnaireButton}
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => router.push(`${MAIN_PATH}/edit`)}>
+                                Edit
+                            </Button>
+
+                            <a
+                                href={getCsvOfResponsesQuery.data.getCSVOfResponses}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                download>
+                                <Button className={styles.questionnaireButton} variant="info" size="sm">
+                                    Export
+                                </Button>
+                            </a>
+
+                            <Button
+                                className={styles.questionnaireButton}
+                                variant="danger"
+                                size="sm"
+                                onClick={() => deleteQuestionnaire(q)}>
+                                Delete
+                            </Button>
+                            
+                            <Button
+                                className={styles.questionnaireButton}
+                                variant="warning"
+                                size="sm"
+                                onClick={() => router.push(RESPONSE_PATH)}>
+                                Responses
+                            </Button>
+                        </Col>                        
                     </div>
                     <Col className="text-center font-weight-bold">
                     {resData && resData.getNumberOfResponses}
