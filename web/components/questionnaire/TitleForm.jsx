@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Form, Button, Container, Card, Overlay, Tooltip } from 'react-bootstrap';
+import { Form, Button, Container, Card, Overlay, Tooltip, Col } from 'react-bootstrap';
 import { Formik } from 'formik';
 import { useMutation } from '@apollo/client';
 import { EDIT_QUESTIONNAIRE } from '../../mutations/questionnaire';
@@ -17,8 +17,9 @@ const TitleForm = ({ questionnaire }) => {
     };
 
     return (
-        <Container className={`${styles.questionnaireContainer}`}>
-            <Card className={`${styles.questionnaireCard}`}>
+        <Card className={styles.questionnaireCard}>
+            <Card.Header>Your Questionnaire</Card.Header>
+            <Card.Body>
                 <Formik
                     initialValues={{
                         questionnaireID: questionnaire.id,
@@ -36,29 +37,30 @@ const TitleForm = ({ questionnaire }) => {
                     }) => (
                         // {console.log(values)}
                         <Form onSubmit={handleSubmit}>
-                            <Form.Group>
-                                <Form.Label>Questionnaire Title</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="title"
-                                    placeholder="Enter a title"
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    value={values.title}
-                                />
-                            </Form.Group>
-
-                            <Form.Group>
-                                <Form.Label>Questionnaire Description</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="description"
-                                    placeholder="Enter a description"
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    value={values.description}
-                                />
-                            </Form.Group>
+                            <Form.Row>
+                                <Form.Group as={Col}>
+                                    <Form.Label>Title</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="title"
+                                        placeholder="Enter a title"
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        value={values.title}
+                                    />
+                                </Form.Group>
+                                <Form.Group as={Col}>
+                                    <Form.Label>Description</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="description"
+                                        placeholder="Enter a description"
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        value={values.description}
+                                    />
+                                </Form.Group>
+                            </Form.Row>
                             <Button
                                 ref={buttonRef}
                                 className={styles.submitButton}
@@ -75,8 +77,8 @@ const TitleForm = ({ questionnaire }) => {
                         </Form>
                     )}
                 </Formik>
-            </Card>
-        </Container>
+            </Card.Body>
+        </Card>
     );
 };
 

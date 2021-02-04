@@ -17,95 +17,101 @@ const AddQuestionForm = ({ questionnaire, refetch }) => {
     return (
         <Container className={styles.questionnaireContainer}>
             <Card className={styles.questionnaireCard}>
-                <Formik
-                    initialValues={{
-                        message: '',
-                        description: '',
-                        qType: '',
-                        order: questionnaire.questions.length,
-                        values: []
-                    }}
-                    onSubmit={submitValues}>
-                    {({
-                        values,
-                        // errors,
-                        // touched,
-                        handleChange,
-                        handleBlur,
-                        handleSubmit
-                    }) => (
-                        <Form onSubmit={handleSubmit}>
-                            <Form.Group>
-                                <Form.Label>Question Title</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="message"
-                                    placeholder="Enter a title"
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    value={values.message}
-                                />
-                            </Form.Group>
+                <Card.Header>Add Question</Card.Header>
+                <Card.Body>
+                    <Formik
+                        initialValues={{
+                            message: '',
+                            description: '',
+                            qType: '',
+                            order: questionnaire.questions.length,
+                            values: []
+                        }}
+                        onSubmit={submitValues}>
+                        {({
+                            values,
+                            // errors,
+                            // touched,
+                            handleChange,
+                            handleBlur,
+                            handleSubmit
+                        }) => (
+                            <Form onSubmit={handleSubmit}>
+                                <Form.Group>
+                                    <Form.Label>Question Title</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="message"
+                                        placeholder="Enter a title"
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        value={values.message}
+                                    />
+                                </Form.Group>
 
-                            <Form.Group>
-                                <Form.Label>Question Description</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="description"
-                                    placeholder="Enter a description"
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    value={values.description}
-                                />
-                            </Form.Group>
+                                <Form.Group>
+                                    <Form.Label>Question Description</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="description"
+                                        placeholder="Enter a description"
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        value={values.description}
+                                    />
+                                </Form.Group>
 
-                            <Form.Group>
-                                <Form.Label>Question Type</Form.Label>
-                                <Form.Check
-                                    type="radio"
-                                    name="qType"
-                                    label="Single choice (Radio)"
-                                    id="radio"
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    value="radio"
-                                />
-                                <Form.Check
-                                    type="radio"
-                                    name="qType"
-                                    id="checkbox"
-                                    label="Multiple choice (Checkbox)"
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    value="checkbox"
-                                />
-                                <Form.Check
-                                    type="radio"
-                                    name="qType"
-                                    id="short"
-                                    label="Short answer"
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    value="short"
-                                />
-                                <Form.Check
-                                    type="radio"
-                                    name="qType"
-                                    id="long"
-                                    label="Long answer"
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    value="long"
-                                />
-                            </Form.Group>
+                                <Form.Group>
+                                    <Form.Label>Question Type</Form.Label>
+                                    <Form.Check
+                                        type="radio"
+                                        name="qType"
+                                        label="Single choice (Radio)"
+                                        id="radio"
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        value="radio"
+                                    />
+                                    <Form.Check
+                                        type="radio"
+                                        name="qType"
+                                        id="checkbox"
+                                        label="Multiple choice (Checkbox)"
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        value="checkbox"
+                                    />
+                                    <Form.Check
+                                        type="radio"
+                                        name="qType"
+                                        id="short"
+                                        label="Short answer"
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        value="short"
+                                    />
+                                    <Form.Check
+                                        type="radio"
+                                        name="qType"
+                                        id="long"
+                                        label="Long answer"
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        value="long"
+                                    />
+                                </Form.Group>
 
-                            <Button className={styles.submitButton} variant="primary" type="submit">
-                                Add
-                            </Button>
-                            {/* <pre>{JSON.stringify(values, null, 2)}</pre> */}
-                        </Form>
-                    )}
-                </Formik>
+                                <Button
+                                    className={styles.submitButton}
+                                    variant="primary"
+                                    type="submit">
+                                    Add
+                                </Button>
+                                {/* <pre>{JSON.stringify(values, null, 2)}</pre> */}
+                            </Form>
+                        )}
+                    </Formik>
+                </Card.Body>
             </Card>
         </Container>
     );
