@@ -31,6 +31,7 @@ const Question = ({ question, questionnaire, refetch }) => {
         await editQuestion({ variables });
         setShowTooltip(true);
         setTimeout(() => setShowTooltip(false), 2000);
+        refetch();
     };
 
     return (
