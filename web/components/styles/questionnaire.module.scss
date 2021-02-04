@@ -41,9 +41,7 @@
 
 .submitButton {
     margin-top: 0.5rem;
-    float: right;
 }
-
 .checkboxContainer {
     display: flex;
     align-items: baseline;
@@ -65,4 +63,16 @@
 
 .addOptionButton {
     margin-right: 0.5rem;
+}
+
+.requiredLabel {
+    font-style: italic;
+    color: orangered;
+    font-size: 50%;
+    vertical-align: top;
+    margin-left: 5px;
+}
+
+.invalidAnswerItem {
+    box-shadow: 0 0 5px orangered;
 }
