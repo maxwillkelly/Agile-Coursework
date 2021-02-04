@@ -17,6 +17,7 @@ export const GET_QUESTIONNAIRE = gql`
                 message
                 description
                 values
+                order
                 required
             }
         }
@@ -50,17 +51,6 @@ export const GET_STUDY_QUESTIONNAIRES = gql`
             id
             title
             description
-            study {
-                id
-                title
-                description
-            }
-            questions {
-                qID
-                qType
-                message
-                values
-            }
         }
     }
 `;
