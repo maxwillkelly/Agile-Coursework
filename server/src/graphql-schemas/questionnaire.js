@@ -593,6 +593,7 @@ const resolvers = {
          */
         editQuestion: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
+                const editValues = ['qType', 'order', 'message', 'description', 'values', 'required']  // Hold all possible fields that can be updated
                 const QuestionnaireCollection = database.getDb().collection('questionnaires');
                 const StudyCollection = database.getDb().collection('study');
                 const q_id = new mongo.ObjectID(arg.questionnaireID);
@@ -626,52 +627,21 @@ const resolvers = {
                 if (!existCheck) {
                     throw new IdError("Invalid questionID")
                 }
+
+                var updateCommands = []  // Holds the updates the the bulk writes 
+                for (let y in editValues) {
+                    const val = editValues[y]
+                    if (val in arg) {
+                        updateCommands.push({
+                            updateOne: {
+                                filter: { "_id": q_id, "questions.qID": question_id },
+                                update: { $set: { [`questions.$.${val}`]: arg[val] } }
+                            }
+                        })
+                    }
+                }
                 try {
-                    // for each possible updated fields update the question
-                    const question_id = new mongo.ObjectID(arg.questionID);
-                    findQuery = { "_id": q_id, "questions.qID": question_id }
-                    if ('qType' in arg) {
-                        // updateQuestion.qType = arg.qType
-                        await QuestionnaireCollection.updateOne(
-                            findQuery,
-                            { $set: { "questions.$.qType": arg.qType } }
-                        )
-                    }
-                    if ('order' in arg) {
-                        // updateQuestion.order - arg.order
-                        await QuestionnaireCollection.updateOne(
-                            findQuery,
-                            { $set: { "questions.$.order": arg.order } }
-                        )
-                    }
-                    if ('message' in arg) {
-                        // updateQuestion.message = arg.message
-                        await QuestionnaireCollection.updateOne(
-                            findQuery,
-                            { $set: { "questions.$.message": arg.message } }
-                        )
-                    }
-                    if ('values' in arg) {
-                        // updateQuestion.values = arg.values
-                        await QuestionnaireCollection.updateOne(
-                            findQuery,
-                            { $set: { "questions.$.values": arg.values } }
-                        )
-                    }
-                    if ('description' in arg) {
-                        // updateQuestion.values = arg.values
-                        await QuestionnaireCollection.updateOne(
-                            findQuery,
-                            { $set: { "questions.$.description": arg.description } }
-                        )
-                    }
-                    if ('required' in arg) {
-                        // updateQuestion.values = arg.values
-                        await QuestionnaireCollection.updateOne(
-                            findQuery,
-                            { $set: { "questions.$.required": arg.required } }
-                        )
-                    }
+                    await QuestionnaireCollection.bulkWrite(updateCommands)
                     // find questionnaire and return with new details
                     currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                     return {
@@ -712,7 +682,7 @@ const resolvers = {
                 if (!await permissions.permissionChecker(ctx, currQuestionnaire.studyID.oid, "edit")) {
                     throw ForbiddenError("Invalid Permissions")
                 }
-                var updateCommands = []  // Holds the updates the the bulkd writes 
+                var updateCommands = []  // Holds the updates the the bulk writes 
                 for (let x in arg.questions) {
                     // Check if the question being edited exists
                     var existCheck = false
@@ -776,7 +746,7 @@ const resolvers = {
                     throw ForbiddenError("Invalid Permissions")
                 }
                 var updateCommands = []
-                for (let x in currQuestionnaire.questions){
+                for (let x in currQuestionnaire.questions) {
                     updateCommands.push({
                         updateOne: {
                             filter: { "_id": q_id, "questions.qID": currQuestionnaire.questions[x].qID },
