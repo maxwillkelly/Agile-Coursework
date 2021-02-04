@@ -1,12 +1,14 @@
 import Head from 'next/head';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery } from '@apollo/client';
+import lodash from 'lodash';
 import { Col, Container, Row } from 'react-bootstrap';
-// import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import TitleForm from '../../../../../components/questionnaire/TitleForm';
 import AddQuestionForm from '../../../../../components/questionnaire/AddQuestionForm';
 import AddTextSection from '../../../../../components/questionnaire/AddTextSection';
-import Question from '../../../../../components/questionnaire/Question';
+import QuestionDraggable from '../../../../../components/questionnaire/Question';
 import Navigation from '../../../../../components/Navigation';
 import MainBreadcrumb from '../../../../../components/MainBreadcrumb';
 import { GET_QUESTIONNAIRE } from '../../../../../queries/questionnaire';
@@ -72,14 +74,78 @@ const QuestionnaireOptions = ({ questionnaire, refetch }) => {
     );
 };
 
-const Questions = ({ questionnaire, refetch }) =>
-    questionnaire.questions.map((question) => (
-        <Question
+const QuestionsList = ({ questionnaire, questionList, refetch }) =>
+    questionList.map((question, index) => (
+        <QuestionDraggable
             question={question}
             questionnaire={questionnaire}
+            index={index}
             refetch={refetch}
             key={question.qID}
         />
     ));
+
+const Questions = ({ questionnaire, refetch }) => {
+    const [questionList, setQuestionsList] = useState([]);
+
+    useEffect(() => {
+        setQuestionsList(questionnaire.questions);
+    }, []);
+
+    const reorder = (list, startIndex, endIndex) => {
+        const result = Array.from(list);
+        const [removed] = result.splice(startIndex, 1);
+        result.splice(endIndex, 0, removed);
+        return result;
+    };
+
+    const setOrder = (questions, startIndex, endIndex) => {
+        const result = lodash.cloneDeep(questions);
+        const changeOrder = startIndex > endIndex;
+        const startVal = !changeOrder ? startIndex : endIndex;
+        const endVal = !changeOrder ? endIndex : startIndex;
+
+        for (let i = startVal; i <= endVal; i++) {
+            result[i].order = i;
+        }
+        return result;
+    };
+
+    const onDragEnd = (result) => {
+        if (!result.destination) {
+            return;
+        }
+
+        if (result.destination.index === result.source.index) {
+            return;
+        }
+
+        const orderedQuestions = reorder(
+            questionList,
+            result.source.index,
+            result.destination.index
+        );
+        const questions = setOrder(orderedQuestions, result.source.index, result.destination.index);
+
+        setQuestionsList(questions);
+    };
+
+    return (
+        <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="list">
+                {(provided) => (
+                    <div ref={provided.innerRef} {...provided.droppableProps}>
+                        <QuestionsList
+                            questionnaire={questionnaire}
+                            questionList={questionList}
+                            refetch={refetch}
+                        />
+                        {provided.placeholder}
+                    </div>
+                )}
+            </Droppable>
+        </DragDropContext>
+    );
+};
 
 export default QuestionnaireCreatorPage;

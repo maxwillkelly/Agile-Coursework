@@ -1,9 +1,82 @@
 import { useState, useRef } from 'react';
-import { Button, Form, Container, Card, InputGroup, Overlay, Tooltip } from 'react-bootstrap';
+import { Button, Form, Card, InputGroup, Overlay, Tooltip } from 'react-bootstrap';
+import { Draggable } from 'react-beautiful-dnd';
 import { useMutation } from '@apollo/client';
 import { EDIT_QUESTION, REMOVE_QUESTION_FROM_QUESTIONNAIRE } from '../../mutations/questionnaire';
 import { Formik, FieldArray } from 'formik';
 import styles from '../styles/questionnaire.module.scss';
+
+const QuestionDraggable = ({ question, index, questionnaire, refetch }) => {
+    return (
+        <Draggable draggableId={question.qID} index={index}>
+            {(provided) => (
+                <div
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}>
+                    <Question question={question} questionnaire={questionnaire} refetch={refetch} />
+                </div>
+            )}
+        </Draggable>
+    );
+};
+
+const QuestionInfo = ({ question, handleChange, handleBlur, values }) => {
+    return (
+        <>
+            <Form.Label>{question.qType === 'paragraph' ? 'Heading' : 'Question Title'}</Form.Label>
+            <Form.Control
+                type="text"
+                name="title"
+                placeholder="Enter a title"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.title}
+            />
+            <Form.Label className={styles.questionLabel}>
+                {question.qType === 'paragraph' ? 'Paragraph' : 'Question Description'}
+            </Form.Label>
+            <Form.Control
+                type="text"
+                name="description"
+                placeholder="Enter a description"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.description}
+            />
+            {question.qType !== 'paragraph' && (
+                <>
+                    <Form.Group>
+                        <Form.Check
+                            type="checkbox"
+                            name="required"
+                            id="yes"
+                            label="An answer to this question is required"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            value="yes"
+                        />
+                    </Form.Group>
+
+                    <Form.Group>
+                        <Form.Label>Question Type</Form.Label>
+                        <Form.Control
+                            as="select"
+                            name="qType"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            value={values.qType}>
+                            <option value="radio">Single choice (Radio)</option>
+                            <option value="checkbox">Multiple choice (Checkbox)</option>
+                            <option value="short">Short answer</option>
+                            <option value="long">Long answer</option>
+                        </Form.Control>
+                    </Form.Group>
+                </>
+            )}
+        </>
+    );
+};
 
 const Question = ({ question, questionnaire, refetch }) => {
     const [editQuestion] = useMutation(EDIT_QUESTION);
@@ -37,7 +110,9 @@ const Question = ({ question, questionnaire, refetch }) => {
     return (
         <Card className={styles.questionCard}>
             <Card.Header>
-                {question.qType === 'paragraph' ? 'Text Section' : 'Question'}
+                {question.qType === 'paragraph'
+                    ? `${question.order + 1}: Text Section`
+                    : `${question.order + 1}: Question`}
                 <Button variant="danger" className={styles.submitButton} onClick={deleteQuestion}>
                     Delete
                 </Button>
@@ -63,127 +138,21 @@ const Question = ({ question, questionnaire, refetch }) => {
                         // isSubmitting
                     }) => (
                         <Form onSubmit={handleSubmit}>
-                            <Form.Label>
-                                {question.qType === 'paragraph' ? 'Heading' : 'Question Title'}
-                            </Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="title"
-                                placeholder="Enter a title"
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                value={values.title}
+                            <QuestionInfo
+                                question={question}
+                                handleChange={handleChange}
+                                handleBlur={handleBlur}
+                                values={values}
                             />
-                            <Form.Label className={styles.questionLabel}>
-                                {question.qType === 'paragraph'
-                                    ? 'Paragraph'
-                                    : 'Question Description'}
-                            </Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="description"
-                                placeholder="Enter a description"
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                value={values.description}
-                            />
-                            {question.qType !== 'paragraph' && (
-                                <>
-                                    <Form.Group>
-                                        <Form.Check
-                                            type="checkbox"
-                                            name="required"
-                                            id="yes"
-                                            label="An answer to this question is required"
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            value="yes"
-                                        />
-                                    </Form.Group>
-
-                                    <Form.Group>
-                                        <Form.Label>Question Type</Form.Label>
-                                        <Form.Control
-                                            as="select"
-                                            name="qType"
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            value={values.qType}>
-                                            <option value="radio">Single choice (Radio)</option>
-                                            <option value="checkbox">
-                                                Multiple choice (Checkbox)
-                                            </option>
-                                            <option value="short">Short answer</option>
-                                            <option value="long">Long answer</option>
-                                        </Form.Control>
-                                    </Form.Group>
-                                </>
-                            )}
                             {(question.qType === 'radio' || question.qType === 'checkbox') &&
                                 values.questionOptions && (
-                                    <>
-                                        <Form.Label className={styles.questionLabel}>
-                                            Question Options
-                                        </Form.Label>
-                                        <FieldArray name="questionOptions">
-                                            {(arrayHelpers) => {
-                                                return (
-                                                    <>
-                                                        {values.questionOptions.map(
-                                                            (option, index) => (
-                                                                // <div className={styles.checkboxContainer}>
-                                                                <InputGroup
-                                                                    className={
-                                                                        styles.questionOption
-                                                                    }
-                                                                    key={index}>
-                                                                    <InputGroup.Prepend>
-                                                                        <QuestionPrepend
-                                                                            question={question}
-                                                                        />
-                                                                    </InputGroup.Prepend>
-                                                                    <Form.Control
-                                                                        type="text"
-                                                                        name={`questionOptions.${index}`}
-                                                                        onChange={handleChange}
-                                                                        onBlur={handleBlur}
-                                                                        value={option}
-                                                                        key={index}
-                                                                    />
-                                                                    <InputGroup.Append>
-                                                                        <Button
-                                                                            variant="danger"
-                                                                            onClick={() =>
-                                                                                arrayHelpers.remove(
-                                                                                    index
-                                                                                )
-                                                                            }>
-                                                                            Delete
-                                                                        </Button>
-                                                                    </InputGroup.Append>
-                                                                </InputGroup>
-                                                                // </div>
-                                                            )
-                                                        )}
-                                                        <div className={styles.questionCardButtons}>
-                                                            <Button
-                                                                className={styles.addOptionButton}
-                                                                variant="success"
-                                                                onClick={() =>
-                                                                    arrayHelpers.push('')
-                                                                }>
-                                                                Add option
-                                                            </Button>
-                                                            <Button ref={buttonRef} type="submit">
-                                                                Save
-                                                            </Button>
-                                                        </div>
-                                                        {/* <pre>{JSON.stringify(values, null, 2)}</pre> */}
-                                                    </>
-                                                );
-                                            }}
-                                        </FieldArray>
-                                    </>
+                                    <QuestionOptions
+                                        buttonRef={buttonRef}
+                                        handleChange={handleChange}
+                                        handleBlur={handleBlur}
+                                        question={question}
+                                        values={values}
+                                    />
                                 )}
 
                             {(question.qType === 'short' ||
@@ -210,6 +179,56 @@ const Question = ({ question, questionnaire, refetch }) => {
     );
 };
 
+const QuestionOptions = ({ question, values, handleChange, handleBlur, buttonRef }) => (
+    <>
+        <Form.Label className={styles.questionLabel}>Question Options</Form.Label>
+        <FieldArray name="questionOptions">
+            {(arrayHelpers) => {
+                return (
+                    <>
+                        {values.questionOptions.map((option, index) => (
+                            // <div className={styles.checkboxContainer}>
+                            <InputGroup className={styles.questionOption} key={index}>
+                                <InputGroup.Prepend>
+                                    <QuestionPrepend question={question} />
+                                </InputGroup.Prepend>
+                                <Form.Control
+                                    type="text"
+                                    name={`questionOptions.${index}`}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    value={option}
+                                    key={index}
+                                />
+                                <InputGroup.Append>
+                                    <Button
+                                        variant="danger"
+                                        onClick={() => arrayHelpers.remove(index)}>
+                                        Delete
+                                    </Button>
+                                </InputGroup.Append>
+                            </InputGroup>
+                            // </div>
+                        ))}
+                        <div className={styles.questionCardButtons}>
+                            <Button
+                                className={styles.addOptionButton}
+                                variant="success"
+                                onClick={() => arrayHelpers.push('')}>
+                                Add option
+                            </Button>
+                            <Button ref={buttonRef} type="submit">
+                                Save
+                            </Button>
+                        </div>
+                        {/* <pre>{JSON.stringify(values, null, 2)}</pre> */}
+                    </>
+                );
+            }}
+        </FieldArray>
+    </>
+);
+
 const QuestionPrepend = ({ question }) => {
     switch (question.qType) {
         case 'checkbox':
@@ -221,4 +240,4 @@ const QuestionPrepend = ({ question }) => {
     }
 };
 
-export default Question;
+export default QuestionDraggable;
