@@ -52,6 +52,7 @@ const Question = ({ question, questionnaire, refetch }) => {
                             description: question.description,
                             questionOptions: question.values,
                             order: question.order,
+                            qType: question.qType,
                             required: null
                         }}
                         onSubmit={updateQuestion}>
@@ -90,15 +91,36 @@ const Question = ({ question, questionnaire, refetch }) => {
                                     value={values.description}
                                 />
                                 {question.qType !== 'paragraph' && (
-                                    <Form.Check
-                                        type="checkbox"
-                                        name="required"
-                                        id="yes"
-                                        label="An answer to this question is required"
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        value="yes"
-                                    />
+                                    <>
+                                        <Form.Group>
+                                            <Form.Check
+                                                type="checkbox"
+                                                name="required"
+                                                id="yes"
+                                                label="An answer to this question is required"
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                value="yes"
+                                            />
+                                        </Form.Group>
+
+                                        <Form.Group>
+                                            <Form.Label>Question Type</Form.Label>
+                                            <Form.Control
+                                                as="select"
+                                                name="qType"
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                value={values.qType}>
+                                                <option value="radio">Single choice (Radio)</option>
+                                                <option value="checkbox">
+                                                    Multiple choice (Checkbox)
+                                                </option>
+                                                <option value="short">Short answer</option>
+                                                <option value="long">Long answer</option>
+                                            </Form.Control>
+                                        </Form.Group>
+                                    </>
                                 )}
                                 {(question.qType === 'radio' || question.qType === 'checkbox') &&
                                     values.questionOptions && (
@@ -173,16 +195,6 @@ const Question = ({ question, questionnaire, refetch }) => {
                                             </FieldArray>
                                         </>
                                     )}
-                                {(question.qType === 'short' || question.qType === 'long') && (
-                                    <>
-                                        <Form.Label className={styles.questionLabel}>
-                                            Question Type:
-                                            {question.qType === 'short'
-                                                ? ' Short answer'
-                                                : ' Long answer'}
-                                        </Form.Label>
-                                    </>
-                                )}
 
                                 {(question.qType === 'short' ||
                                     question.qType === 'long' ||
