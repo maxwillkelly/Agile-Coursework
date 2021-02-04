@@ -22,7 +22,7 @@ const Question = ({ question, questionnaire, refetch }) => {
         const variables = {
             questionnaireID: questionnaire.id,
             questionID: question.qID,
-            qType: question.qType,
+            qType: questionValues.qType,
             order: questionValues.order,
             message: questionValues.title,
             description: questionValues.description,
@@ -31,6 +31,7 @@ const Question = ({ question, questionnaire, refetch }) => {
         await editQuestion({ variables });
         setShowTooltip(true);
         setTimeout(() => setShowTooltip(false), 2000);
+        refetch();
     };
 
     return (
@@ -51,7 +52,9 @@ const Question = ({ question, questionnaire, refetch }) => {
                             title: question.message,
                             description: question.description,
                             questionOptions: question.values,
-                            order: question.order
+                            order: question.order,
+                            qType: question.qType,
+                            required: null
                         }}
                         onSubmit={updateQuestion}>
                         {({
@@ -88,7 +91,38 @@ const Question = ({ question, questionnaire, refetch }) => {
                                     onBlur={handleBlur}
                                     value={values.description}
                                 />
+                                {question.qType !== 'paragraph' && (
+                                    <>
+                                        <Form.Group>
+                                            <Form.Check
+                                                type="checkbox"
+                                                name="required"
+                                                id="yes"
+                                                label="An answer to this question is required"
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                value="yes"
+                                            />
+                                        </Form.Group>
 
+                                        <Form.Group>
+                                            <Form.Label>Question Type</Form.Label>
+                                            <Form.Control
+                                                as="select"
+                                                name="qType"
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                value={values.qType}>
+                                                <option value="radio">Single choice (Radio)</option>
+                                                <option value="checkbox">
+                                                    Multiple choice (Checkbox)
+                                                </option>
+                                                <option value="short">Short answer</option>
+                                                <option value="long">Long answer</option>
+                                            </Form.Control>
+                                        </Form.Group>
+                                    </>
+                                )}
                                 {(question.qType === 'radio' || question.qType === 'checkbox') &&
                                     values.questionOptions && (
                                         <>
@@ -162,21 +196,16 @@ const Question = ({ question, questionnaire, refetch }) => {
                                             </FieldArray>
                                         </>
                                     )}
-                                {(question.qType === 'short' || question.qType === 'long') && (
-                                    <>
-                                        <Form.Label className={styles.questionLabel}>
-                                            Question Type:
-                                            {question.qType === 'short'
-                                                ? ' Short answer'
-                                                : ' Long answer'}
-                                        </Form.Label>
-                                        <Button
-                                            ref={buttonRef}
-                                            type="submit"
-                                            className={styles.submitButton}>
-                                            Save
-                                        </Button>
-                                    </>
+
+                                {(question.qType === 'short' ||
+                                    question.qType === 'long' ||
+                                    question.qType === 'paragraph') && (
+                                    <Button
+                                        ref={buttonRef}
+                                        type="submit"
+                                        className={styles.submitButton}>
+                                        Save
+                                    </Button>
                                 )}
                                 <Overlay
                                     target={buttonRef.current}

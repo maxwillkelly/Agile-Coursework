@@ -22,7 +22,6 @@ const QuestionnaireCreatorPage = () => {
         <div>
             <Head>
                 <title>Create a Questionnaire</title>
-                <link rel="icon" href="favicon.ico" />
             </Head>
             <Navigation />
             <MainBreadcrumb />
