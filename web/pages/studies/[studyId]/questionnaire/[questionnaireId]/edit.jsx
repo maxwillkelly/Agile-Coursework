@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import lodash from 'lodash';
 import { Col, Container, Row } from 'react-bootstrap';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
@@ -12,6 +12,7 @@ import QuestionDraggable from '../../../../../components/questionnaire/Question'
 import Navigation from '../../../../../components/Navigation';
 import MainBreadcrumb from '../../../../../components/MainBreadcrumb';
 import { GET_QUESTIONNAIRE } from '../../../../../queries/questionnaire';
+import { BATCH_EDIT_QUESTIONS } from '../../../../../mutations/questionnaire';
 import styles from '../../../../../styles/questionnaire-creator.module.scss';
 
 const QuestionnaireCreatorPage = () => {
@@ -87,6 +88,7 @@ const QuestionsList = ({ questionnaire, questionList, refetch }) =>
 
 const Questions = ({ questionnaire, refetch }) => {
     const [questionList, setQuestionsList] = useState([]);
+    const [batchEditQuestions] = useMutation(BATCH_EDIT_QUESTIONS);
 
     useEffect(() => {
         setQuestionsList(questionnaire.questions);
@@ -108,6 +110,10 @@ const Questions = ({ questionnaire, refetch }) => {
         for (let i = startVal; i <= endVal; i++) {
             result[i].order = i;
         }
+
+        for (let q of result) {
+            delete q.__typename;
+        }
         return result;
     };
 
@@ -127,6 +133,10 @@ const Questions = ({ questionnaire, refetch }) => {
         );
         const questions = setOrder(orderedQuestions, result.source.index, result.destination.index);
 
+        // debugger;
+        batchEditQuestions({
+            variables: { questionnaireID: questionnaire.id, questions: questions }
+        });
         setQuestionsList(questions);
     };
 
