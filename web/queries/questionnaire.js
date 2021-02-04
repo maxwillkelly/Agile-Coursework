@@ -18,6 +18,28 @@ export const GET_QUESTIONNAIRE = gql`
                 description
                 values
                 order
+                required
+            }
+        }
+    }
+`;
+
+export const GET_QUESTIONNAIRES = gql`
+    query {
+        getQuestionnaires {
+            id
+            title
+            description
+            study {
+                id
+                title
+                description
+            }
+            questions {
+                qID
+                qType
+                message
+                values
             }
         }
     }

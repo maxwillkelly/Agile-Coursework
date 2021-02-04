@@ -29,9 +29,3 @@ export const RadioInput = ({ values, qID, setAnswers }) => {
 };
 
 export default RadioInput;
-
-// const answers = {
-//   "a": [false, true, true],
-//   "b": [2],
-//   "c": ["test test test"]
-// }
