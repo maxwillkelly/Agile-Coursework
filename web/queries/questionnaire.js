@@ -17,27 +17,7 @@ export const GET_QUESTIONNAIRE = gql`
                 message
                 description
                 values
-            }
-        }
-    }
-`;
-
-export const GET_QUESTIONNAIRES = gql`
-    query {
-        getQuestionnaires {
-            id
-            title
-            description
-            study {
-                id
-                title
-                description
-            }
-            questions {
-                qID
-                qType
-                message
-                values
+                order
             }
         }
     }
@@ -49,17 +29,6 @@ export const GET_STUDY_QUESTIONNAIRES = gql`
             id
             title
             description
-            study {
-                id
-                title
-                description
-            }
-            questions {
-                qID
-                qType
-                message
-                values
-            }
         }
     }
 `;
@@ -69,7 +38,6 @@ export const GET_CSV_OF_RESPONSES = gql`
         getCSVOfResponses(questionnaireID: $questionnaireID)
     }
 `;
-
 
 export const GET_QUESTION_RESPONSES = gql`
     query GetQuestionResponses($questionnaireID: ID!) {
@@ -83,10 +51,10 @@ export const GET_QUESTION_RESPONSES = gql`
             responses
         }
     }
-`
+`;
 
 export const GET_NUMBER_OF_QUESTIONNAIRE_RESPONSES = gql`
     query GetNumberOfResponses($questionnaireID: ID!) {
         getNumberOfResponses(questionnaireID: $questionnaireID)
-    }   
+    }
 `;
