@@ -6,6 +6,7 @@ const { IdError, PermissionsError } = require('../func/errors');
 const database = require('../database');
 const mongo = require('mongodb');
 const studyHelper = require('../func/study');
+const permissions = require('../func/permissionsChecker');
 
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
@@ -17,12 +18,23 @@ const typeDefs = gql`
         message: String!
         description: String!
         values: [String]!
+        required: Boolean!
     }
 
     input QuestionnaireInput{
         title: String!
         description: String!
         studyID: ID!
+    }
+
+    input updateQuestion{
+        questionID: ID!
+        qType: String
+        order: Int
+        message: String
+        description: String
+        values: [String]
+        required: Boolean
     }
 
     "Represents details of a question"
@@ -33,6 +45,7 @@ const typeDefs = gql`
         message: String
         description: String
         values: [String]
+        required: Boolean
     }
 
     "Represents details of a questionnaire"
@@ -88,6 +101,12 @@ const typeDefs = gql`
             description: String
             message: String
             values: [String]
+            required: Boolean
+        ): Questionnaire
+        "Batch update multiple questions in a questionnaire"
+        batchEditQuestions(
+            questionnaireID: ID!
+            questions: [updateQuestion]
         ): Questionnaire
     }
 `;
@@ -338,7 +357,8 @@ const resolvers = {
                         message: arg.question.message,
                         description: arg.question.description,
                         values: arg.question.values,
-                        order: arg.question.order
+                        order: arg.question.order,
+                        required: arg.required
                     }
                     // insert question into questionnaire
                     const response = await QuestionnaireCollection.updateOne(
@@ -357,6 +377,7 @@ const resolvers = {
                             description: currQuestionnaire.description,
                             study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
                             questions: currQuestionnaire.questions,
+                            required: currQuestionnaire.required,
                         }
                     }
                 } catch (err) {
@@ -370,6 +391,7 @@ const resolvers = {
                 )
             }
         },
+
         /**
          * 
          * @param {Object} parent 
@@ -639,6 +661,13 @@ const resolvers = {
                             { $set: { "questions.$.description": arg.description } }
                         )
                     }
+                    if ('required' in arg) {
+                        // updateQuestion.values = arg.values
+                        await QuestionnaireCollection.updateOne(
+                            findQuery,
+                            { $set: { "questions.$.required": arg.required } }
+                        )
+                    }
                     // find questionnaire and return with new details
                     currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                     return {
@@ -652,6 +681,65 @@ const resolvers = {
                     throw new Error(
                         `Internal error: ${err}`
                     )
+                }
+            } else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        },
+
+        batchEditQuestions: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                const editValues = ['qType', 'order', 'message', 'description', 'values', 'required']
+                const QuestionnaireCollection = database.getDb().collection('questionnaires');
+                const q_id = new mongo.ObjectID(arg.questionnaireID);
+                var currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
+                if (!currQuestionnaire) {
+                    throw new IdError("Invalid questionnaireID")
+                }
+                if (!await permissions.permissionChecker(ctx, currQuestionnaire.studyID.oid, "edit")) {
+                    throw ForbiddenError("Invalid Permissions")
+                }
+                var updateCommands = []  // Holds the updates the the bulkd writes 
+                for (let x in arg.questions) {
+                    // Check if the question being edited exists
+                    var existCheck = false
+                    const question_id = new mongo.ObjectID(arg.questions[x].questionID);
+                    for (let x in currQuestionnaire.questions) {
+                        if (currQuestionnaire.questions[x].qID.equals(question_id)) {
+                            existCheck = true
+                        }
+                    }
+                    if (!existCheck) {
+                        throw new IdError("Invalid questionID")
+                    }
+                    console.log(`valid ID ${arg.questionnaireID}`)
+                    for (let y in editValues) {
+                        const val = editValues[y]
+                        if (val in arg.questions[x]) {
+                            updateCommands.push({
+                                updateOne: {
+                                    filter: { "_id": q_id, "questions.qID": question_id },
+                                    update: { $set: { [`questions.$.${val}`]: arg.questions[x][val] } }
+                                }
+                            })
+                        }
+                    }
+                }
+                try {
+                    console.log(JSON.stringify(updateCommands, null, 4))
+                    await QuestionnaireCollection.bulkWrite(updateCommands)
+                    currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
+                    return {
+                        id: currQuestionnaire._id,
+                        title: currQuestionnaire.title,
+                        description: currQuestionnaire.description,
+                        study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
+                        questions: currQuestionnaire.questions,
+                    }
+                }catch(err){
+                    throw new Error(`Batch update Error: ${err}`)
                 }
             } else {
                 throw new AuthenticationError(
