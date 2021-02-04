@@ -51,7 +51,8 @@ const Question = ({ question, questionnaire, refetch }) => {
                             title: question.message,
                             description: question.description,
                             questionOptions: question.values,
-                            order: question.order
+                            order: question.order,
+                            required: null
                         }}
                         onSubmit={updateQuestion}>
                         {({
@@ -88,7 +89,17 @@ const Question = ({ question, questionnaire, refetch }) => {
                                     onBlur={handleBlur}
                                     value={values.description}
                                 />
-
+                                {question.qType !== 'paragraph' && (
+                                    <Form.Check
+                                        type="checkbox"
+                                        name="required"
+                                        id="yes"
+                                        label="An answer to this question is required"
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        value="yes"
+                                    />
+                                )}
                                 {(question.qType === 'radio' || question.qType === 'checkbox') &&
                                     values.questionOptions && (
                                         <>
