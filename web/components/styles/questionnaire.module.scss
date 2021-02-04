@@ -1,52 +1,45 @@
-.questionnaireCard {
-    margin: 1rem 0;
-    overflow: hidden;
-    padding: 1.5rem;
+.questionCardForm {
+    margin: 1.5rem;
 }
 
 .questionCard {
-    padding: 0;
-    margin: 3rem;
+    margin-bottom: 1rem;
 }
 
-.questionCardForm {
-    margin: 1.5rem;
+.questionnaireContainer {
+    margin-bottom: 1rem;
+    padding: 0;
 }
 
 .questionnaireCardItem {
     margin: 1rem;
 }
 
-.questionnaireContainer {
-    padding-left: 0;
-    margin: 2rem 0;
-}
-
-.questionnaireQuestion{
+.questionnaireQuestion {
     background-color: #444;
     color: #eee;
     overflow: hidden;
 }
 
-.questionnaireTitle{
+.questionnaireTitle {
     margin-top: 2rem;
     margin-bottom: 2rem;
 }
 
-.questionnaireQuestionTitle{
+.questionnaireQuestionTitle {
     margin: 1rem;
     margin-bottom: 0.2rem;
 }
 
-.questionnaireQuestionDescription{
+.questionnaireQuestionDescription {
     margin: 1rem;
 }
 
-.questionnaireAnswerContainer{
+.questionnaireAnswerContainer {
     margin: 1rem;
 }
 
-.submitButton{
+.submitButton {
     margin-top: 0.5rem;
     float: right;
 }

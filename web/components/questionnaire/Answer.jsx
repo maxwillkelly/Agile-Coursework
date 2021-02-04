@@ -1,5 +1,4 @@
 import Card from 'react-bootstrap/Card';
-import styles from '../styles/questionnaire.module.scss';
 import RadioInput from './RadioInput';
 import CheckboxInput from './CheckboxInput';
 import TextboxInput from './TextboxInput';
@@ -37,9 +36,7 @@ export const Answer = ({ message, values, qType, qID, description, setAnswers, a
                 <h3>{message}</h3>
                 <h5>{description}</h5>
             </Card.Header>
-            <Card.Body>
-                {renderType()}
-            </Card.Body>
+            <Card.Body>{renderType()}</Card.Body>
         </Card>
     );
 };
