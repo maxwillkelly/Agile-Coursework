@@ -22,7 +22,7 @@ const Question = ({ question, questionnaire, refetch }) => {
         const variables = {
             questionnaireID: questionnaire.id,
             questionID: question.qID,
-            qType: question.qType,
+            qType: questionValues.qType,
             order: questionValues.order,
             message: questionValues.title,
             description: questionValues.description,
