@@ -7,6 +7,7 @@ const database = require('../database');
 const mongo = require('mongodb');
 const studyHelper = require('../func/study');
 const permissions = require('../func/permissionsChecker');
+const questionnaireHelper = require('../func/questionnaire')
 
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
@@ -140,13 +141,7 @@ const resolvers = {
                     } else {
                         studyDetails = null
                     }
-                    return {
-                        id: currQuestionnaire._id,
-                        title: currQuestionnaire.title,
-                        description: currQuestionnaire.description,
-                        study: studyDetails,
-                        questions: currQuestionnaire.questions,
-                    }
+                    return await questionnaireHelper.formQuestionnaire(currQuestionnaire)
                 } else {
                     throw new IdError(
                         'Invalid ID'
@@ -181,15 +176,7 @@ const resolvers = {
 
                         // Adds list to array for return
                         for (let x in questionnaires) {
-                            replyList.push(
-                                {
-                                    id: questionnaires[x]._id,
-                                    title: questionnaires[x].title,
-                                    description: questionnaires[x].description,
-                                    study: await studyHelper.getStudy(questionnaires[x].studyID.oid),
-                                    questions: questionnaires[x].questions
-                                }
-                            )
+                            replyList.push(await questionnaireHelper.formQuestionnaire(questionnaires[x]))
                         }
                         return replyList
                     } catch (err) {
@@ -235,15 +222,7 @@ const resolvers = {
                     const questionnaires = await QuestionnaireCollection.find({ studyID: mongo.DBRef("study", s_id) }).toArray()
                     var replyList = []
                     for (let x in questionnaires) {
-                        replyList.push(
-                            {
-                                id: questionnaires[x]._id,
-                                title: questionnaires[x].title,
-                                description: questionnaires[x].description,
-                                study: await studyHelper.getStudy(questionnaires[x].studyID.oid),
-                                questions: questionnaires[x].questions
-                            }
-                        )
+                        replyList.push(await questionnaireHelper.formQuestionnaire(questionnaires[x]))
                     }
                     return replyList
                 } catch (err) {
@@ -302,13 +281,8 @@ const resolvers = {
                     }
                     // insert into the collection
                     const response = await QuestionnaireCollection.insertOne(newQuestionnaire)
-                    return {
-                        id: response.ops[0]._id,
-                        title: response.ops[0].title,
-                        description: response.ops[0].description,
-                        study: await studyHelper.getStudy(response.ops[0].studyID.$id),
-                        questions: response.ops[0].questions
-                    }
+
+                    return await questionnaireHelper.formQuestionnaire(response.ops[0])
                 } catch (err) {
                     throw new Error(
                         `Internal Error ${err}`
@@ -375,14 +349,7 @@ const resolvers = {
                     )
                     currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                     if (currQuestionnaire) {
-                        return {
-                            id: currQuestionnaire._id,
-                            title: currQuestionnaire.title,
-                            description: currQuestionnaire.description,
-                            study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
-                            questions: currQuestionnaire.questions,
-                            required: currQuestionnaire.required,
-                        }
+                        return await questionnaireHelper.formQuestionnaire(currQuestionnaire)
                     }
                 } catch (err) {
                     throw new Error(
@@ -440,13 +407,7 @@ const resolvers = {
                     const r = await QuestionnaireCollection.updateOne({ "_id": q_id }, { $set: updateField })
                     currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                     if (currQuestionnaire) {
-                        return {
-                            id: currQuestionnaire._id,
-                            title: currQuestionnaire.title,
-                            description: currQuestionnaire.description,
-                            study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
-                            questions: currQuestionnaire.questions,
-                        }
+                        return await questionnaireHelper.formQuestionnaire(currQuestionnaire)
                     }
                 } catch (err) {
                     throw new Error(
@@ -493,13 +454,7 @@ const resolvers = {
                 try {
                     // delete questionnaire and return its details
                     await QuestionnaireCollection.deleteOne({ "_id": q_id });
-                    return {
-                        id: currQuestionnaire._id,
-                        title: currQuestionnaire.title,
-                        description: currQuestionnaire.description,
-                        study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
-                        questions: currQuestionnaire.questions,
-                    }
+                    return await questionnaireHelper.formQuestionnaire(currQuestionnaire)
                 } catch (err) {
                     throw new Error(
                         `Internal error: ${err}`
@@ -566,13 +521,7 @@ const resolvers = {
                     )
                     // return the questionnaire with updated details
                     currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
-                    return {
-                        id: currQuestionnaire._id,
-                        title: currQuestionnaire.title,
-                        description: currQuestionnaire.description,
-                        study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
-                        questions: currQuestionnaire.questions,
-                    }
+                    return await questionnaireHelper.formQuestionnaire(currQuestionnaire)
                 } catch (err) {
                     throw new Error(
                         `Internal error: ${err}`
@@ -644,13 +593,7 @@ const resolvers = {
                     await QuestionnaireCollection.bulkWrite(updateCommands)
                     // find questionnaire and return with new details
                     currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
-                    return {
-                        id: currQuestionnaire._id,
-                        title: currQuestionnaire.title,
-                        description: currQuestionnaire.description,
-                        study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
-                        questions: currQuestionnaire.questions,
-                    }
+                    return await questionnaireHelper.formQuestionnaire(currQuestionnaire)
                 } catch (err) {
                     throw new Error(
                         `Internal error: ${err}`
@@ -686,7 +629,7 @@ const resolvers = {
                 for (let x in arg.questions) {
                     // Check if the question being edited exists
                     var existCheck = false
-                    const question_id = new mongo.ObjectID(arg.questions[x].questionID);
+                    const question_id = new mongo.ObjectID(arg.questions[x].qID);
                     for (let z in currQuestionnaire.questions) {
                         if (currQuestionnaire.questions[z].qID.equals(question_id)) {
                             existCheck = true
@@ -710,13 +653,7 @@ const resolvers = {
                 try {
                     await QuestionnaireCollection.bulkWrite(updateCommands)
                     currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
-                    return {
-                        id: currQuestionnaire._id,
-                        title: currQuestionnaire.title,
-                        description: currQuestionnaire.description,
-                        study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
-                        questions: currQuestionnaire.questions,
-                    }
+                    return await questionnaireHelper.formQuestionnaire(currQuestionnaire)
                 } catch (err) {
                     throw new Error(`Batch update Error: ${err}`)
                 }
@@ -757,13 +694,7 @@ const resolvers = {
                 try {
                     await QuestionnaireCollection.bulkWrite(updateCommands)
                     currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
-                    return {
-                        id: currQuestionnaire._id,
-                        title: currQuestionnaire.title,
-                        description: currQuestionnaire.description,
-                        study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
-                        questions: currQuestionnaire.questions,
-                    }
+                    return await questionnaireHelper.formQuestionnaire(currQuestionnaire)
                 } catch (err) {
                     throw new Error(`Batch update Error: ${err}`)
                 }
