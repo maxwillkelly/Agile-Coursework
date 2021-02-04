@@ -17,6 +17,9 @@ const schema = require('./schema');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const database = require('./database');
+// Deals with HTTPS
+const fs = require('fs')
+const https = require('https')
 
 
 // Config
@@ -31,10 +34,10 @@ app.use(cors());
 
 const context = ({ req }) => {
     /*
-  Creates the context checks for if a user if logged in or not
-  Verification is done using JWT in the header of the request.
-  Can not use async!
-  */
+    Creates the context checks for if a user if logged in or not
+    Verification is done using JWT in the header of the request.
+    Can not use async!
+    */
     const token = req.headers.authorization || '';
     try {
         var decoded = jwt.verify(token, SESSION_SECRECT);
@@ -121,3 +124,20 @@ database.connectToServer()
 app.listen({ port: PORT }, () => {
     console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`);
 });
+
+// Only launch the HTTPS server if we are on the deployment system
+if (process.env.HTTPS == "TRUE") {
+    // Start server with HTTPS
+    https
+        .createServer(
+            {
+                key: fs.readFileSync(`${process.env.CERT}/privkey.pem`),
+                cert: fs.readFileSync(`${process.env.CERT}/cert.pem`),
+                ca: fs.readFileSync(`${process.env.CERT}/chain.pem`),
+            },
+            app
+        )
+        .listen(443, () => {
+            console.log(`🚀 Server ready at https://localhost${server.graphqlPath}`)
+        })
+}

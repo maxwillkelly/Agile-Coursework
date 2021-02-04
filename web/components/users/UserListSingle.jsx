@@ -1,6 +1,4 @@
-import { useState } from 'react';
-import { Button } from 'react-bootstrap';
-import styles from '../../styles/admin.module.scss';
+import styles from '../styles/admin.module.scss';
 export const UserListSingle = ({ user, setSelectedUser }) => {
     return (
         <li className={styles.listItem} onClick={() => setSelectedUser(user)} aria-hidden="true">

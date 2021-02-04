@@ -1,18 +1,20 @@
 @import "~bootstrap/scss/bootstrap";
+@import '~video-react/styles/scss/video-react';
 
-html,
+// a {
+  // color: #2649CA;
+// }
+
+@font-face {
+  font-family: 'Baxter Sans Bold';
+  src: url('Baxter_Sans_Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Baxter Sans Regular';
+  src: url('Baxter_Sans_Regular.ttf');
+}
+
 body {
-  padding: 0;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-* {
-  box-sizing: border-box;
+  font-family: 'Baxter Sans Regular';
 }

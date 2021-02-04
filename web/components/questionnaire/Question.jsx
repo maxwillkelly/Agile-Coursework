@@ -1,11 +1,11 @@
-import { forwardRef, useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Button, Form, Container, Card, InputGroup, Overlay, Tooltip } from 'react-bootstrap';
 import { useMutation } from '@apollo/client';
 import { EDIT_QUESTION, REMOVE_QUESTION_FROM_QUESTIONNAIRE } from '../../mutations/questionnaire';
 import { Formik, FieldArray } from 'formik';
-// import styles from '../styles/questionnaire.module.scss';
+import styles from '../styles/questionnaire.module.scss';
 
-const Question = forwardRef(function Question({ question, questionnaire, refetch }, ref) {
+const Question = ({ question, questionnaire, refetch }) => {
     const [editQuestion] = useMutation(EDIT_QUESTION);
     const [removeQuestionFromQuestionnaire] = useMutation(REMOVE_QUESTION_FROM_QUESTIONNAIRE);
     const [showTooltip, setShowTooltip] = useState(false);
@@ -22,7 +22,7 @@ const Question = forwardRef(function Question({ question, questionnaire, refetch
         const variables = {
             questionnaireID: questionnaire.id,
             questionID: question.qID,
-            qType: question.qType,
+            qType: questionValues.qType,
             order: questionValues.order,
             message: questionValues.title,
             description: questionValues.description,
@@ -31,24 +31,30 @@ const Question = forwardRef(function Question({ question, questionnaire, refetch
         await editQuestion({ variables });
         setShowTooltip(true);
         setTimeout(() => setShowTooltip(false), 2000);
+        refetch();
     };
 
     return (
-        <Container ref={ref}>
-            <Card className="p-0 m-5">
+        <Container>
+            <Card className={styles.questionCard}>
                 <Card.Header>
                     {question.qType === 'paragraph' ? 'Text Section' : 'Question'}
-                    <Button variant="danger" className="float-right" onClick={deleteQuestion}>
+                    <Button
+                        variant="danger"
+                        className={styles.submitButton}
+                        onClick={deleteQuestion}>
                         Delete
                     </Button>
                 </Card.Header>
-                <div className="m-4">
+                <div className={styles.questionCardForm}>
                     <Formik
                         initialValues={{
                             title: question.message,
                             description: question.description,
                             questionOptions: question.values,
-                            order: question.order
+                            order: question.order,
+                            qType: question.qType,
+                            required: null
                         }}
                         onSubmit={updateQuestion}>
                         {({
@@ -72,7 +78,7 @@ const Question = forwardRef(function Question({ question, questionnaire, refetch
                                     onBlur={handleBlur}
                                     value={values.title}
                                 />
-                                <Form.Label className="mt-3">
+                                <Form.Label className={styles.questionLabel}>
                                     {question.qType === 'paragraph'
                                         ? 'Paragraph'
                                         : 'Question Description'}
@@ -85,11 +91,42 @@ const Question = forwardRef(function Question({ question, questionnaire, refetch
                                     onBlur={handleBlur}
                                     value={values.description}
                                 />
+                                {question.qType !== 'paragraph' && (
+                                    <>
+                                        <Form.Group>
+                                            <Form.Check
+                                                type="checkbox"
+                                                name="required"
+                                                id="yes"
+                                                label="An answer to this question is required"
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                value="yes"
+                                            />
+                                        </Form.Group>
 
+                                        <Form.Group>
+                                            <Form.Label>Question Type</Form.Label>
+                                            <Form.Control
+                                                as="select"
+                                                name="qType"
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                value={values.qType}>
+                                                <option value="radio">Single choice (Radio)</option>
+                                                <option value="checkbox">
+                                                    Multiple choice (Checkbox)
+                                                </option>
+                                                <option value="short">Short answer</option>
+                                                <option value="long">Long answer</option>
+                                            </Form.Control>
+                                        </Form.Group>
+                                    </>
+                                )}
                                 {(question.qType === 'radio' || question.qType === 'checkbox') &&
                                     values.questionOptions && (
                                         <>
-                                            <Form.Label className="mt-3">
+                                            <Form.Label className={styles.questionLabel}>
                                                 Question Options
                                             </Form.Label>
                                             <FieldArray name="questionOptions">
@@ -100,7 +137,9 @@ const Question = forwardRef(function Question({ question, questionnaire, refetch
                                                                 (option, index) => (
                                                                     // <div className={styles.checkboxContainer}>
                                                                     <InputGroup
-                                                                        className="my-3"
+                                                                        className={
+                                                                            styles.questionOption
+                                                                        }
                                                                         key={index}>
                                                                         <InputGroup.Prepend>
                                                                             <QuestionPrepend
@@ -130,9 +169,14 @@ const Question = forwardRef(function Question({ question, questionnaire, refetch
                                                                     // </div>
                                                                 )
                                                             )}
-                                                            <div className="mt-3 float-right">
+                                                            <div
+                                                                className={
+                                                                    styles.questionCardButtons
+                                                                }>
                                                                 <Button
-                                                                    className="mr-2"
+                                                                    className={
+                                                                        styles.addOptionButton
+                                                                    }
                                                                     variant="success"
                                                                     onClick={() =>
                                                                         arrayHelpers.push('')
@@ -152,21 +196,16 @@ const Question = forwardRef(function Question({ question, questionnaire, refetch
                                             </FieldArray>
                                         </>
                                     )}
-                                {(question.qType === 'short' || question.qType === 'long') && (
-                                    <>
-                                        <Form.Label className="mt-3">
-                                            Question Type:
-                                            {question.qType === 'short'
-                                                ? ' Short answer'
-                                                : ' Long answer'}
-                                        </Form.Label>
-                                        <Button
-                                            ref={buttonRef}
-                                            type="submit"
-                                            className="mt-2 float-right">
-                                            Save
-                                        </Button>
-                                    </>
+
+                                {(question.qType === 'short' ||
+                                    question.qType === 'long' ||
+                                    question.qType === 'paragraph') && (
+                                    <Button
+                                        ref={buttonRef}
+                                        type="submit"
+                                        className={styles.submitButton}>
+                                        Save
+                                    </Button>
                                 )}
                                 <Overlay
                                     target={buttonRef.current}
@@ -181,7 +220,7 @@ const Question = forwardRef(function Question({ question, questionnaire, refetch
             </Card>
         </Container>
     );
-});
+};
 
 const QuestionPrepend = ({ question }) => {
     switch (question.qType) {

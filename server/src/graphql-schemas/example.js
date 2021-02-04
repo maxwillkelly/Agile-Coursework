@@ -48,3 +48,22 @@ module.exports = {
     Examples: typeDefs,
     ExampleResolvers: resolvers
 };
+
+
+/*
+ if (ctx.auth) {
+                try {
+
+                }
+                catch (err) {
+                    throw new Error(
+                        `Error: ${err}`
+                    )
+                }
+            } else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+
+*/

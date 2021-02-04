@@ -6,8 +6,6 @@ const { IdError, PermissionsError } = require('../func/errors');
 const database = require('../database');
 const mongo = require('mongodb');
 const studyHelper = require('../func/study');
-const study = require('../func/study');
-const questionnaire = require('../func/questionnaire');
 
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
@@ -97,11 +95,22 @@ const typeDefs = gql`
 // Resolvers define the technique for fetching the types defined in the Schema above
 const resolvers = {
     Query: {
+        /**
+         * Returns a questionnaire using questionnaireID
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
         getQuestionnaire: async (parent, arg, ctx, info) => {
             try {
                 const QuestionnaireCollection = database.getDb().collection('questionnaires');
+
+                // Creating a ObjectID object and using it for querying the collection to return filtered results
                 const q_id = new mongo.ObjectID(arg.id);
                 const currQuestionnaire = await QuestionnaireCollection.findOne({ _id: q_id })
+
+                // Checks if exists
                 if (currQuestionnaire) {
                     if (ctx.auth) {
                         studyDetails = await studyHelper.getStudy(currQuestionnaire.studyID.oid)
@@ -129,13 +138,25 @@ const resolvers = {
 
         },
 
+        /**
+         * Gets all questionnaires
+         * @param {Object} parent
+         * @param {Object} arg
+         * @param {Object} ctx
+         * @param {Object} info
+         */
         getQuestionnaires: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
+
+                // Checks current users access level
                 if (ctx.user.Level >= 2) {
                     try {
+
                         const QuestionnaireCollection = database.getDb().collection('questionnaires');
                         const questionnaires = await QuestionnaireCollection.find().toArray()
                         var replyList = []
+
+                        // Adds list to array for return
                         for (let x in questionnaires) {
                             replyList.push(
                                 {
@@ -166,11 +187,20 @@ const resolvers = {
             }
         },
 
+        /**
+         * Returns questionnaires relative to the study they are connected to
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
         getStudyQuestionnaires: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const QuestionnaireCollection = database.getDb().collection('questionnaires');
                 const StudyCollection = database.getDb().collection('study');
                 var s_id = new mongo.ObjectID(arg.studyID);
+
+                //Gets Information if the user has the correct clearance for that study
                 if (ctx.user.Level < 2) {
                     const staff_id = new mongo.ObjectID(ctx.user.ID);
                     const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", staff_id) })
@@ -209,6 +239,13 @@ const resolvers = {
     },
 
     Mutation: {
+        /**
+         * Create a questionnaire
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info  
+         */
         createQuestionnaire: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 try {
@@ -220,24 +257,17 @@ const resolvers = {
                     if (!StudyDetails) {
                         throw new Error("Invalid studyID")
                     }
-                    if (ctx.user.Level < 2) {
+                    if (ctx.user.Level < 2) {  // If user isn't a admin, we make sure they are apart of the study
                         const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", staff_id) })
                         if (!studyDocument) {
                             throw new ForbiddenError("User not part of study")
                         }
                     }
-                    var staffInStudy = false
-                    for (let x in StudyDetails.staff) {
-                        if (StudyDetails.staff[x].oid.equals(staff_id)) {
-                            staffInStudy = true
-                        }
-                    }
-                    if (!staffInStudy) {
-                        throw new ForbiddenError("User not part of study")
-                    }
+                    // Check if the user has create perms in the study
                     if (ctx.user.Level < StudyDetails.permissions.create) {
                         throw new PermissionsError("Invalid Permissions")
                     }
+                    // form data for new study
                     newQuestionnaire = {
                         title: arg.questionnaire.title,
                         description: arg.questionnaire.description,
@@ -247,6 +277,7 @@ const resolvers = {
                         },
                         questions: [],
                     }
+                    // insert into the collection
                     const response = await QuestionnaireCollection.insertOne(newQuestionnaire)
                     return {
                         id: response.ops[0]._id,
@@ -267,6 +298,13 @@ const resolvers = {
             }
         },
 
+        /**
+         * 
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
         addQuestion: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 try {
@@ -282,25 +320,18 @@ const resolvers = {
                     if (!studyDetails) {
                         throw new Error("Unable to find linked study")
                     }
-                    if (ctx.user.Level < 2) {
+                    if (ctx.user.Level < 2) {  // If user isn't a admin, we make sure they are apart of the study
                         const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", staff_id) })
                         if (!studyDocument) {
                             throw new ForbiddenError("User not part of study")
                         }
                     }
-                    var staffInStudy = false
-                    for (let x in studyDetails.staff) {
-                        if (studyDetails.staff[x].oid.equals(staff_id)) {
-                            staffInStudy = true
-                        }
-                    }
-                    if (!staffInStudy) {
-                        throw new ForbiddenError("User not part of study")
-                    }
+                    // Check if user has create perms
                     if (ctx.user.Level < studyDetails.permissions.create) {
                         throw new PermissionsError("Invalid Permissions")
                     }
                     // end of perms check
+                    // forms new question objct
                     newQuestion = {
                         qID: new mongo.ObjectID(),
                         qType: arg.question.qType,
@@ -309,6 +340,7 @@ const resolvers = {
                         values: arg.question.values,
                         order: arg.question.order
                     }
+                    // insert question into questionnaire
                     const response = await QuestionnaireCollection.updateOne(
                         { "_id": q_id },
                         {
@@ -338,6 +370,13 @@ const resolvers = {
                 )
             }
         },
+        /**
+         * 
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
         editQuestionnaire: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const QuestionnaireCollection = database.getDb().collection('questionnaires');
@@ -351,17 +390,18 @@ const resolvers = {
                 if (!studyDetails) {
                     throw new Error("Unable to find linked study")
                 }
-                if (ctx.user.Level < 2) {
+                if (ctx.user.Level < 2) {  // If user isn't a admin, we make sure they are apart of the study
                     const staff_id = new mongo.ObjectID(ctx.user.ID);
                     const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", staff_id) })
                     if (!studyDocument) {
                         throw new ForbiddenError("User not part of study")
                     }
                 }
+                // Check if user has edit perms
                 if (ctx.user.Level < studyDetails.permissions.edit) {
                     throw new PermissionsError("Invalid Permissions")
                 }
-
+                // Forms the object with the fields to edit
                 var updateField = {}
                 if ('title' in arg) {
                     updateField.title = arg.title
@@ -370,6 +410,7 @@ const resolvers = {
                     updateField.description = arg.description
                 }
                 try {
+                    // update object with new details and return
                     const r = await QuestionnaireCollection.updateOne({ "_id": q_id }, { $set: updateField })
                     currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                     if (currQuestionnaire) {
@@ -392,6 +433,13 @@ const resolvers = {
                 )
             }
         },
+        /**
+         * 
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
         removeQuestionnaire: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const QuestionnaireCollection = database.getDb().collection('questionnaires');
@@ -405,17 +453,19 @@ const resolvers = {
                 if (!studyDetails) {
                     throw new Error("Unable to find linked study")
                 }
-                if (ctx.user.Level < 2) {
+                if (ctx.user.Level < 2) {  // If user isn't a admin, we make sure they are apart of the study
                     const staff_id = new mongo.ObjectID(ctx.user.ID);
                     const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", staff_id) })
                     if (!studyDocument) {
                         throw new ForbiddenError("User not part of study")
                     }
                 }
+                // Check if user has delete perms
                 if (ctx.user.Level < studyDetails.permissions.delete) {
                     throw new PermissionsError("Invalid Permissions")
                 }
                 try {
+                    // delete questionnaire and return its details
                     await QuestionnaireCollection.deleteOne({ "_id": q_id });
                     return {
                         id: currQuestionnaire._id,
@@ -435,6 +485,13 @@ const resolvers = {
                 )
             }
         },
+        /**
+         * 
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
         removeQuestionFromQuestionnaire: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const QuestionnaireCollection = database.getDb().collection('questionnaires');
@@ -448,13 +505,14 @@ const resolvers = {
                 if (!studyDetails) {
                     throw new Error("Unable to find linked study")
                 }
-                if (ctx.user.Level < 2) {
+                if (ctx.user.Level < 2) {  // If user isn't a admin, we make sure they are apart of the study
                     const staff_id = new mongo.ObjectID(ctx.user.ID);
                     const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", staff_id) })
                     if (!studyDocument) {
                         throw new ForbiddenError("User not part of study")
                     }
                 }
+                // Check if user has delete perms
                 if (ctx.user.Level < studyDetails.permissions.delete) {
                     throw new PermissionsError("Invalid Permissions")
                 }
@@ -469,6 +527,7 @@ const resolvers = {
                     throw new IdError("Invalid questionID")
                 }
                 try {
+                    // remove question from questionnaire
                     const response = await QuestionnaireCollection.updateOne(
                         { "_id": q_id },
                         {
@@ -479,6 +538,7 @@ const resolvers = {
                             }
                         }
                     )
+                    // return the questionnaire with updated details
                     currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                     return {
                         id: currQuestionnaire._id,
@@ -498,6 +558,13 @@ const resolvers = {
                 )
             }
         },
+        /**
+         * 
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
         editQuestion: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const QuestionnaireCollection = database.getDb().collection('questionnaires');
@@ -511,16 +578,18 @@ const resolvers = {
                 if (!studyDetails) {
                     throw new Error("Unable to find linked study")
                 }
-                if (ctx.user.Level < 2) {
+                if (ctx.user.Level < 2) {  // If user isn't a admin, we make sure they are apart of the study
                     const staff_id = new mongo.ObjectID(ctx.user.ID);
                     const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", staff_id) })
                     if (!studyDocument) {
                         throw new ForbiddenError("User not part of study")
                     }
                 }
+                // Check if user has edit perms
                 if (ctx.user.Level < studyDetails.permissions.delete) {
                     throw new PermissionsError("Invalid Permissions")
                 }
+                // Check if the question being edited exists
                 var existCheck = false
                 const question_id = new mongo.ObjectID(arg.questionID);
                 for (let x in currQuestionnaire.questions) {
@@ -532,6 +601,7 @@ const resolvers = {
                     throw new IdError("Invalid questionID")
                 }
                 try {
+                    // for each possible updated fields update the question
                     const question_id = new mongo.ObjectID(arg.questionID);
                     findQuery = { "_id": q_id, "questions.qID": question_id }
                     if ('qType' in arg) {
@@ -569,6 +639,7 @@ const resolvers = {
                             { $set: { "questions.$.description": arg.description } }
                         )
                     }
+                    // find questionnaire and return with new details
                     currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                     return {
                         id: currQuestionnaire._id,

@@ -20,7 +20,7 @@ const getAuthLink = () => {
 
 const createClient = () => {
     const authLink = getAuthLink();
-    const httpLink = new HttpLink({ uri: 'http://localhost:4000/graphql' });
+    const httpLink = new HttpLink({ uri: 'https://node1.iplabs.work/graphql' });
 
     return new ApolloClient({
         ssrMode: typeof window === 'undefined',

@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-// import { useRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import { Card, Form, Button } from 'react-bootstrap';
 import { Formik, useField } from 'formik';
 import * as yup from 'yup';
@@ -11,7 +11,7 @@ import styles from './styles/login.module.scss';
 const Login = () => {
     const { setUserToken } = useContext(UserContext);
     const [error, setError] = useState(false);
-    // const router = useRouter();
+    const router = useRouter();
 
     const validationSchema = yup.object({
         email: yup.string().required().max(128),
@@ -19,24 +19,27 @@ const Login = () => {
     });
 
     const loginFunc = async (values, { setSubmitting, resetForm }) => {
-        setSubmitting(true);
+        await setSubmitting(true);
+
         try {
             const res = await loginAsync(values);
-            resetForm();
-            setUserToken(res);
+            await resetForm();
+            await setUserToken(res);
             login(res);
-            // if (typeof window !== 'undefined') router.push(routes.shift);
             setError(false);
+            if (res.level === 2) await router.push('/admin');
+            else await router.push('/studies');
         } catch (err) {
+            console.log(err);
             setError(true);
         }
 
-        setSubmitting(false);
+        await setSubmitting(false);
     };
 
     return (
-        <Card className={`${styles.loginCard} p-4`}>
-            <h3 className="text-center">Login</h3>
+        <Card className={styles.loginCard}>
+            <h3 className={styles.loginHeading}>Login</h3>
             <Formik
                 initialValues={{ email: '', password: '' }}
                 validationSchema={validationSchema}

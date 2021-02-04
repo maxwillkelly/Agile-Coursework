@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { useQuery, useMutation } from '@apollo/client';
 import { Button, Container, ListGroup, Spinner, Col } from 'react-bootstrap';
 import Navigation from '../components/Navigation';
+import MainBreadcrumb from '../components/MainBreadcrumb';
 import { getUserToken } from '../libs/user';
 import { GET_STAFF_STUDIES } from '../queries/study';
 import { CREATE_NEW_STUDY, DELETE_STUDY } from '../mutations/study';
@@ -24,7 +25,7 @@ const StudiesPage = () => {
             staff: []
         };
         await createNewStudy({ variables: { study } });
-        router.push(`/study/${study.id}`);
+        router.push(`/studies/${study.id}`);
     };
 
     return (
@@ -33,11 +34,12 @@ const StudiesPage = () => {
                 <title>Studies</title>
             </Head>
             <Navigation />
+            <MainBreadcrumb />
             <main>
-                <Container className="mt-3">
-                    <h2 className="mx-3">Studies</h2>
+                <Container className={styles.studyContainer}>
+                    <h2 className={styles.pageTitle}>Studies</h2>
                     <Studies />
-                    <Button className="float-right mt-3" onClick={createStudy}>
+                    <Button className={styles.createStudyButton} onClick={createStudy}>
                         Create Study
                     </Button>
                 </Container>
@@ -82,20 +84,23 @@ const Study = ({ study }) => {
         <ListGroup.Item>
             <div className={styles.study}>
                 <Col>
-                    <p className="m-0">{study.title}</p>
+                    <p className={styles.studyInfo}>{study.title}</p>
                 </Col>
                 <Col>
-                    <p className="m-0">{study.description}</p>
+                    <p className={styles.studyInfo}>{study.description}</p>
                 </Col>
                 <div>
                     <Button
-                        className="ml-4"
+                        className={styles.studyButton}
                         variant="primary"
-                        onClick={() => router.push(`/study/${study.id}`)}>
+                        onClick={() => router.push(`/studies/${study.id}`)}>
                         Edit
                     </Button>
 
-                    <Button className="ml-4" variant="danger" onClick={() => delete_Study()}>
+                    <Button
+                        className={styles.studyButton}
+                        variant="danger"
+                        onClick={() => delete_Study()}>
                         Delete
                     </Button>
                 </div>

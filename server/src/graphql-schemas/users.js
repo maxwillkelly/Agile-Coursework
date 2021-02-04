@@ -53,8 +53,15 @@ const typeDefs = gql`
 
 const resolvers = {
     Query: {
+        /**
+         * Retuns the details for the user that's logged in
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
         getLoginUser: async (parent, arg, ctx, info) => {
-            if (ctx.auth) {
+            if (ctx.auth) {  // Check if the user is authenicated 
                 try {
                     const UserCollection = database.getDb().collection('users');
                     var o_id = new mongo.ObjectID(ctx.user.ID);
@@ -75,10 +82,16 @@ const resolvers = {
             }
         },
 
+        /**
+         * Get a list of all the users in the system
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
         getUsers: async (parent, arg, ctx, info) => {
-            if (ctx.auth) {
+            if (ctx.auth) {  // Check if the user is authenicated 
                 const UserCollection = database.getDb().collection('users');
-                var o_id = new mongo.ObjectID(ctx.user.ID);
                 try {
                     const users = await UserCollection.find().toArray();
                     var replyList = [];
@@ -103,9 +116,16 @@ const resolvers = {
     },
 
     Mutation: {
+        /**
+         * Create a new user
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
         setNewUser: async (parent, arg, ctx, info) => {
-            if (ctx.auth) {
-                if (ctx.user.Level >= 2) {
+            if (ctx.auth) {  // Check if the user is authenicated 
+                if (ctx.user.Level >= 2) {  // Check if user is at or above level 2 perm (admin/lab manager)
                     const UserCollection = database.getDb().collection('users');
                     const hashPass = await bcrypt.hash(arg.password, 12);
                     const r = await UserCollection.insertOne({
@@ -132,9 +152,16 @@ const resolvers = {
             }
         },
 
+        /**
+         * Update the details for a user
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
         updateUser: async (parent, arg, ctx, info) => {
-            if (ctx.auth) {
-                if (ctx.user.Level >= 2) {
+            if (ctx.auth) {  // Check if the user is authenicated 
+                if (ctx.user.Level >= 2) {  // Check if user is at or above level 2 perm (admin/lab manager)
                     const UserCollection = database.getDb().collection('users');
                     var o_id = new mongo.ObjectID(arg.id);
                     const loginUser = await UserCollection.findOne({ _id: o_id });
@@ -179,13 +206,21 @@ const resolvers = {
             }
         },
 
+        /**
+         * Delete an user
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
         deleteUser: async (parent, arg, ctx, info) => {
-            if (ctx.auth) {
+            if (ctx.auth) {  // Check if the user is authenicated 
                 try {
                     const UserCollection = database.getDb().collection('users');
                     var o_id = new mongo.ObjectID(arg.id);
                     const loginUser = await UserCollection.findOne({ _id: o_id });
                     if (loginUser) {
+                        // Used can't delete themselves
                         if (ctx.user.ID == arg.id) {
                             throw new Error('Cannot delete current user');
                         } else {
