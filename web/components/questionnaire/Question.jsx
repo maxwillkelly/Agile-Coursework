@@ -173,9 +173,7 @@ const Question = ({ question, questionnaire, refetch }) => {
                                             </FieldArray>
                                         </>
                                     )}
-                                {(question.qType === 'short' ||
-                                    question.qType === 'long' ||
-                                    question.qType === 'paragraph') && (
+                                {(question.qType === 'short' || question.qType === 'long') && (
                                     <>
                                         <Form.Label className={styles.questionLabel}>
                                             Question Type:
@@ -183,13 +181,18 @@ const Question = ({ question, questionnaire, refetch }) => {
                                                 ? ' Short answer'
                                                 : ' Long answer'}
                                         </Form.Label>
-                                        <Button
-                                            ref={buttonRef}
-                                            type="submit"
-                                            className={styles.submitButton}>
-                                            Save
-                                        </Button>
                                     </>
+                                )}
+
+                                {(question.qType === 'short' ||
+                                    question.qType === 'long' ||
+                                    question.qType === 'paragraph') && (
+                                    <Button
+                                        ref={buttonRef}
+                                        type="submit"
+                                        className={styles.submitButton}>
+                                        Save
+                                    </Button>
                                 )}
                                 <Overlay
                                     target={buttonRef.current}
