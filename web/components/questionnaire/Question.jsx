@@ -162,7 +162,9 @@ const Question = ({ question, questionnaire, refetch }) => {
                                             </FieldArray>
                                         </>
                                     )}
-                                {(question.qType === 'short' || question.qType === 'long') && (
+                                {(question.qType === 'short' ||
+                                    question.qType === 'long' ||
+                                    question.qType === 'paragraph') && (
                                     <>
                                         <Form.Label className={styles.questionLabel}>
                                             Question Type:
