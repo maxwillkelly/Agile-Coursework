@@ -28,7 +28,7 @@ const typeDefs = gql`
     }
 
     input updateQuestion{
-        questionID: ID!
+        qID: ID!
         qType: String
         order: Int
         message: String
