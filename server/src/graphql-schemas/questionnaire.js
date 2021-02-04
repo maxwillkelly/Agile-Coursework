@@ -108,6 +108,10 @@ const typeDefs = gql`
             questionnaireID: ID!
             questions: [updateQuestion]
         ): Questionnaire
+        "Put a questionnaire in to some sort of order"
+        orderQuestionnaire(
+            questionnaireID: ID!
+        ): Questionnaire
     }
 `;
 
@@ -581,7 +585,7 @@ const resolvers = {
             }
         },
         /**
-         * 
+         * Edit a questions in a Questionnaire
          * @param {Object} parent 
          * @param {Object} arg 
          * @param {Object} ctx 
@@ -689,9 +693,16 @@ const resolvers = {
             }
         },
 
+        /**
+         * Update multiple questions in a questionnaire 
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
         batchEditQuestions: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
-                const editValues = ['qType', 'order', 'message', 'description', 'values', 'required']
+                const editValues = ['qType', 'order', 'message', 'description', 'values', 'required']  // Hold all possible fields that can be updated
                 const QuestionnaireCollection = database.getDb().collection('questionnaires');
                 const q_id = new mongo.ObjectID(arg.questionnaireID);
                 var currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
@@ -706,15 +717,14 @@ const resolvers = {
                     // Check if the question being edited exists
                     var existCheck = false
                     const question_id = new mongo.ObjectID(arg.questions[x].questionID);
-                    for (let x in currQuestionnaire.questions) {
-                        if (currQuestionnaire.questions[x].qID.equals(question_id)) {
+                    for (let z in currQuestionnaire.questions) {
+                        if (currQuestionnaire.questions[z].qID.equals(question_id)) {
                             existCheck = true
                         }
                     }
                     if (!existCheck) {
-                        throw new IdError("Invalid questionID")
+                        throw new IdError(`Invalid questionID @ array item ${x}`)
                     }
-                    console.log(`valid ID ${arg.questionnaireID}`)
                     for (let y in editValues) {
                         const val = editValues[y]
                         if (val in arg.questions[x]) {
@@ -728,7 +738,6 @@ const resolvers = {
                     }
                 }
                 try {
-                    console.log(JSON.stringify(updateCommands, null, 4))
                     await QuestionnaireCollection.bulkWrite(updateCommands)
                     currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                     return {
@@ -738,7 +747,54 @@ const resolvers = {
                         study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
                         questions: currQuestionnaire.questions,
                     }
-                }catch(err){
+                } catch (err) {
+                    throw new Error(`Batch update Error: ${err}`)
+                }
+            } else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        },
+
+        /**
+         * Assign an order to questions in a Questionnaire
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
+        orderQuestionnaire: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                const QuestionnaireCollection = database.getDb().collection('questionnaires');
+                const q_id = new mongo.ObjectID(arg.questionnaireID);
+                var currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
+                if (!currQuestionnaire) {
+                    throw new IdError("Invalid questionnaireID")
+                }
+                if (!await permissions.permissionChecker(ctx, currQuestionnaire.studyID.oid, "edit")) {
+                    throw ForbiddenError("Invalid Permissions")
+                }
+                var updateCommands = []
+                for (let x in currQuestionnaire.questions){
+                    updateCommands.push({
+                        updateOne: {
+                            filter: { "_id": q_id, "questions.qID": currQuestionnaire.questions[x].qID },
+                            update: { $set: { "questions.$.order": x } }
+                        }
+                    })
+                }
+                try {
+                    await QuestionnaireCollection.bulkWrite(updateCommands)
+                    currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
+                    return {
+                        id: currQuestionnaire._id,
+                        title: currQuestionnaire.title,
+                        description: currQuestionnaire.description,
+                        study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
+                        questions: currQuestionnaire.questions,
+                    }
+                } catch (err) {
                     throw new Error(`Batch update Error: ${err}`)
                 }
             } else {
