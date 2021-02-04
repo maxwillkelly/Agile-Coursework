@@ -16,54 +16,60 @@ const AddTextSection = ({ questionnaire, refetch }) => {
     return (
         <Container className={styles.questionnaireContainer}>
             <Card className={styles.questionnaireCard}>
-                <Formik
-                    initialValues={{
-                        message: '',
-                        description: '',
-                        qType: 'paragraph',
-                        order: questionnaire.questions.length,
-                        values: []
-                    }}
-                    onSubmit={submitValues}>
-                    {({
-                        values,
-                        // errors,
-                        // touched,
-                        handleChange,
-                        handleBlur,
-                        handleSubmit
-                    }) => (
-                        <Form onSubmit={handleSubmit}>
-                            <Form.Group>
-                                <Form.Label>Heading</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="message"
-                                    placeholder="Enter a heading"
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    value={values.message}
-                                />
-                            </Form.Group>
+                <Card.Header>Add Text Section</Card.Header>
+                <Card.Body>
+                    <Formik
+                        initialValues={{
+                            message: '',
+                            description: '',
+                            qType: 'paragraph',
+                            order: questionnaire.questions.length,
+                            values: []
+                        }}
+                        onSubmit={submitValues}>
+                        {({
+                            values,
+                            // errors,
+                            // touched,
+                            handleChange,
+                            handleBlur,
+                            handleSubmit
+                        }) => (
+                            <Form onSubmit={handleSubmit}>
+                                <Form.Group>
+                                    <Form.Label>Heading</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="message"
+                                        placeholder="Enter a heading"
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        value={values.message}
+                                    />
+                                </Form.Group>
 
-                            <Form.Group>
-                                <Form.Label>Paragraph</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="description"
-                                    placeholder="Type your text here"
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    value={values.description}
-                                />
-                            </Form.Group>
+                                <Form.Group>
+                                    <Form.Label>Paragraph</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="description"
+                                        placeholder="Type your text here"
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        value={values.description}
+                                    />
+                                </Form.Group>
 
-                            <Button className={styles.submitButton} variant="primary" type="submit">
-                                Add
-                            </Button>
-                        </Form>
-                    )}
-                </Formik>
+                                <Button
+                                    className={styles.submitButton}
+                                    variant="primary"
+                                    type="submit">
+                                    Add
+                                </Button>
+                            </Form>
+                        )}
+                    </Formik>
+                </Card.Body>
             </Card>
         </Container>
     );
