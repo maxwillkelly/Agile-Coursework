@@ -18,7 +18,6 @@ import { Break } from "docx/build/file/paragraph/run/break";
 import { Bold } from "docx/build/file/paragraph/run/formatting";
 
 export class DocumentCreator {
-    // tslint:disable-next-line: typedef
     public create(name, applicationType, school, email, title, coInvestigators, startDate, endDate, funder, version, level, supervisorName, overview, aims, researchDesign, participantIdentification, consent, dataManagement1, dataManagement2, otherPerms, risks, otherConsiderations, documentation): Document {
         const document = new Document();
 
@@ -442,16 +441,6 @@ export class DocumentCreator {
             spacing: {
                 before: 500,
                 after: 100
-            }
-        });
-    }
-
-    public createSubHeading(text: string): Paragraph {
-        return new Paragraph({
-            text: text,
-            heading: HeadingLevel.HEADING_2,
-            spacing: {
-                after: 500
             }
         });
     }
