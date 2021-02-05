@@ -26,6 +26,17 @@ async function getQuestionnaire(questionnaireID) {
     }
 }
 
+async function formQuestionnaire(questionnairObject){
+    return {
+        id: questionnairObject._id,
+        title: questionnairObject.title,
+        description: questionnairObject.description,
+        study: await studyHelper.getStudy(questionnairObject.studyID.oid),
+        questions: questionnairObject.questions.sort((a, b) => a.order > b.order ? 1 : -1)
+    }
+}
+
 module.exports = {
-    getQuestionnaire: getQuestionnaire
+    getQuestionnaire: getQuestionnaire,
+    formQuestionnaire: formQuestionnaire
 }

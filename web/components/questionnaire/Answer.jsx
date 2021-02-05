@@ -1,10 +1,20 @@
 import Card from 'react-bootstrap/Card';
-import styles from '../styles/questionnaire.module.scss';
 import RadioInput from './RadioInput';
 import CheckboxInput from './CheckboxInput';
 import TextboxInput from './TextboxInput';
+import styles from '../styles/questionnaire.module.scss';
 
-export const Answer = ({ message, values, qType, qID, description, setAnswers, answers }) => {
+export const Answer = ({
+    message,
+    values,
+    qType,
+    qID,
+    description,
+    setAnswers,
+    answers,
+    required,
+    invalid
+}) => {
     const renderType = () => {
         if (qType === 'radio') {
             return (
@@ -14,6 +24,7 @@ export const Answer = ({ message, values, qType, qID, description, setAnswers, a
                     qID={qID}
                     setAnswers={setAnswers}
                     answers={answers}
+                    required={required}
                 />
             );
         } else if (qType === 'checkbox') {
@@ -24,22 +35,24 @@ export const Answer = ({ message, values, qType, qID, description, setAnswers, a
                     qID={qID}
                     setAnswers={setAnswers}
                     answers={answers}
+                    required={required}
                 />
             );
         } else if (qType === 'short' || qType === 'long') {
-            return <TextboxInput key={qID} qID={qID} setAnswers={setAnswers} />;
+            return <TextboxInput key={qID} qID={qID} setAnswers={setAnswers} required={required} />;
         }
     };
 
     return (
-        <Card>
+        <Card className={invalid && styles.invalidAnswerItem}>
             <Card.Header>
-                <h3>{message}</h3>
+                <h3>
+                    {message}
+                    {required && <span className={styles.requiredLabel}>required</span>}
+                </h3>
                 <h5>{description}</h5>
             </Card.Header>
-            <Card.Body>
-                {renderType()}
-            </Card.Body>
+            <Card.Body>{renderType()}</Card.Body>
         </Card>
     );
 };
