@@ -15,3 +15,19 @@ export const DELETE_NOTE_FROM_VIDEO_NOTE = gql`
         }
     }
 `;
+
+export const CREATE_VIDEO_NOTE = gql`
+    mutation CreateVideoNotes($studyID: ID!, $videoNotes: VideoNotesInput) {
+        createVideoNotes(studyID: $studyID, videoNotes: $videoNotes) {
+            _id
+        }
+    }
+`;
+
+export const DELETE_VIDEO_NOTE = gql`
+    mutation DeleteVideoNote($videoNoteID: ID!) {
+        deleteVideoNote(videoNoteID: $videoNoteID) {
+            _id
+        }
+    }
+`;

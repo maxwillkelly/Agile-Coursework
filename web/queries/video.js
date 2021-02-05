@@ -28,3 +28,9 @@ export const GET_VIDEO_NOTES = gql`
         }
     }
 `;
+
+export const EXPORT_VIDEO_NOTE = gql`
+    query ExportNotesAsCSV($videoNoteID: ID!) {
+        exportNotesAsCSV(videoNoteID: $videoNoteID)
+    }
+`;
