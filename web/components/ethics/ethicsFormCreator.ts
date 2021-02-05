@@ -26,8 +26,8 @@ export class DocumentCreator {
             document,
             name, applicationType, school, email, title, coInvestigators, startDate, endDate, funder, version, level, supervisorName, overview, aims, researchDesign, participantIdentification, consent, dataManagement1, dataManagement2, otherPerms, risks, otherConsiderations, documentation
         );
-        this.createSigniture("Principal Investigator or Student", document);
-        this.createSigniture(
+        this.createSignature("Principal Investigator or Student", document);
+        this.createSignature(
             "Supervisor (for applications from students)",
             document
         );
@@ -405,7 +405,7 @@ export class DocumentCreator {
         return "ree";
     }
 
-    public createSigniture(title: string, document: Document): string {
+    public createSignature(title: string, document: Document): string {
         document.addSection({
             children: [
                 new Paragraph({
