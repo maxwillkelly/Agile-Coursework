@@ -5,14 +5,15 @@ import { ADD_STAFF_TO_STUDY } from '../../mutations/study';
 import styles from '../../styles/studies.module.scss';
 import { Formik } from 'formik';
 
-const AddStaffCard = ({ study }) => {
-    const { loading, error, data, refetch } = useQuery(USERS_QUERY);
+const AddStaffCard = ({ study, refetch }) => {
+    const { loading, error, data, refetch: listRefetch } = useQuery(USERS_QUERY);
     const [addStaff] = useMutation(ADD_STAFF_TO_STUDY);
 
     const addStaffMemberToStudy = async (variables) => {
         if (!variables.staffID) return;
         // console.log(variables);
         await addStaff({ variables });
+        listRefetch();
         refetch();
     };
 

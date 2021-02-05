@@ -24,8 +24,8 @@ const StudiesPage = () => {
             },
             staff: []
         };
-        await createNewStudy({ variables: { study } });
-        router.push(`/studies/${study.id}`);
+        const { data } = await createNewStudy({ variables: { study } });
+        router.push(`/studies/${data.createNewStudy.id}`);
     };
 
     return (
@@ -52,6 +52,7 @@ const Studies = () => {
     const { loading, error, data } = useQuery(GET_STAFF_STUDIES, {
         variables: { staffID: getUserToken().id }
     });
+    console.log('userToken', getUserToken());
 
     if (loading)
         return (
@@ -77,6 +78,7 @@ const Study = ({ study }) => {
     const [deleteStudy] = useMutation(DELETE_STUDY);
 
     const delete_Study = () => {
+        console.log(`Deleting ${study.id}`);
         deleteStudy({ variables: { studyID: study.id } });
     };
 
@@ -97,10 +99,7 @@ const Study = ({ study }) => {
                         Edit
                     </Button>
 
-                    <Button
-                        className={styles.studyButton}
-                        variant="danger"
-                        onClick={() => delete_Study()}>
+                    <Button className={styles.studyButton} variant="danger" onClick={delete_Study}>
                         Delete
                     </Button>
                 </div>

@@ -110,10 +110,12 @@ const Question = ({ question, questionnaire, refetch }) => {
     return (
         <Card className={styles.questionCard}>
             <Card.Header>
-                {question.qType === 'paragraph'
-                    ? `${question.order + 1}: Text Section`
-                    : `${question.order + 1}: Question`}
-                <Button variant="danger" className={styles.submitButton} onClick={deleteQuestion}>
+                <span className={styles.questionType}>
+                    {question.qType === 'paragraph'
+                        ? `${question.order + 1}: Text Section`
+                        : `${question.order + 1}: Question`}
+                </span>
+                <Button variant="danger" className={styles.deleteButton} onClick={deleteQuestion}>
                     Delete
                 </Button>
             </Card.Header>

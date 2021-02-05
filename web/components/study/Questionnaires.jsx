@@ -4,7 +4,11 @@ import { useQuery, useMutation } from '@apollo/client';
 import copy from 'copy-to-clipboard';
 import { Button, ListGroup, Overlay, Spinner, Col, Tooltip } from 'react-bootstrap';
 import { CREATE_QUESTIONNAIRE, REMOVE_QUESTIONNAIRE } from '../../mutations/questionnaire';
-import { GET_STUDY_QUESTIONNAIRES, GET_CSV_OF_RESPONSES, GET_NUMBER_OF_QUESTIONNAIRE_RESPONSES } from '../../queries/questionnaire';
+import {
+    GET_STUDY_QUESTIONNAIRES,
+    GET_CSV_OF_RESPONSES,
+    GET_NUMBER_OF_QUESTIONNAIRE_RESPONSES
+} from '../../queries/questionnaire';
 import styles from '../../styles/studies.module.scss';
 
 const QuestionnairesSection = ({ studyID }) => {
@@ -23,6 +27,7 @@ const QuestionnairesSection = ({ studyID }) => {
         const { data } = await createQuestionnaireMutation({
             variables: { questionnaire }
         });
+        console.log(data);
         getStudyQuestionnaires.refetch();
         router.push(`/studies/${studyID}/questionnaire/${data.createQuestionnaire.id}/edit`);
     };
@@ -55,6 +60,22 @@ const Questionnaires = ({ getStudyQuestionnaires, refetch, studyID }) => {
 
     return (
         <ListGroup>
+            <ListGroup.Item>
+                <div className={styles.questionnaireItem}>
+                    <Col>
+                        <p className={styles.studyInfo}>Title</p>
+                    </Col>
+                    <Col>
+                        <p className={styles.studyInfo}>Desc.</p>
+                    </Col>
+                    <Col>
+                        <p className={styles.studyInfo}>Actions</p>
+                    </Col>
+                    <Col className="text-center">
+                        <p className={styles.studyInfo}>No. Of Responses</p>
+                    </Col>
+                </div>
+            </ListGroup.Item>
             {data.getStudyQuestionnaires.map((q, i) => (
                 <Questionnaire q={q} refetch={refetch} studyID={studyID} key={i} />
             ))}
@@ -68,7 +89,7 @@ const Questionnaire = ({ q, refetch, studyID }) => {
     const getCsvOfResponsesQuery = useQuery(GET_CSV_OF_RESPONSES, {
         variables: { questionnaireID: q.id }
     });
-    const { loading:loadData, error:errData, data: resData} = useQuery(GET_NUMBER_OF_QUESTIONNAIRE_RESPONSES, {
+    const { data: resData } = useQuery(GET_NUMBER_OF_QUESTIONNAIRE_RESPONSES, {
         variables: { questionnaireID: q.id }
     });
 
@@ -121,7 +142,10 @@ const Questionnaire = ({ q, refetch, studyID }) => {
                                 onClick={() => copyToClipboard(VIEW_PATH)}>
                                 Copy
                             </Button>
-                            <Overlay target={buttonRef.current} show={showTooltip} placement="bottom">
+                            <Overlay
+                                target={buttonRef.current}
+                                show={showTooltip}
+                                placement="bottom">
                                 {(props) => <Tooltip {...props}>Link copied!</Tooltip>}
                             </Overlay>
 
@@ -146,7 +170,10 @@ const Questionnaire = ({ q, refetch, studyID }) => {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 download>
-                                <Button className={styles.questionnaireButton} variant="info" size="sm">
+                                <Button
+                                    className={styles.questionnaireButton}
+                                    variant="info"
+                                    size="sm">
                                     Export
                                 </Button>
                             </a>
@@ -158,7 +185,7 @@ const Questionnaire = ({ q, refetch, studyID }) => {
                                 onClick={() => deleteQuestionnaire(q)}>
                                 Delete
                             </Button>
-                            
+
                             <Button
                                 className={styles.questionnaireButton}
                                 variant="warning"
@@ -166,10 +193,10 @@ const Questionnaire = ({ q, refetch, studyID }) => {
                                 onClick={() => router.push(RESPONSE_PATH)}>
                                 Responses
                             </Button>
-                        </Col>                        
+                        </Col>
                     </div>
                     <Col className="text-center font-weight-bold">
-                    {resData && resData.getNumberOfResponses}
+                        {resData && resData.getNumberOfResponses}
                     </Col>
                 </div>
             </ListGroup.Item>
