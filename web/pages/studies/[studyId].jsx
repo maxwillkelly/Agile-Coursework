@@ -40,7 +40,7 @@ const StudyPage = () => {
                         <Row className={styles.studyRow}>
                             <Col>
                                 <StudyInfo data={data.getStudy} />
-                                <AddStaffCard study={data.getStudy} />
+                                <AddStaffCard study={data.getStudy} refetch={refetch} />
                             </Col>
                             <Col>
                                 <PermissionsCard study={data.getStudy} />

@@ -2,7 +2,7 @@ import { gql } from '@apollo/client';
 
 export const CREATE_NEW_STUDY = gql`
     mutation CreateNewStudy($study: StudyInput) {
-        createStudy(study: $study) {
+        createNewStudy(study: $study) {
             id
         }
     }

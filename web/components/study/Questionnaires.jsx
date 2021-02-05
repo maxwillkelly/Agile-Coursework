@@ -27,6 +27,7 @@ const QuestionnairesSection = ({ studyID }) => {
         const { data } = await createQuestionnaireMutation({
             variables: { questionnaire }
         });
+        console.log(data);
         getStudyQuestionnaires.refetch();
         router.push(`/studies/${studyID}/questionnaire/${data.createQuestionnaire.id}/edit`);
     };
@@ -59,6 +60,22 @@ const Questionnaires = ({ getStudyQuestionnaires, refetch, studyID }) => {
 
     return (
         <ListGroup>
+            <ListGroup.Item>
+                <div className={styles.questionnaireItem}>
+                    <Col>
+                        <p className={styles.studyInfo}>Title</p>
+                    </Col>
+                    <Col>
+                        <p className={styles.studyInfo}>Desc.</p>
+                    </Col>
+                    <Col>
+                        <p className={styles.studyInfo}>Actions</p>
+                    </Col>
+                    <Col className="text-center">
+                        <p className={styles.studyInfo}>No. Of Responses</p>
+                    </Col>
+                </div>
+            </ListGroup.Item>
             {data.getStudyQuestionnaires.map((q, i) => (
                 <Questionnaire q={q} refetch={refetch} studyID={studyID} key={i} />
             ))}
