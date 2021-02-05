@@ -25,7 +25,8 @@ const AddQuestionForm = ({ questionnaire, refetch }) => {
                             description: '',
                             qType: '',
                             order: questionnaire.questions.length,
-                            values: []
+                            values: [],
+                            required: false
                         }}
                         onSubmit={submitValues}>
                         {({

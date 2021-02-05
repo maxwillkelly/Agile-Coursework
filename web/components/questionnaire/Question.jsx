@@ -99,8 +99,11 @@ const Question = ({ question, questionnaire, refetch }) => {
             order: questionValues.order,
             message: questionValues.title,
             description: questionValues.description,
-            values: questionValues.questionOptions
+            values: questionValues.questionOptions,
+            required: questionValues.required === true ? true : false
         };
+        console.log(questionValues.required);
+        console.log(variables);
         await editQuestion({ variables });
         setShowTooltip(true);
         setTimeout(() => setShowTooltip(false), 2000);
@@ -128,7 +131,7 @@ const Question = ({ question, questionnaire, refetch }) => {
                         questionOptions: question.values,
                         order: question.order,
                         qType: question.qType,
-                        required: null
+                        required: question.required
                     }}
                     onSubmit={updateQuestion}>
                     {({
