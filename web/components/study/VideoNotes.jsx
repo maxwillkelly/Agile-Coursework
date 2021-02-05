@@ -35,7 +35,7 @@ const VideoNotesList = ({ studyID }) => {
 const VideoNotesItem = ({ studyID, studyNote, refetch }) => {
     const router = useRouter();
     const { title, _id } = studyNote;
-    const { data } = useQuery(EXPORT_VIDEO_NOTE, {
+    const { loading, error, data } = useQuery(EXPORT_VIDEO_NOTE, {
         variables: { videoNotesID: _id }
     });
 
@@ -48,34 +48,41 @@ const VideoNotesItem = ({ studyID, studyNote, refetch }) => {
         refetch();
     };
 
-    return (
-        <ListGroup.Item>
-            <div className="d-flex align-items-center">
-                <Col>
-                    <p className="m-0">{title}</p>
-                </Col>
-                <div className="d-flex align-items-end">
-                    <Button
-                        className="mx-3"
-                        variant="primary"
-                        onClick={() => router.push(`/studies/${studyID}/videos/${studyNote._id}`)}>
-                        Edit
-                    </Button>
-                    <a
-                        className="mx-3"
-                        href={data ? data.exportNotesAsCSV : '#'}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        download>
-                        <Button variant="info">Export</Button>
-                    </a>
-                    <Button className="mx-3" variant="danger" onClick={deleteVideoNote}>
-                        Delete
-                    </Button>
+    if (loading) return <Spinner />;
+    if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
+
+    if (data)
+        return (
+            <ListGroup.Item>
+                <div className="d-flex align-items-center">
+                    <Col>
+                        <p className="m-0">{title}</p>
+                    </Col>
+                    <div className="d-flex align-items-end">
+                        <Button
+                            className="mx-3"
+                            variant="primary"
+                            onClick={() =>
+                                router.push(`/studies/${studyID}/videos/${studyNote._id}`)
+                            }>
+                            Edit
+                        </Button>
+                        <a
+                            className="mx-3"
+                            href={data ? data.exportNotesAsCSV : '#'}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            download>
+                            <Button variant="info">Export</Button>
+                        </a>
+                        <Button className="mx-3" variant="danger" onClick={deleteVideoNote}>
+                            Delete
+                        </Button>
+                    </div>
                 </div>
-            </div>
-        </ListGroup.Item>
-    );
+            </ListGroup.Item>
+        );
+    return null;
 };
 
 export const CreateVideoGroup = ({ studyID, refetch }) => {
