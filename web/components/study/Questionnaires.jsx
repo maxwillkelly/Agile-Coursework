@@ -89,6 +89,7 @@ const Questionnaire = ({ q, refetch, studyID }) => {
     const getCsvOfResponsesQuery = useQuery(GET_CSV_OF_RESPONSES, {
         variables: { questionnaireID: q.id }
     });
+
     const { data: resData } = useQuery(GET_NUMBER_OF_QUESTIONNAIRE_RESPONSES, {
         variables: { questionnaireID: q.id }
     });

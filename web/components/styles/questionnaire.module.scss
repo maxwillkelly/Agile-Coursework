@@ -15,6 +15,10 @@
     margin: 1rem;
 }
 
+.questionnaireCard {
+    margin-bottom: 1rem;
+}
+
 .questionnaireQuestion {
     background-color: #444;
     color: #eee;
@@ -47,7 +51,9 @@
     margin-top: 0.5rem;
 }
 
-.deleteButton {
+
+.deleteQuestionButton {
+    margin-top: 0.5rem;
     float: right;
 }
 

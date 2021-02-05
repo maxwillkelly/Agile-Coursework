@@ -56,6 +56,7 @@ export const EDIT_QUESTION = gql`
         $message: String
         $description: String
         $values: [String]
+        $required: Boolean
     ) {
         editQuestion(
             questionnaireID: $questionnaireID
@@ -65,6 +66,7 @@ export const EDIT_QUESTION = gql`
             message: $message
             description: $description
             values: $values
+            required: $required
         ) {
             id
         }

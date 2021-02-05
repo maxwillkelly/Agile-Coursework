@@ -37,6 +37,11 @@ const QuestionnaireCreatorPage = () => {
                     </Row>
                     <Row>
                         <Col>
+                            {data && <TitleForm questionnaire={data && data.getQuestionnaire} />}
+                        </Col>
+                    </Row>
+                    <Row className={styles.questionnaireBody} noGutters>
+                        <Col className={styles.questionnaireOptionsCol}>
                             {loading && <p>Loading...</p>}
                             {error && <pre>{JSON.stringify(error, null, 2)}</pre>}
                             {data && (
@@ -64,11 +69,7 @@ const QuestionnaireCreatorPage = () => {
 const QuestionnaireOptions = ({ questionnaire, refetch }) => {
     return (
         <>
-            <h5>Your Questionnaire</h5>
-            <TitleForm questionnaire={questionnaire} />
-            <h5 className={styles.addStuffCardTitle}>Add a Question</h5>
             <AddQuestionForm questionnaire={questionnaire} refetch={refetch} />
-            <h5 className={styles.addStuffCardTitle}>Add Text Section</h5>
             <AddTextSection questionnaire={questionnaire} refetch={refetch} />
         </>
     );
