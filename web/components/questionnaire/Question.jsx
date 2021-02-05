@@ -100,8 +100,10 @@ const Question = ({ question, questionnaire, refetch }) => {
             message: questionValues.title,
             description: questionValues.description,
             values: questionValues.questionOptions,
-            required: questionValues === 'yes' ? true : false
+            required: questionValues.required === true ? true : false
         };
+        console.log(questionValues.required);
+        console.log(variables);
         await editQuestion({ variables });
         setShowTooltip(true);
         setTimeout(() => setShowTooltip(false), 2000);
