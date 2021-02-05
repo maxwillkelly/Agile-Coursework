@@ -85,3 +85,12 @@ export const SEND_RESPONSE = gql`
         }
     }
 `;
+
+export const BATCH_EDIT_QUESTIONS = gql`
+    mutation BatchEditQuestion($questionnaireID: ID!, $questions: [updateQuestion]) {
+        batchEditQuestions(questionnaireID: $questionnaireID, questions: $questions) {
+            id
+            title
+        }
+    }
+`;
