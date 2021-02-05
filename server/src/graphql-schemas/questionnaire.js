@@ -6,6 +6,8 @@ const { IdError, PermissionsError } = require('../func/errors');
 const database = require('../database');
 const mongo = require('mongodb');
 const studyHelper = require('../func/study');
+const permissions = require('../func/permissionsChecker');
+const questionnaireHelper = require('../func/questionnaire')
 
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
@@ -17,12 +19,23 @@ const typeDefs = gql`
         message: String!
         description: String!
         values: [String]!
+        required: Boolean!
     }
 
     input QuestionnaireInput{
         title: String!
         description: String!
         studyID: ID!
+    }
+
+    input updateQuestion{
+        qID: ID!
+        qType: String
+        order: Int
+        message: String
+        description: String
+        values: [String]
+        required: Boolean
     }
 
     "Represents details of a question"
@@ -33,6 +46,7 @@ const typeDefs = gql`
         message: String
         description: String
         values: [String]
+        required: Boolean
     }
 
     "Represents details of a questionnaire"
@@ -88,6 +102,16 @@ const typeDefs = gql`
             description: String
             message: String
             values: [String]
+            required: Boolean
+        ): Questionnaire
+        "Batch update multiple questions in a questionnaire"
+        batchEditQuestions(
+            questionnaireID: ID!
+            questions: [updateQuestion]
+        ): Questionnaire
+        "Put a questionnaire in to some sort of order"
+        orderQuestionnaire(
+            questionnaireID: ID!
         ): Questionnaire
     }
 `;
@@ -117,13 +141,7 @@ const resolvers = {
                     } else {
                         studyDetails = null
                     }
-                    return {
-                        id: currQuestionnaire._id,
-                        title: currQuestionnaire.title,
-                        description: currQuestionnaire.description,
-                        study: studyDetails,
-                        questions: currQuestionnaire.questions,
-                    }
+                    return await questionnaireHelper.formQuestionnaire(currQuestionnaire)
                 } else {
                     throw new IdError(
                         'Invalid ID'
@@ -158,15 +176,7 @@ const resolvers = {
 
                         // Adds list to array for return
                         for (let x in questionnaires) {
-                            replyList.push(
-                                {
-                                    id: questionnaires[x]._id,
-                                    title: questionnaires[x].title,
-                                    description: questionnaires[x].description,
-                                    study: await studyHelper.getStudy(questionnaires[x].studyID.oid),
-                                    questions: questionnaires[x].questions
-                                }
-                            )
+                            replyList.push(await questionnaireHelper.formQuestionnaire(questionnaires[x]))
                         }
                         return replyList
                     } catch (err) {
@@ -212,15 +222,7 @@ const resolvers = {
                     const questionnaires = await QuestionnaireCollection.find({ studyID: mongo.DBRef("study", s_id) }).toArray()
                     var replyList = []
                     for (let x in questionnaires) {
-                        replyList.push(
-                            {
-                                id: questionnaires[x]._id,
-                                title: questionnaires[x].title,
-                                description: questionnaires[x].description,
-                                study: await studyHelper.getStudy(questionnaires[x].studyID.oid),
-                                questions: questionnaires[x].questions
-                            }
-                        )
+                        replyList.push(await questionnaireHelper.formQuestionnaire(questionnaires[x]))
                     }
                     return replyList
                 } catch (err) {
@@ -279,13 +281,8 @@ const resolvers = {
                     }
                     // insert into the collection
                     const response = await QuestionnaireCollection.insertOne(newQuestionnaire)
-                    return {
-                        id: response.ops[0]._id,
-                        title: response.ops[0].title,
-                        description: response.ops[0].description,
-                        study: await studyHelper.getStudy(response.ops[0].studyID.$id),
-                        questions: response.ops[0].questions
-                    }
+
+                    return await questionnaireHelper.formQuestionnaire(response.ops[0])
                 } catch (err) {
                     throw new Error(
                         `Internal Error ${err}`
@@ -338,7 +335,8 @@ const resolvers = {
                         message: arg.question.message,
                         description: arg.question.description,
                         values: arg.question.values,
-                        order: arg.question.order
+                        order: arg.question.order,
+                        required: arg.required
                     }
                     // insert question into questionnaire
                     const response = await QuestionnaireCollection.updateOne(
@@ -351,13 +349,7 @@ const resolvers = {
                     )
                     currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                     if (currQuestionnaire) {
-                        return {
-                            id: currQuestionnaire._id,
-                            title: currQuestionnaire.title,
-                            description: currQuestionnaire.description,
-                            study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
-                            questions: currQuestionnaire.questions,
-                        }
+                        return await questionnaireHelper.formQuestionnaire(currQuestionnaire)
                     }
                 } catch (err) {
                     throw new Error(
@@ -370,6 +362,7 @@ const resolvers = {
                 )
             }
         },
+
         /**
          * 
          * @param {Object} parent 
@@ -414,13 +407,7 @@ const resolvers = {
                     const r = await QuestionnaireCollection.updateOne({ "_id": q_id }, { $set: updateField })
                     currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
                     if (currQuestionnaire) {
-                        return {
-                            id: currQuestionnaire._id,
-                            title: currQuestionnaire.title,
-                            description: currQuestionnaire.description,
-                            study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
-                            questions: currQuestionnaire.questions,
-                        }
+                        return await questionnaireHelper.formQuestionnaire(currQuestionnaire)
                     }
                 } catch (err) {
                     throw new Error(
@@ -467,13 +454,7 @@ const resolvers = {
                 try {
                     // delete questionnaire and return its details
                     await QuestionnaireCollection.deleteOne({ "_id": q_id });
-                    return {
-                        id: currQuestionnaire._id,
-                        title: currQuestionnaire.title,
-                        description: currQuestionnaire.description,
-                        study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
-                        questions: currQuestionnaire.questions,
-                    }
+                    return await questionnaireHelper.formQuestionnaire(currQuestionnaire)
                 } catch (err) {
                     throw new Error(
                         `Internal error: ${err}`
@@ -540,13 +521,7 @@ const resolvers = {
                     )
                     // return the questionnaire with updated details
                     currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
-                    return {
-                        id: currQuestionnaire._id,
-                        title: currQuestionnaire.title,
-                        description: currQuestionnaire.description,
-                        study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
-                        questions: currQuestionnaire.questions,
-                    }
+                    return await questionnaireHelper.formQuestionnaire(currQuestionnaire)
                 } catch (err) {
                     throw new Error(
                         `Internal error: ${err}`
@@ -559,7 +534,7 @@ const resolvers = {
             }
         },
         /**
-         * 
+         * Edit a questions in a Questionnaire
          * @param {Object} parent 
          * @param {Object} arg 
          * @param {Object} ctx 
@@ -567,6 +542,7 @@ const resolvers = {
          */
         editQuestion: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
+                const editValues = ['qType', 'order', 'message', 'description', 'values', 'required']  // Hold all possible fields that can be updated
                 const QuestionnaireCollection = database.getDb().collection('questionnaires');
                 const StudyCollection = database.getDb().collection('study');
                 const q_id = new mongo.ObjectID(arg.questionnaireID);
@@ -600,58 +576,127 @@ const resolvers = {
                 if (!existCheck) {
                     throw new IdError("Invalid questionID")
                 }
+
+                var updateCommands = []  // Holds the updates the the bulk writes 
+                for (let y in editValues) {
+                    const val = editValues[y]
+                    if (val in arg) {
+                        updateCommands.push({
+                            updateOne: {
+                                filter: { "_id": q_id, "questions.qID": question_id },
+                                update: { $set: { [`questions.$.${val}`]: arg[val] } }
+                            }
+                        })
+                    }
+                }
                 try {
-                    // for each possible updated fields update the question
-                    const question_id = new mongo.ObjectID(arg.questionID);
-                    findQuery = { "_id": q_id, "questions.qID": question_id }
-                    if ('qType' in arg) {
-                        // updateQuestion.qType = arg.qType
-                        await QuestionnaireCollection.updateOne(
-                            findQuery,
-                            { $set: { "questions.$.qType": arg.qType } }
-                        )
-                    }
-                    if ('order' in arg) {
-                        // updateQuestion.order - arg.order
-                        await QuestionnaireCollection.updateOne(
-                            findQuery,
-                            { $set: { "questions.$.order": arg.order } }
-                        )
-                    }
-                    if ('message' in arg) {
-                        // updateQuestion.message = arg.message
-                        await QuestionnaireCollection.updateOne(
-                            findQuery,
-                            { $set: { "questions.$.message": arg.message } }
-                        )
-                    }
-                    if ('values' in arg) {
-                        // updateQuestion.values = arg.values
-                        await QuestionnaireCollection.updateOne(
-                            findQuery,
-                            { $set: { "questions.$.values": arg.values } }
-                        )
-                    }
-                    if ('description' in arg) {
-                        // updateQuestion.values = arg.values
-                        await QuestionnaireCollection.updateOne(
-                            findQuery,
-                            { $set: { "questions.$.description": arg.description } }
-                        )
-                    }
+                    await QuestionnaireCollection.bulkWrite(updateCommands)
                     // find questionnaire and return with new details
                     currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
-                    return {
-                        id: currQuestionnaire._id,
-                        title: currQuestionnaire.title,
-                        description: currQuestionnaire.description,
-                        study: await studyHelper.getStudy(currQuestionnaire.studyID.oid),
-                        questions: currQuestionnaire.questions,
-                    }
+                    return await questionnaireHelper.formQuestionnaire(currQuestionnaire)
                 } catch (err) {
                     throw new Error(
                         `Internal error: ${err}`
                     )
+                }
+            } else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        },
+
+        /**
+         * Update multiple questions in a questionnaire 
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
+        batchEditQuestions: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                const editValues = ['qType', 'order', 'message', 'description', 'values', 'required']  // Hold all possible fields that can be updated
+                const QuestionnaireCollection = database.getDb().collection('questionnaires');
+                const q_id = new mongo.ObjectID(arg.questionnaireID);
+                var currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
+                if (!currQuestionnaire) {
+                    throw new IdError("Invalid questionnaireID")
+                }
+                if (!await permissions.permissionChecker(ctx, currQuestionnaire.studyID.oid, "edit")) {
+                    throw ForbiddenError("Invalid Permissions")
+                }
+                var updateCommands = []  // Holds the updates the the bulk writes 
+                for (let x in arg.questions) {
+                    // Check if the question being edited exists
+                    var existCheck = false
+                    const question_id = new mongo.ObjectID(arg.questions[x].qID);
+                    for (let z in currQuestionnaire.questions) {
+                        if (currQuestionnaire.questions[z].qID.equals(question_id)) {
+                            existCheck = true
+                        }
+                    }
+                    if (!existCheck) {
+                        throw new IdError(`Invalid questionID @ array item ${x}`)
+                    }
+                    for (let y in editValues) {
+                        const val = editValues[y]
+                        if (val in arg.questions[x]) {
+                            updateCommands.push({
+                                updateOne: {
+                                    filter: { "_id": q_id, "questions.qID": question_id },
+                                    update: { $set: { [`questions.$.${val}`]: arg.questions[x][val] } }
+                                }
+                            })
+                        }
+                    }
+                }
+                try {
+                    await QuestionnaireCollection.bulkWrite(updateCommands)
+                    currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
+                    return await questionnaireHelper.formQuestionnaire(currQuestionnaire)
+                } catch (err) {
+                    throw new Error(`Batch update Error: ${err}`)
+                }
+            } else {
+                throw new AuthenticationError(
+                    'Authentication token is invalid, please log in'
+                )
+            }
+        },
+
+        /**
+         * Assign an order to questions in a Questionnaire
+         * @param {Object} parent 
+         * @param {Object} arg 
+         * @param {Object} ctx 
+         * @param {Object} info 
+         */
+        orderQuestionnaire: async (parent, arg, ctx, info) => {
+            if (ctx.auth) {
+                const QuestionnaireCollection = database.getDb().collection('questionnaires');
+                const q_id = new mongo.ObjectID(arg.questionnaireID);
+                var currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
+                if (!currQuestionnaire) {
+                    throw new IdError("Invalid questionnaireID")
+                }
+                if (!await permissions.permissionChecker(ctx, currQuestionnaire.studyID.oid, "edit")) {
+                    throw ForbiddenError("Invalid Permissions")
+                }
+                var updateCommands = []
+                for (let x in currQuestionnaire.questions) {
+                    updateCommands.push({
+                        updateOne: {
+                            filter: { "_id": q_id, "questions.qID": currQuestionnaire.questions[x].qID },
+                            update: { $set: { "questions.$.order": x } }
+                        }
+                    })
+                }
+                try {
+                    await QuestionnaireCollection.bulkWrite(updateCommands)
+                    currQuestionnaire = await QuestionnaireCollection.findOne({ "_id": q_id })
+                    return await questionnaireHelper.formQuestionnaire(currQuestionnaire)
+                } catch (err) {
+                    throw new Error(`Batch update Error: ${err}`)
                 }
             } else {
                 throw new AuthenticationError(

@@ -472,6 +472,7 @@ const resolvers = {
          */
         editNoteInVideoNotes: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
+                const editValues = ['timeStamp', 'description']
                 const NotesCollection = database.getDb().collection('notes');
                 const n_id = new mongo.ObjectID(arg.videoNotesID);
                 var currNotes = await NotesCollection.findOne({ "_id": n_id })
@@ -492,19 +493,19 @@ const resolvers = {
                     throw new IdError("Invalid noteID")
                 }
                 try {
-                    const findQuery = { "_id": n_id, "notes._id": note_id }
-                    if ("timeStamp" in arg) {
-                        await NotesCollection.updateOne(
-                            findQuery,
-                            { $set: { "notes.$.timeStamp": arg.timeStamp } }
-                        )
+                    var updateCommands = []
+                    for(let y in editValues){
+                        const val = editValues[y]
+                        if(val in arg){
+                            updateCommands.push({
+                                updateOne: {
+                                    filter: { "_id": n_id, "notes._id": note_id },
+                                    update: { $set: { [`notes.$.${val}`]: arg[val] } }
+                                } 
+                            })
+                        }
                     }
-                    if ('description' in arg) {
-                        await NotesCollection.updateOne(
-                            findQuery,
-                            { $set: { "notes.$.description": arg.description } }
-                        )
-                    }
+                    await NotesCollection.bulkWrite(updateCommands)
                     currNotes = await NotesCollection.findOne({ "_id": n_id })
                     return await videoHelper.formVideoNote(currNotes)
                 }
@@ -549,25 +550,20 @@ const resolvers = {
                     throw new IdError("Invalid videoID")
                 }
                 try {
-                    const findQuery = { "_id": n_id, "videos._id": video_id }
-                    if ("link" in arg) {
-                        await NotesCollection.updateOne(
-                            findQuery,
-                            { $set: { "videos.$.link": arg.link } }
-                        )
+                    const editValues = ['link', 'title', 'type']
+                    var updateCommands = []
+                    for(let y in editValues){
+                        const val = editValues[y]
+                        if(val in arg){
+                            updateCommands.push({
+                                updateOne: {
+                                    filter: { "_id": n_id, "videos._id": video_id },
+                                    update: { $set: { [`videos.$.${val}`]: arg[val] } }
+                                } 
+                            })
+                        }
                     }
-                    if ("title" in arg) {
-                        await NotesCollection.updateOne(
-                            findQuery,
-                            { $set: { "videos.$.title": arg.title } }
-                        )
-                    }
-                    if ("type" in arg) {
-                        await NotesCollection.updateOne(
-                            findQuery,
-                            { $set: { "videos.$.type": arg.type } }
-                        )
-                    }
+                    await NotesCollection.bulkWrite(updateCommands)
                     currNotes = await NotesCollection.findOne({ "_id": n_id })
                     return await videoHelper.formVideoNote(currNotes)
                 }
