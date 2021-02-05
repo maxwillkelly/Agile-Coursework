@@ -15,6 +15,10 @@
     margin: 1rem;
 }
 
+.questionnaireCard {
+    margin-bottom: 1rem;
+}
+
 .questionnaireQuestion {
     background-color: #444;
     color: #eee;
@@ -42,6 +46,12 @@
 .submitButton {
     margin-top: 0.5rem;
 }
+
+.deleteQuestionButton {
+    margin-top: 0.5rem;
+    float: right;
+}
+
 .checkboxContainer {
     display: flex;
     align-items: baseline;
