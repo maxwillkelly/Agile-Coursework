@@ -1,15 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery, useMutation } from '@apollo/client';
 import { Button, Col, ListGroup, Modal, Form } from 'react-bootstrap';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import Spinner from '../Spinner';
-import { GET_STUDY_NOTES } from '../../queries/video';
-import { CREATE_VIDEO_NOTE } from '../../mutations/video';
+import { GET_STUDY_NOTES, EXPORT_VIDEO_NOTE } from '../../queries/video';
+import { CREATE_VIDEO_NOTE, DELETE_VIDEO_NOTE } from '../../mutations/video';
 
 const VideoNotesList = ({ studyID }) => {
-    const { loading, error, data } = useQuery(GET_STUDY_NOTES, { variables: { studyID } });
+    const { loading, error, data, refetch } = useQuery(GET_STUDY_NOTES, { variables: { studyID } });
 
     if (loading) return <Spinner />;
     if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
@@ -22,37 +22,66 @@ const VideoNotesList = ({ studyID }) => {
                         <VideoNotesItem
                             studyID={studyID}
                             studyNote={studyNote}
+                            refetch={refetch}
                             key={studyNote._id}
                         />
                     ))}
                 </ListGroup>
-                <CreateVideoGroup studyID={studyID} />
+                <CreateVideoGroup studyID={studyID} refetch={refetch} />
             </div>
         );
 };
 
-const VideoNotesItem = ({ studyID, studyNote }) => {
+const VideoNotesItem = ({ studyID, studyNote, refetch }) => {
     const router = useRouter();
-    const { title } = studyNote;
+    const { title, _id } = studyNote;
+    const { data } = useQuery(EXPORT_VIDEO_NOTE, {
+        variables: { videoNotesID: _id }
+    });
+
+    const [deleteVideoNoteMutation] = useMutation(DELETE_VIDEO_NOTE);
+
+    const deleteVideoNote = async () => {
+        await deleteVideoNoteMutation({
+            variables: { videoNotesID: _id }
+        });
+        refetch();
+    };
+
     return (
         <ListGroup.Item>
             <div className="d-flex align-items-center">
                 <Col>
                     <p className="m-0">{title}</p>
                 </Col>
-                <Button
-                    variant="primary"
-                    onClick={() => router.push(`/studies/${studyID}/videos/${studyNote._id}`)}>
-                    View
-                </Button>
+                <div className="d-flex align-items-end">
+                    <Button
+                        className="mx-3"
+                        variant="primary"
+                        onClick={() => router.push(`/studies/${studyID}/videos/${studyNote._id}`)}>
+                        Edit
+                    </Button>
+                    <a
+                        className="mx-3"
+                        href={data ? data.exportNotesAsCSV : '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download>
+                        <Button variant="info">Export</Button>
+                    </a>
+                    <Button className="mx-3" variant="danger" onClick={deleteVideoNote}>
+                        Delete
+                    </Button>
+                </div>
             </div>
         </ListGroup.Item>
     );
 };
 
-export const CreateVideoGroup = ({ studyID }) => {
+export const CreateVideoGroup = ({ studyID, refetch }) => {
     const [showModal, setShowModal] = useState(false);
-    const [createVideoNote] = useMutation(CREATE_VIDEO_NOTE);
+    const router = useRouter();
+    const [createVideoNote, { data }] = useMutation(CREATE_VIDEO_NOTE);
 
     const handleClose = () => setShowModal(false);
 
@@ -69,11 +98,17 @@ export const CreateVideoGroup = ({ studyID }) => {
 
     const submitVideoNote = async (videoNotes, { setSubmitting, resetForm }) => {
         setSubmitting(true);
-        await createVideoNote({ variables: { studyID, videoNotes } });
+        createVideoNote({ variables: { studyID, videoNotes } });
         resetForm();
         setSubmitting(false);
         handleClose();
+        refetch();
     };
+
+    useEffect(() => {
+        if (data) router.push(`/studies/${studyID}/videos/${data.createVideoNotes._id}`);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [data]);
 
     return (
         <>

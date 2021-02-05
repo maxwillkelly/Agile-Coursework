@@ -25,8 +25,8 @@ export const CREATE_VIDEO_NOTE = gql`
 `;
 
 export const DELETE_VIDEO_NOTE = gql`
-    mutation DeleteVideoNote($videoNoteID: ID!) {
-        deleteVideoNote(videoNoteID: $videoNoteID) {
+    mutation DeleteVideoNote($videoNotesID: ID!) {
+        deleteVideoNote(videoNotesID: $videoNotesID) {
             _id
         }
     }
