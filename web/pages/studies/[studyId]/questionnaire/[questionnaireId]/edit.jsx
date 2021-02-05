@@ -69,7 +69,6 @@ const QuestionnaireCreatorPage = () => {
 const QuestionnaireOptions = ({ questionnaire, refetch }) => {
     return (
         <>
-            <TitleForm questionnaire={questionnaire} />
             <AddQuestionForm questionnaire={questionnaire} refetch={refetch} />
             <AddTextSection questionnaire={questionnaire} refetch={refetch} />
         </>
