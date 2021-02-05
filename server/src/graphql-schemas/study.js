@@ -146,13 +146,16 @@ const resolvers = {
 
         /**
          * Returns all studies
-         * @param {Object} parent 
-         * @param {Object} arg 
-         * @param {Object} ctx 
-         * @param {Object} info 
+         * @param {Object} parent
+         * @param {Object} arg
+         * @param {Object} ctx
+         * @param {Object} info
          */
         getStudies: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
+                if (!(ctx.user.Level >= 2)) {
+                    throw new ForbiddenError("Invalid Permissions in getStudies")
+                }
                 const StudyCollection = database.getDb().collection('study');
                 try {
                     const studies = await StudyCollection.find().toArray()
@@ -204,13 +207,9 @@ const resolvers = {
         getStaffStudies: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 //Checks if current user is that being searched or a lab admin and throws error if not
-                if (ctx.user.ID != arg) {
-                    if (!(ctx.user.Level >= 2)) {
-                        throw new ForbiddenError("Invalid Permissions")
-                    }
+                if (ctx.user.ID != arg.staffID) {
+                        throw new ForbiddenError("Invalid Permissions in getStaffStudies")
                 }
-
-
                 const StudyCollection = database.getDb().collection('study');
                 try {
                     var o_id = new mongo.ObjectID(arg.staffID);

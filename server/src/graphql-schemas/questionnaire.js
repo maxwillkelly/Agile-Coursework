@@ -211,12 +211,8 @@ const resolvers = {
                 var s_id = new mongo.ObjectID(arg.studyID);
 
                 //Gets Information if the user has the correct clearance for that study
-                if (ctx.user.Level < 2) {
-                    const staff_id = new mongo.ObjectID(ctx.user.ID);
-                    const studyDocument = await StudyCollection.findOne({ _id: currQuestionnaire.studyID.oid, staff: mongo.DBRef("users", staff_id) })
-                    if (!studyDocument) {
-                        throw new ForbiddenError("User not part of study")
-                    }
+                if (!await permissions.permissionChecker(ctx, s_id, "read")) {
+                    throw ForbiddenError("Invalid Permissions")
                 }
                 try {
                     const questionnaires = await QuestionnaireCollection.find({ studyID: mongo.DBRef("study", s_id) }).toArray()
@@ -282,7 +278,13 @@ const resolvers = {
                     // insert into the collection
                     const response = await QuestionnaireCollection.insertOne(newQuestionnaire)
 
-                    return await questionnaireHelper.formQuestionnaire(response.ops[0])
+                    return {
+                        id: response.ops[0]._id,
+                        title: response.ops[0].title,
+                        description: response.ops[0].description,
+                        study: await studyHelper.getStudy(s_id),
+                        questions: response.ops[0].questions,
+                    }
                 } catch (err) {
                     throw new Error(
                         `Internal Error ${err}`

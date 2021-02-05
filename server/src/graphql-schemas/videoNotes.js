@@ -57,8 +57,6 @@ const typeDefs = gql`
     }
 
     input VideoNotesInput{
-        "ID of the study this video note is to link to"
-        studyID: ID!
         "Title of this video note"
         title: String!
         "link to videos"
@@ -71,6 +69,8 @@ const typeDefs = gql`
     extend type Mutation{
         "Create VideoNotes"
         createVideoNotes(
+            "ID of the study this video note is to link to"
+            studyID: ID!
             videoNotes: VideoNotesInput
         ): VideoNotes
         "Add a note to a videoNote"
@@ -231,10 +231,10 @@ const resolvers = {
                 try {
                     const NotesCollection = database.getDb().collection('notes');
                     var s_id = new mongo.ObjectID(arg.studyID);
-                    const currNotes = await NotesCollection.find({ study: DBRef("study", s_id) }).toArray()
-                    if (ctx.user.Level < 2) {
-                        throw new ForbiddenError("Invalid Permissions")
+                    if (!await permissions.permissionChecker(ctx, s_id, "read")) {
+                        throw ForbiddenError("Invalid Permissions")
                     }
+                    const currNotes = await NotesCollection.find({ study: DBRef("study", s_id) }).toArray()
                     if (currNotes) {
                         var noteList = []
                         for (let x in currNotes) {
@@ -275,12 +275,12 @@ const resolvers = {
         createVideoNotes: async (parent, arg, ctx, info) => {
             if (ctx.auth) {
                 const NotesCollection = database.getDb().collection('notes');
-                const study_oid = new mongo.ObjectID(arg.videoNotes.studyID)
+                const study_oid = new mongo.ObjectID(arg.studyID)
                 const study = await studyHelper.getStudy(study_oid)
                 if (!study) {
                     throw new IdError("Invalid studyID")
                 }
-                if (!await permissions.permissionChecker(ctx, study.oid, "create")) {
+                if (!await permissions.permissionChecker(ctx, study_oid, "create")) {
                     throw ForbiddenError("Invalid Permissions")
                 }
                 try {
@@ -317,7 +317,13 @@ const resolvers = {
                         notes: notes
                     }
                     const response = await NotesCollection.insertOne(newVideoNote)
-                    return await videoHelper.formVideoNote(response.ops[0])
+                    return{
+                        _id: response.ops[0]._id,
+                        study: await studyHelper.getStudy(response.ops[0].study.$id),
+                        title: response.ops[0].title,
+                        videos: response.ops[0].videos,
+                        notes: response.ops[0].notes.sort((a, b) => a.timeStamp > b.timeStamp ? 1 : -1)
+                    }
                 }
                 catch (err) {
                     throw new Error(
