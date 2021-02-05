@@ -15,12 +15,14 @@ import { generateDoc } from '../components/ethics/ethicsPacker.tsx';
 const EthicsPage = ({ firstName, lastName, email, title, description }) => {
     const router = useRouter();
     const { loading, error, data } = useQuery(GET_STUDY, {
-        variables: { id: '60103d9bec827463c8a40e34' }
+        variables: { id: '601980e7a789de6c886cd6d3' }
     });
 
     if (loading) return <Spinner />;
     if (error) return <pre>{JSON.stringify(error)}</pre>;
     if (data)
+    var fullName = `${data.getStudy.staff[0].firstName} ${data.getStudy.staff[0].lastName}`
+    
         return (
             <>
                 <Head>
@@ -33,7 +35,7 @@ const EthicsPage = ({ firstName, lastName, email, title, description }) => {
                         <h3 className="p-0 mt-4 mb-2">Ethics form for "{data.getStudy.title}"</h3>
 
                         <FormInput
-                            name={data.getStudy.staff[0].firstName}
+                            name={fullName}
                             email={data.getStudy.staff[0].email}
                             title={data.getStudy.description}
                             overview={data.getStudy.description}
