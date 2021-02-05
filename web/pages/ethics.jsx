@@ -69,17 +69,10 @@ const FormInput = ({ name, email, title, overview }) => {
         var doc = new DocumentCreator();
 
         try {
-            doc.create(name, applicationType,school, email, title, coInvestigators, startDate, endDate, funder, version, level, supervisorName, overview, aims, researchDesign, participantIdentification, consent, dataManagement1, dataManagement2, otherPerms, risks, otherConsiderations, documentation );
+            doc = doc.create(name, applicationType,school, email, title, coInvestigators, startDate, endDate, funder, version, level, supervisorName, overview, aims, researchDesign, participantIdentification, consent, dataManagement1, dataManagement2, otherPerms, risks, otherConsiderations, documentation );
 
             console.log("Cock");
             console.log(doc);
-
-            // doc.createMain(doc, name, applicationType,school, email, title, coInvestigators, startDate, endDate, funder, version, level, supervisorName, overview, aims, researchDesign, participantIdentification, consent, dataManagement1, dataManagement2, otherPerms, risks, otherConsiderations, documentation );
-         
-
-            // doc.createSigniture('Principal Investigator or Student', doc);
-            // doc.createSigniture('Supervisor (for applications from students)', doc);
-
             generateDoc(doc);
         } catch (err) {
             throw new Error(`Error ${err}`);
@@ -127,7 +120,7 @@ const FormInput = ({ name, email, title, overview }) => {
                         <Form.Label>School</Form.Label>
                         <Form.Control
                             type="text"
-                            name="applicationType"
+                            name="school"
                             placeholder="n/a"
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -138,7 +131,7 @@ const FormInput = ({ name, email, title, overview }) => {
                         <Form.Label>Co-Investigators</Form.Label>
                         <Form.Control
                             type="text"
-                            name="applicationType"
+                            name="coInvestigators"
                             placeholder="n/a"
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -149,7 +142,7 @@ const FormInput = ({ name, email, title, overview }) => {
                         <Form.Label>Start Date</Form.Label>
                         <Form.Control
                             type="text"
-                            name="applicationType"
+                            name="startDate"
                             placeholder="n/a"
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -160,7 +153,7 @@ const FormInput = ({ name, email, title, overview }) => {
                         <Form.Label>End Date</Form.Label>
                         <Form.Control
                             type="text"
-                            name="applicationType"
+                            name="endDate"
                             placeholder="n/a"
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -171,7 +164,7 @@ const FormInput = ({ name, email, title, overview }) => {
                         <Form.Label>Funder</Form.Label>
                         <Form.Control
                             type="text"
-                            name="applicationType"
+                            name="funder"
                             placeholder="n/a"
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -182,7 +175,7 @@ const FormInput = ({ name, email, title, overview }) => {
                         <Form.Label>Version</Form.Label>
                         <Form.Control
                             type="text"
-                            name="applicationType"
+                            name="version"
                             placeholder="n/a"
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -193,7 +186,7 @@ const FormInput = ({ name, email, title, overview }) => {
                         <Form.Label>Level</Form.Label>
                         <Form.Control
                             type="text"
-                            name="applicationType"
+                            name="level"
                             placeholder="n/a"
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -204,7 +197,7 @@ const FormInput = ({ name, email, title, overview }) => {
                         <Form.Label>Supervisor Name</Form.Label>
                         <Form.Control
                             type="text"
-                            name="applicationType"
+                            name="supervisorName"
                             placeholder="n/a"
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -215,7 +208,7 @@ const FormInput = ({ name, email, title, overview }) => {
                         <Form.Label>Aims and Objectives</Form.Label>
                         <Form.Control
                             type="text"
-                            name="applicationType"
+                            name="aims"
                             placeholder="n/a"
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -226,7 +219,7 @@ const FormInput = ({ name, email, title, overview }) => {
                         <Form.Label>Research Design and Methods</Form.Label>
                         <Form.Control
                             type="text"
-                            name="applicationType"
+                            name="researchDesign"
                             placeholder="n/a"
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -237,7 +230,7 @@ const FormInput = ({ name, email, title, overview }) => {
                         <Form.Label>Indentification and Recruitment of Participants</Form.Label>
                         <Form.Control
                             type="text"
-                            name="applicationType"
+                            name="participantIdentification"
                             placeholder="n/a"
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -248,7 +241,7 @@ const FormInput = ({ name, email, title, overview }) => {
                         <Form.Label>Informed Consent</Form.Label>
                         <Form.Control
                             type="text"
-                            name="applicationType"
+                            name="consent"
                             placeholder="n/a"
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -259,7 +252,7 @@ const FormInput = ({ name, email, title, overview }) => {
                         <Form.Label>Data Management: Lawful Processing of Data</Form.Label>
                         <Form.Control
                             type="text"
-                            name="applicationType"
+                            name="dataManagement1"
                             placeholder="n/a"
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -270,7 +263,7 @@ const FormInput = ({ name, email, title, overview }) => {
                         <Form.Label>Data Management: Planning</Form.Label>
                         <Form.Control
                             type="text"
-                            name="applicationType"
+                            name="dataManagement2"
                             placeholder="n/a"
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -281,7 +274,7 @@ const FormInput = ({ name, email, title, overview }) => {
                         <Form.Label>Other permissions</Form.Label>
                         <Form.Control
                             type="text"
-                            name="applicationType"
+                            name="otherPerms"
                             placeholder="n/a"
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -292,7 +285,7 @@ const FormInput = ({ name, email, title, overview }) => {
                         <Form.Label>Risks of Harm to Researchers and Participants</Form.Label>
                         <Form.Control
                             type="text"
-                            name="applicationType"
+                            name="risks"
                             placeholder="n/a"
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -303,7 +296,7 @@ const FormInput = ({ name, email, title, overview }) => {
                         <Form.Label>Other Ethical Considerations</Form.Label>
                         <Form.Control
                             type="text"
-                            name="applicationType"
+                            name="otherConsiderations"
                             placeholder="n/a"
                             onChange={handleChange}
                             onBlur={handleBlur}
@@ -314,7 +307,7 @@ const FormInput = ({ name, email, title, overview }) => {
                         <Form.Label>Documentation</Form.Label>
                         <Form.Control
                             type="text"
-                            name="applicationType"
+                            name="documentation"
                             placeholder="n/a"
                             onChange={handleChange}
                             onBlur={handleBlur}
